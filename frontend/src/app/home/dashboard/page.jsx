@@ -1,9 +1,13 @@
-"use client";
+'use client'
 
+import React, { useState, useEffect } from "react";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from "recharts";
 import { LineChart, Line } from "recharts";
 import { PieChart, Pie, Cell } from "recharts";
+import { LayoutDashboard, School, UserPlus, LogOut, Users, FileText, ArrowLeftRightIcon, Clipboard } from "lucide-react";
+import Link from "next/link";
 
+// Sample data for visualization
 const schoolData = [
   { name: "School A", students: 400 },
   { name: "School B", students: 300 },
@@ -28,16 +32,26 @@ const staffData = [
 const COLORS = ["#0088FE", "#00C49F", "#FFBB28", "#FF8042"];
 
 export default function DashboardPage() {
+  const [recentActivities, setRecentActivities] = useState([]);
+  
+  // Sample recent activities (In real-world, you may fetch this from an API)
+  useEffect(() => {
+    setRecentActivities([
+      { action: "Logged in", time: "2022-09-12 10:20 AM" },
+      { action: "Updated School Info", time: "2022-09-11 05:10 PM" },
+      { action: "Added New Employee", time: "2022-09-10 11:30 AM" },
+    ]);
+  }, []);
+
   return (
     <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-      {/* Total Schools */}
+      {/* Overview Statistics */}
       <div className="bg-white shadow-sm rounded-lg p-4">
         <h3 className="text-xl font-semibold">Total Schools</h3>
         <p className="text-lg">Number of schools in the district</p>
         <div className="text-4xl font-bold mt-4">{schoolData.length}</div>
       </div>
 
-      {/* Total Employees */}
       <div className="bg-white shadow-sm rounded-lg p-4">
         <h3 className="text-xl font-semibold">Total Employees</h3>
         <p className="text-lg">Teaching & Non-Teaching staff</p>
@@ -46,7 +60,6 @@ export default function DashboardPage() {
         </div>
       </div>
 
-      {/* Total Students */}
       <div className="bg-white shadow-sm rounded-lg p-4">
         <h3 className="text-xl font-semibold">Total Students</h3>
         <p className="text-lg">Current enrollment</p>
@@ -55,7 +68,7 @@ export default function DashboardPage() {
         </div>
       </div>
 
-      {/* School Enrollment Bar Chart */}
+      {/* Visual Data */}
       <div className="col-span-2 bg-white shadow-sm rounded-lg p-4">
         <h3 className="text-xl font-semibold">School Enrollment</h3>
         <ResponsiveContainer width="100%" height={300}>
@@ -70,7 +83,6 @@ export default function DashboardPage() {
         </ResponsiveContainer>
       </div>
 
-      {/* Staff Distribution Pie Chart */}
       <div className="bg-white shadow-sm rounded-lg p-4">
         <h3 className="text-xl font-semibold">Staff Distribution</h3>
         <ResponsiveContainer width="100%" height={300}>
@@ -94,7 +106,6 @@ export default function DashboardPage() {
         </ResponsiveContainer>
       </div>
 
-      {/* Enrollment Trends Line Chart */}
       <div className="col-span-3 bg-white shadow-sm rounded-lg p-4">
         <h3 className="text-xl font-semibold">Enrollment Trends</h3>
         <ResponsiveContainer width="100%" height={300}>
@@ -107,6 +118,36 @@ export default function DashboardPage() {
             <Line type="monotone" dataKey="students" stroke="#8884d8" />
           </LineChart>
         </ResponsiveContainer>
+      </div>
+
+      {/* Recent Activities */}
+      <div className="col-span-3 bg-white shadow-sm rounded-lg p-4">
+        <h3 className="text-xl font-semibold">Recent Activities</h3>
+        <div className="space-y-2 mt-4">
+          {recentActivities.map((activity, index) => (
+            <div key={index} className="flex justify-between text-sm text-gray-600">
+              <span>{activity.action}</span>
+              <span>{activity.time}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Quick Actions */}
+      <div className="col-span-3 bg-white shadow-sm rounded-lg p-4">
+        <h3 className="text-xl font-semibold">Quick Actions</h3>
+        <div className="space-y-4 mt-4">
+          <Link href="/home/add-employee">
+            <button className="w-full py-2 px-4 border border-transparent rounded-md shadow-sm bg-[#377DFF] text-white hover:bg-[#2d6ca3]">
+              Add New Employee
+            </button>
+          </Link>
+          <Link href="/home/update-school-info">
+            <button className="w-full py-2 px-4 border border-transparent rounded-md shadow-sm bg-[#377DFF] text-white hover:bg-[#2d6ca3]">
+              Update School Info
+            </button>
+          </Link>
+        </div>
       </div>
     </div>
   );

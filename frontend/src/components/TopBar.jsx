@@ -41,7 +41,7 @@ export function TopBar() {
             <div className="relative ">
               <button
                 onClick={toggleDropdown}
-                className="relative p-1 rounded-full group bg-gray-400 hover:bg-[#377DFF] transition  border flex items-center justify-center"
+                className="relative p-[6px] rounded-full group bg-gray-400 hover:bg-[#377DFF] transition  border flex items-center justify-center"
               >
                 <User2 className="w-5 h-5 text-white group-hover:text-white transition"/>
                 
@@ -53,7 +53,7 @@ export function TopBar() {
                 className={`absolute right-0 w-56 mt-2 bg-white border shadow-lg rounded-md ${
                   dropdownVisible
                     ? "transform translate-y-0 opacity-100"
-                    : "transform translate-y-4 opacity-0"
+                    : "transform translate-y-4 opacity-0 hidden"
                 } transition-all duration-300 ease-out`}
               >
                 <div className="p-4">

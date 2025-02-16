@@ -15,18 +15,18 @@ export default function LoginPage() {
     // Implement login logic here
     console.log("Login attempt", { userType, userId, password });
     // For now, just redirect to dashboard
-    router.push("/dashboard");
+    router.push("/home/dashboard");
   };
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-gray-100">
-      <div className="bg-white p-8 rounded-lg shadow-lg w-80">
-        <h2 className="text-2xl font-semibold mb-4">Login</h2>
-        <p className="text-gray-500 mb-6">Enter your credentials to access your account</p>
+      <div className="bg-white p-8 rounded-lg shadow-lg w-[26rem]">
+        <h2 className="text-xl font-semibold mb-4">Login</h2>
+        <p className="text-gray-500 mb-6 text-sm">Enter your credentials to access your account</p>
         <form onSubmit={handleLogin}>
-          <div className="space-y-4">
+          <div className="space-y-4 text-sm">
             {/* User Type Dropdown */}
-            <div>
+            <div className="text-sm">
               <label htmlFor="userType" className="block text-sm font-medium text-gray-700">User Type</label>
               <select
                 id="userType"
@@ -34,10 +34,9 @@ export default function LoginPage() {
                 onChange={(e) => setUserType(e.target.value)}
                 className="w-full border-gray-300 border rounded-md p-2 mt-1"
               >
-                <option value="">Select user type</option>
                 <option value="admin">Admin</option>
                 <option value="localAdmin">Local Admin</option>
-                <option value="normalUser">Normal User</option>
+                <option value="normalUser">User</option>
               </select>
             </div>
 

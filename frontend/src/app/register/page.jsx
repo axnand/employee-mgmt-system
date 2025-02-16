@@ -9,6 +9,7 @@ export default function RegisterPage() {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [phoneNumber, setPhoneNumber] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const router = useRouter();
 
@@ -22,7 +23,7 @@ export default function RegisterPage() {
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-gray-100">
-      <div className="bg-white p-8 rounded-lg shadow-lg w-80">
+      <div className="bg-white p-8 rounded-lg shadow-lg w-[26rem] text-sm">
         <h2 className="text-2xl font-semibold mb-4">Register</h2>
         <p className="text-gray-500 mb-6">Create a new account</p>
         <form onSubmit={handleRegister}>
@@ -36,7 +37,6 @@ export default function RegisterPage() {
                 onChange={(e) => setUserType(e.target.value)}
                 className="w-full border-gray-300 border rounded-md p-2 mt-1"
               >
-                <option value="">Select user type</option>
                 <option value="admin">Admin</option>
                 <option value="localAdmin">Local Admin</option>
                 <option value="normalUser">Normal User</option>
@@ -52,6 +52,7 @@ export default function RegisterPage() {
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 className="w-full border-gray-300 border rounded-md p-2 mt-1"
+                placeholder="Enter your full name"
               />
             </div>
 
@@ -64,6 +65,18 @@ export default function RegisterPage() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 className="w-full border-gray-300 border rounded-md p-2 mt-1"
+                placeholder="Enter your email"
+              />
+            </div>
+            <div>
+              <label htmlFor="phone" className="block text-sm font-medium text-gray-700">Phone Number</label>
+              <input
+                id="phone"
+                type="tel"  // 'tel' type is best for phone numbers
+                value={phoneNumber}  // Use a state variable to bind the value
+                onChange={(e) => setPhoneNumber(e.target.value)}  // Update state on change
+                className="w-full border-gray-300 border rounded-md p-2 mt-1"
+                placeholder="Enter your phone number"  // Optional placeholder text
               />
             </div>
 
