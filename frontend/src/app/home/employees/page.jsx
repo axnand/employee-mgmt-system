@@ -113,12 +113,23 @@ export default function EmployeesPage() {
         ))}
       </div>
 
-      {/* Normal Modal */}
+      {/* Modal Component */}
       {modalType && (
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
-          <div className="bg-white p-6 rounded-lg shadow-lg w-1/3">
+          <div className="bg-white p-6 rounded-lg shadow-lg w-1/3 relative">
             {/* Close Button */}
             <button className="absolute top-3 right-3 text-xl" onClick={closeModal}>✖</button>
+
+            {/* View Employee Modal */}
+            {modalType === "view" && selectedEmployee && (
+              <div>
+                <h2 className="text-2xl font-bold mb-4">👀 Employee Details</h2>
+                <p><strong>Name:</strong> {selectedEmployee.name}</p>
+                <p><strong>Designation:</strong> {selectedEmployee.designation}</p>
+                <p><strong>Office:</strong> {selectedEmployee.office}</p>
+                <p><strong>Status:</strong> <span className={selectedEmployee.status === "Active" ? "text-green-600" : "text-red-600"}>{selectedEmployee.status}</span></p>
+              </div>
+            )}
 
             {/* Add Employee Modal */}
             {modalType === "add" && (
