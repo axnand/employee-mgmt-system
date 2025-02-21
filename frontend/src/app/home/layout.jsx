@@ -87,11 +87,7 @@ export default function DashboardLayout({ children }) {
         href: "/home/dashboard",
         icon: <LayoutDashboard className="mr-2 h-5 w-5" />,
       },
-      {
-        title: "Attendance",
-        href: "/home/attendance",
-        icon: <BookA className="mr-2 h-5 w-5" />,
-      },
+
     ],
   };
 

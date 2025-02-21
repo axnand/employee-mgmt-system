@@ -1,7 +1,7 @@
 "use client";
 import { useParams, useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
-import { ChevronLeft } from "lucide-react";
+import { ChevronLeft, User } from "lucide-react";
 import districtData from "@/data/data.json";
 
 export default function EmployeeDetailPage() {
@@ -113,9 +113,12 @@ export default function EmployeeDetailPage() {
         {/* Page Header: Employee Name + Action Buttons */}
         <div className="bg-white shadow-sm border-l-4 border-primary rounded-lg p-6 mb-6">
           <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <User className="w-10 h-10 text-primary" />
             <h1 className="text-2xl font-bold text-gray-800">
               {employee.emp_name}
             </h1>
+            </div>
             <div className="flex gap-4">
               {!isEditMode && !isTransferMode && (
                 <>
