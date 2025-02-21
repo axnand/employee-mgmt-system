@@ -2,6 +2,7 @@ import { Plus_Jakarta_Sans } from "next/font/google"; // Import Plus Jakarta San
 import "./globals.css";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { UserProvider } from "@/context/UserContext";
 
 // Using the Plus Jakarta Sans font from Google Fonts
 const plusJakartaSans = Plus_Jakarta_Sans({ subsets: ["latin"] });  // Metropolis Sans Saf
@@ -15,7 +16,7 @@ export default function RootLayout({ children }) {
   return (
     <html lang="en">
       <body className={plusJakartaSans.className}> {/* Apply the font to the body */}
-        {children}
+      <UserProvider>{children}</UserProvider>
         <ToastContainer />
       </body>
     </html>

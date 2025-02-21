@@ -12,28 +12,24 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { TopBar } from "@/components/TopBar";
+import { useUser } from "@/context/UserContext";
 
 export default function DashboardLayout({ children }) {
   const pathname = usePathname();
   const router = useRouter();
   const [activeTab, setActiveTab] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const [userRole, setUserRole] = useState("normalUser"); // default role
 
   // Retrieve the logged-in user from localStorage on mount
-  useEffect(() => {
-    const storedUser = localStorage.getItem("user");
-    if (storedUser) {
-      const user = JSON.parse(storedUser);
-      setUserRole(user.role || "normalUser");
-    }
-  }, []);
+  
+  const { user, userRole } = useUser();
+  console.log("User role:", userRole);
 
   // Define navigation items for each role
   const navItemsByRole = {
     mainAdmin: [
       {
-        title: "Dashboard-Admin",
+        title: "Dashboard",
         href: "/home/dashboard",
         icon: <LayoutDashboard className="mr-2 h-5 w-5" />,
       },
@@ -55,7 +51,7 @@ export default function DashboardLayout({ children }) {
     ],
     localAdmin: [
       {
-        title: "Dashboard-local",
+        title: "Dashboard",
         href: "/home/dashboard",
         icon: <LayoutDashboard className="mr-2 h-5 w-5" />,
       },
@@ -122,6 +118,7 @@ export default function DashboardLayout({ children }) {
   // Logout function clears user data and redirects to login
   const handleLogout = () => {
     localStorage.removeItem("user");
+    localStorage.removeItem("userRole");
     router.push("/login");
   };
 

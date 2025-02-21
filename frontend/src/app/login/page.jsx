@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { useUser } from "@/context/UserContext"; // Import your context
 
 // Define three default users with roles and credentials
 const defaultUsers = [
@@ -16,6 +17,9 @@ export default function LoginPage() {
   const [userId, setUserId] = useState("");
   const [password, setPassword] = useState("");
   const router = useRouter();
+  
+  // Get setters from your context
+  const { setUser, setUserRole } = useUser();
 
   const handleLogin = (e) => {
     e.preventDefault();
@@ -31,6 +35,11 @@ export default function LoginPage() {
     if (user) {
       // Store user details (including role) in localStorage
       localStorage.setItem("user", JSON.stringify(user));
+      
+      // Update the context with the new user
+      setUser(user);
+      setUserRole(user.role);
+
       console.log("Login successful", user);
       router.push("/home/dashboard");
     } else {
@@ -49,7 +58,10 @@ export default function LoginPage() {
           <div className="space-y-4 text-sm">
             {/* User Type Dropdown */}
             <div className="text-sm">
-              <label htmlFor="userType" className="block text-sm font-medium text-gray-700">
+              <label
+                htmlFor="userType"
+                className="block text-sm font-medium text-gray-700"
+              >
                 User Type
               </label>
               <select
@@ -66,7 +78,10 @@ export default function LoginPage() {
 
             {/* User ID Input */}
             <div>
-              <label htmlFor="userId" className="block text-sm font-medium text-gray-700">
+              <label
+                htmlFor="userId"
+                className="block text-sm font-medium text-gray-700"
+              >
                 User ID
               </label>
               <input
@@ -80,7 +95,10 @@ export default function LoginPage() {
 
             {/* Password Input */}
             <div>
-              <label htmlFor="password" className="block text-sm font-medium text-gray-700">
+              <label
+                htmlFor="password"
+                className="block text-sm font-medium text-gray-700"
+              >
                 Password
               </label>
               <input
@@ -95,7 +113,6 @@ export default function LoginPage() {
 
           <button
             type="submit"
-            onClick={handleLogin}
             className="w-full mt-6 py-2 bg-blue-600 text-white font-semibold rounded-md hover:bg-blue-700"
           >
             Login
