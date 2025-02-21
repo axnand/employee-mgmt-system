@@ -51,7 +51,7 @@ export default function SchoolStatusPage() {
       <div className="max-w-7xl mx-auto px-4">
         {/* Page Header */}
         <header className="mb-8">
-          <h1 className="text-3xl font-bold text-secondary flex items-center gap-2">
+          <h1 className="text-2xl font-bold text-secondary flex items-center gap-2">
             <School className="w-8 h-8 text-primary" /> School Status Dashboard
           </h1>
           <p className="mt-2 font-medium text-gray-600">

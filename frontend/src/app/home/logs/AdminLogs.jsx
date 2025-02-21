@@ -86,7 +86,7 @@ export default function AdminLogs() {
       <div className="max-w-7xl mx-auto ">
         {/* Page Header */}
         <header className="mb-8">
-          <h1 className="text-3xl font-bold text-secondary flex items-center gap-2">
+          <h1 className="text-2xl font-bold text-secondary flex items-center gap-2">
             <FileText className="w-8 h-8 text-primary" />
             System Logs & Activity Tracking
           </h1>

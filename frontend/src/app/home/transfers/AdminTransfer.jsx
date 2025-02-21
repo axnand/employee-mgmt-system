@@ -84,7 +84,7 @@ export default function TransfersPage() {
 
       {/* Page Header */}
       <header className="mb-8 max-w-7xl mx-auto px-4">
-        <h1 className="text-3xl font-bold text-secondary flex items-center gap-2">
+        <h1 className="text-2xl font-bold text-secondary flex items-center gap-2">
           <ArrowLeftRightIcon className="w-8 h-8 text-primary" />
           Employee Transfers
         </h1>

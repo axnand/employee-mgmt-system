@@ -92,7 +92,7 @@ export default function AttendancePage() {
     <div className=" min-h-screen">
       <ToastContainer position="top-right" autoClose={3000} hideProgressBar={false} closeOnClick pauseOnHover draggable />
       <div className="max-w-7xl mx-auto">
-        <h1 className="text-3xl font-bold text-secondary flex items-center gap-2 mb-6"><BookA className="w-8 h-8 text-primary" />Attendance Dashboard</h1>
+        <h1 className="text-2xl font-bold text-secondary flex items-center gap-2 mb-6"><BookA className="w-8 h-8 text-primary" />Attendance Dashboard</h1>
 
 
         {/* Dashboard Metrics */}
