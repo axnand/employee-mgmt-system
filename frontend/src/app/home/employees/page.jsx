@@ -6,9 +6,9 @@ import "react-toastify/dist/ReactToastify.css";
 
 // Mock Employees Data
 const mockEmployees = [
-  { id: 1, name: "John Doe", designation: "Software Engineer", office: "New York", status: "Active" },
-  { id: 2, name: "Jane Smith", designation: "Product Manager", office: "San Francisco", status: "Active" },
-  { id: 3, name: "Alice Brown", designation: "HR Specialist", office: "London", status: "Inactive" },
+  { id: 1, name: "Riaz Ahmed", designation: "Teacher", office: "High School Sooli", status: "Active" },
+  { id: 2, name: "Saqib Ahmed", designation: "Junior Assistant", office: "High School Dugroon", status: "Active" },
+  { id: 3, name: "Rafaqat Rasool", designation: "Vocational Trainer", office: "High School Nichlathara", status: "Inactive" },
 ];
 
 export default function EmployeesPage() {

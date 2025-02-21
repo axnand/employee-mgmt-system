@@ -8,9 +8,9 @@ import { useOutsideClick } from "@/hooks/useOutsideClick";
 
 // Dummy Data for Schools
 const schools = [
-  { id: 1, name: "School A", address: "123 Main St", principal: "Mr. Smith", contact: "123-456-7890" },
-  { id: 2, name: "School B", address: "456 Elm St", principal: "Mrs. Johnson", contact: "987-654-3210" },
-  { id: 3, name: "School C", address: "789 Oak St", principal: "Mr. Davis", contact: "555-123-4567" },
+  { id: 1, name: "High School Sooli", address: "123 Main St", principal: "Mr. Smith", contact: "123-456-7890" },
+  { id: 2, name: "High School Nichlathara", address: "456 Elm St", principal: "Mrs. Johnson", contact: "987-654-3210" },
+  { id: 3, name: "High School Dugroon", address: "789 Oak St", principal: "Mr. Davis", contact: "555-123-4567" },
 ];
 
 // Dummy Staff Data
