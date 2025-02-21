@@ -1,5 +1,5 @@
 'use client'
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import {
   LayoutDashboard,
@@ -24,6 +24,11 @@ export default function DashboardLayout({ children }) {
   
   const { user, userRole } = useUser();
   console.log("User role:", userRole);
+  console.log("User:", user);
+
+  const schoolId = useMemo(() => {
+    return userRole === "localAdmin" && user?.schoolId ? parseInt(user.schoolId, 10) : null;
+  }, [userRole, user]);
 
   // Define navigation items for each role
   const navItemsByRole = {
@@ -57,7 +62,7 @@ export default function DashboardLayout({ children }) {
       },
       {
         title: "Employees",
-        href: "/home/employees",
+        href: `/home/school-status/${schoolId}`,
         icon: <Users className="mr-2 h-5 w-5" />,
       },
       {

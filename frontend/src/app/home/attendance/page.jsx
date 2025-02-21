@@ -1,8 +1,8 @@
 "use client";
-
 import { useState } from "react";
-import { BarChart, Bar, LineChart, Line, PieChart, Pie, Tooltip, Legend, XAxis, YAxis, ResponsiveContainer } from "recharts";
+import { Users, Search, Check, X, AlertTriangle, Briefcase, BookA, UserRoundPenIcon } from "lucide-react";
 import { ToastContainer, toast } from "react-toastify";
+import { User, UserCheck, UserX, UserMinus } from "lucide-react";
 import "react-toastify/dist/ReactToastify.css";
 
 // Mock Employee Data
@@ -10,159 +10,307 @@ const mockEmployees = [
   { id: 1, name: "John Doe", designation: "Teacher", school: "School A", status: "Present" },
   { id: 2, name: "Jane Smith", designation: "Non-Teaching Staff", school: "School B", status: "Absent" },
   { id: 3, name: "Alice Brown", designation: "Teacher", school: "School C", status: "Leave" },
-  { id: 4, name: "Michael Johnson", designation: "Non-Teaching Staff", school: "School A", status: "Remote Work" },
+  { id: 4, name: "Michael Johnson", designation: "Non-Teaching Staff", school: "School A", status: "On Duty" },
 ];
 
-// Sample Attendance Data for Charts
-const attendanceData = [
-  { day: "Mon", Teachers: 80, NonTeachers: 20 },
-  { day: "Tue", Teachers: 75, NonTeachers: 25 },
-  { day: "Wed", Teachers: 85, NonTeachers: 15 },
-  { day: "Thu", Teachers: 90, NonTeachers: 10 },
-  { day: "Fri", Teachers: 95, NonTeachers: 5 },
-];
+const attendanceOptions = ["Present", "Absent", "Leave", "On Duty"];
 
 export default function AttendancePage() {
   const [employees, setEmployees] = useState(mockEmployees);
   const [searchTerm, setSearchTerm] = useState("");
+  const [filterStatus, setFilterStatus] = useState("");
+  const [bulkStatus, setBulkStatus] = useState("");
+  const [selectedEmployees, setSelectedEmployees] = useState([]);
 
-  // Update Attendance Status
-  // ✅ Updated Attendance Update Function (Fix Double Toast Issue)
+  // Update attendance for individual employee
   const updateAttendance = (id, status) => {
     setEmployees((prev) =>
       prev.map((emp) => (emp.id === id ? { ...emp, status } : emp))
     );
-  
-    if (toast.isActive(`attendance-toast-${id}`)) {
-      toast.dismiss(`attendance-toast-${id}`); // ✅ Dismiss only if toast exists
-    }
-  
-    toast.success(`Attendance marked as ${status}`, {
+    toast.success(`Attendance marked as ${status} for employee ${id}`, {
       autoClose: 3000,
-      closeOnClick: true,
-      toastId: `attendance-toast-${id}`, // ✅ Unique ID per employee
+      toastId: `attendance-toast-${id}`,
     });
   };
-  
-  const markAllAttendance = (status) => {
-    setEmployees((prev) => prev.map((emp) => ({ ...emp, status })));
-  
-    if (toast.isActive("bulk-attendance-toast")) {
-      toast.dismiss("bulk-attendance-toast"); // ✅ Dismiss only if exists
-    }
-  
-    toast.success(`All employees marked as ${status}`, {
-      autoClose: 3000,
-      closeOnClick: true,
-      toastId: "bulk-attendance-toast", // ✅ Unique ID for bulk action
-    });
-  };
-  
-  
 
-  // Search Filter
-  const filteredEmployees = employees.filter(
-    (emp) =>
+  // Handle bulk update
+  const applyBulkUpdate = () => {
+    if (!bulkStatus) {
+      toast.error("Please select an attendance status for bulk update.", { autoClose: 3000 });
+      return;
+    }
+    if (selectedEmployees.length === 0) {
+      toast.error("No employees selected for bulk update.", { autoClose: 3000 });
+      return;
+    }
+    setEmployees((prev) =>
+      prev.map((emp) =>
+        selectedEmployees.includes(emp.id) ? { ...emp, status: bulkStatus } : emp
+      )
+    );
+    toast.success(`Bulk update: Marked selected employees as ${bulkStatus}`, {
+      autoClose: 3000,
+      toastId: "bulk-attendance-toast",
+    });
+    setSelectedEmployees([]);
+  };
+
+  // Toggle employee selection for bulk action
+  const toggleSelectEmployee = (id) => {
+    setSelectedEmployees((prev) =>
+      prev.includes(id) ? prev.filter(e => e !== id) : [...prev, id]
+    );
+  };
+
+  // Filter employees based on search term and attendance status filter
+  const filteredEmployees = employees.filter(emp => {
+    const matchesSearch =
       emp.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       emp.designation.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      emp.school.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+      emp.school.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesStatus = filterStatus === "" || emp.status === filterStatus;
+    return matchesSearch && matchesStatus;
+  });
+
+  // Map attendance status to a Lucide icon
+  const statusIcon = (status) => {
+    switch (status) {
+      case "Present":
+        return <Check className="w-5 h-5 text-green-500" />;
+      case "Absent":
+        return <X className="w-5 h-5 text-red-500" />;
+      case "Leave":
+        return <AlertTriangle className="w-5 h-5 text-yellow-500" />;
+      case "On Duty":
+        return <Briefcase className="w-5 h-5 text-blue-500" />;
+      default:
+        return null;
+    }
+  };
 
   return (
-    <div className="bg-gray-100 p-6 min-h-screen">
+    <div className=" min-h-screen">
       <ToastContainer position="top-right" autoClose={3000} hideProgressBar={false} closeOnClick pauseOnHover draggable />
-      <h1 className="text-3xl font-bold mb-4">📊 Attendance Dashboard</h1>
+      <div className="max-w-7xl mx-auto">
+        <h1 className="text-3xl font-bold text-secondary flex items-center gap-2 mb-6"><BookA className="w-8 h-8 text-primary" />Attendance Dashboard</h1>
 
-      {/* Dashboard Metrics */}
-      <div className="grid grid-cols-4 gap-4 mb-6">
-        <div className="bg-white shadow-lg p-4 rounded-md">
-          <h3 className="text-lg font-semibold">Total Employees</h3>
-          <p className="text-2xl">100</p>
-        </div>
-        <div className="bg-green-500 text-white shadow-lg p-4 rounded-md">
-          <h3 className="text-lg font-semibold">Present Today</h3>
-          <p className="text-2xl">80</p>
-        </div>
-        <div className="bg-red-500 text-white shadow-lg p-4 rounded-md">
-          <h3 className="text-lg font-semibold">Absent Today</h3>
-          <p className="text-2xl">20</p>
-        </div>
-        <div className="bg-yellow-500 text-white shadow-lg p-4 rounded-md">
-          <h3 className="text-lg font-semibold">On Leave</h3>
-          <p className="text-2xl">10</p>
-        </div>
-      </div>
 
-      {/* Attendance Chart Section */}
-      <h2 className="text-2xl font-semibold">📈 Attendance Trends</h2>
-      <div className="grid grid-cols-2 gap-4 my-4">
-        {/* Bar Chart */}
-        <ResponsiveContainer width="100%" height={300}>
-          <BarChart data={attendanceData}>
-            <XAxis dataKey="day" />
-            <YAxis />
-            <Tooltip />
-            <Legend />
-            <Bar dataKey="Teachers" fill="#4CAF50" />
-            <Bar dataKey="NonTeachers" fill="#2196F3" />
-          </BarChart>
-        </ResponsiveContainer>
+        {/* Dashboard Metrics */}
+        
 
-        {/* Pie Chart */}
-        <ResponsiveContainer width="100%" height={300}>
-          <PieChart>
-            <Pie data={attendanceData} dataKey="Teachers" nameKey="day" fill="#4CAF50" label />
-            <Pie data={attendanceData} dataKey="NonTeachers" nameKey="day" fill="#2196F3" label />
-            <Tooltip />
-          </PieChart>
-        </ResponsiveContainer>
-      </div>
-
-      {/* Attendance Table */}
-      <h2 className="text-2xl font-semibold my-4">📋 Employee Attendance</h2>
-      <div className="flex justify-between mb-4">
-        <input
-          className="border p-2 rounded-md w-2/3"
-          placeholder="🔍 Search employees..."
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-        />
-        <button className="bg-blue-500 text-white px-4 py-2 rounded" onClick={() => markAllAttendance("Present")}>
-          ✅ Mark All Present
-        </button>
-      </div>
-
-      <table className="w-full bg-white shadow-md rounded-lg overflow-hidden">
-        <thead className="bg-gray-200">
-          <tr>
-            <th className="p-3 text-left">Employee</th>
-            <th className="p-3 text-left">Designation</th>
-            <th className="p-3 text-left">School</th>
-            <th className="p-3 text-left">Status</th>
-            <th className="p-3 text-left">Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          {filteredEmployees.map((emp) => (
-            <tr key={emp.id} className="border-b">
-              <td className="p-3">{emp.name}</td>
-              <td className="p-3">{emp.designation}</td>
-              <td className="p-3">{emp.school}</td>
-              <td className={`p-3 font-semibold ${emp.status === "Present" ? "text-green-500" : "text-red-500"}`}>
-                {emp.status}
-              </td>
-              <td className="p-3">
-                <button className="bg-green-500 text-white px-2 py-1 rounded mr-2" onClick={() => updateAttendance(emp.id, "Present")}>
-                  ✅ Present
-                </button>
-                <button className="bg-red-500 text-white px-2 py-1 rounded" onClick={() => updateAttendance(emp.id, "Absent")}>
-                  ❌ Absent
-                </button>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+<div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+  {/* Total Employees */}
+  <div className="bg-white shadow-sm rounded-lg p-4 flex flex-col border-l-2 border-primary">
+    <div className="flex items-center space-x-2">
+      <Users className="h-5 w-5 text-purple-700" />
+      <h3 className="text-[15px] font-semibold">Total Employees</h3>
     </div>
+    <p className="text-[13px] pt-1 text-gray-600">Teaching & Non-Teaching staff</p>
+    <div className="text-2xl font-bold">{employees.length}</div>
+  </div>
+
+  {/* Present Today */}
+  <div className="bg-white shadow-sm rounded-lg p-4 flex flex-col border-l-2 border-primary">
+    <div className="flex items-center space-x-2">
+      <UserCheck className="h-5 w-5 text-green-500" />
+      <h3 className="text-[15px] font-semibold">Present Today</h3>
+    </div>
+    <p className="text-[13px] pt-1 text-gray-600">Employees currently present</p>
+    <div className="text-2xl font-bold">{employees.filter(emp => emp.status === "Present").length}</div>
+  </div>
+
+  {/* Absent Today */}
+  <div className="bg-white shadow-sm rounded-lg p-4 flex flex-col border-l-2 border-primary">
+    <div className="flex items-center space-x-2">
+      <UserX className="h-5 w-5 text-red-500" />
+      <h3 className="text-[15px] font-semibold">Absent Today</h3>
+    </div>
+    <p className="text-[13px] pt-1 text-gray-600">Employees who are absent</p>
+    <div className="text-2xl font-bold">{employees.filter(emp => emp.status === "Absent").length}</div>
+  </div>
+
+  {/* On Leave */}
+  <div className="bg-white shadow-sm rounded-lg p-4 flex flex-col border-l-2 border-primary">
+    <div className="flex items-center space-x-2">
+      <UserMinus className="h-5 w-5 text-yellow-500" />
+      <h3 className="text-[15px] font-semibold">On Leave</h3>
+    </div>
+    <p className="text-[13px] pt-1 text-gray-600">Employees on leave today</p>
+    <div className="text-2xl font-bold">{employees.filter(emp => emp.status === "Leave").length}</div>
+  </div>
+
+  <div className="bg-white shadow-sm rounded-lg p-4 flex flex-col border-l-2 border-primary">
+    <div className="flex items-center space-x-2">
+      <UserRoundPenIcon className="h-5 w-5 text-blue-500" />
+      <h3 className="text-[15px] font-semibold">On Duty</h3>
+    </div>
+    <p className="text-[13px] pt-1 text-gray-600">Employees who are on office duty</p>
+    <div className="text-2xl font-bold">{employees.filter(emp => emp.status === "On Duty").length}</div>
+  </div>
+</div>
+
+
+        {/* Bulk Update Section */}
+        
+
+        {/* Filters */}
+        <div className="bg-white p-6 rounded-lg shadow-sm mb-6 border-l-[2px] border-primary">
+          <h2 className="text-xl font-semibold text-gray-800 mb-4">Filter Employees</h2>
+          <div className="flex flex-col sm:flex-row sm:space-x-4">
+            <div className="flex-1 mb-4 sm:mb-0">
+              <label htmlFor="search" className="block text-sm font-medium text-gray-700 mb-1">
+                Search
+              </label>
+              <div className="relative">
+                <Search className="absolute left-3 top-2.5 w-5 h-5 text-gray-400" />
+                <input
+                  id="search"
+                  type="text"
+                  placeholder="Search by name, designation or school"
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="w-full pl-10 border-gray-300 rounded-md py-2 border px-3 text-sm"
+                />
+              </div>
+            </div>
+            <div className="flex-1">
+              <label htmlFor="filterStatus" className="block text-sm font-medium text-gray-700 mb-1">
+                Filter by Status
+              </label>
+              <select
+                id="filterStatus"
+                value={filterStatus}
+                onChange={(e) => setFilterStatus(e.target.value)}
+                className="w-full border-gray-300 rounded-md py-2 border px-3 text-sm"
+              >
+                <option value="">All</option>
+                {attendanceOptions.map((status, idx) => (
+                  <option key={idx} value={status}>{status}</option>
+                ))}
+              </select>
+            </div>
+          </div>
+        </div>
+        
+
+        {/* Attendance Table */}
+        <div className="bg-white p-6 rounded-lg shadow-sm">
+          <h2 className="text-2xl font-semibold text-gray-800 mb-4 flex items-center gap-2">
+            <Users className="w-6 h-6 text-primary" /> Employee Attendance
+          </h2>
+          <div className="w-full flex items-center  justify-end">
+        <div className=" flex items-center mb-6 gap-2">
+          
+          <div className="flex flex-col sm:flex-row sm:items-end sm:space-x-4">
+              <select
+                id="bulkStatus"
+                value={bulkStatus}
+                onChange={(e) => setBulkStatus(e.target.value)}
+                className="block w-full border-gray-300 rounded-md border py-2 px-2 text-sm"
+              >
+                <option value="">-- Select Attendance Status --</option>
+                {attendanceOptions.map((status, idx) => (
+                  <option key={idx} value={status}>{status}</option>
+                ))}
+              </select>
+            </div>
+            <div>
+              <button
+                className="bg-primary hover:bg-blue-600 transition text-sm font-semibold text-white px-4 py-2 rounded-md"
+                onClick={applyBulkUpdate}
+              >
+                Apply
+              </button>
+            </div>
+          </div>
+          
+        </div>
+        <div className="overflow-x-auto">
+            <table className="min-w-full divide-y divide-gray-200">
+              <thead className="bg-gray-50">
+                <tr>
+                  <th className="px-4 py-2">
+                    <input
+                      type="checkbox"
+                      checked={
+                        selectedEmployees.length === filteredEmployees.length &&
+                        filteredEmployees.length > 0
+                      }
+                      onChange={(e) => {
+                        if (e.target.checked) {
+                          setSelectedEmployees(filteredEmployees.map(emp => emp.id));
+                        } else {
+                          setSelectedEmployees([]);
+                        }
+                      }}
+                      className="h-4 w-4"
+                    />
+                  </th>
+                  <th className="px-4 py-2 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                    Name
+                  </th>
+                  <th className="px-4 py-2 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                    Designation
+                  </th>
+                  <th className="px-4 py-2 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                    School
+                  </th>
+                  <th className="px-4 py-2 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                    Status
+                  </th>
+                  <th className="px-4 py-2 text-center text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                    Actions
+                  </th>
+                </tr>
+              </thead>
+              <tbody className="bg-white divide-y divide-gray-200">
+                {filteredEmployees.map(emp => (
+                  <tr key={emp.id}>
+                    <td className="px-4 py-2">
+                      <input
+                        type="checkbox"
+                        checked={selectedEmployees.includes(emp.id)}
+                        onChange={() => toggleSelectEmployee(emp.id)}
+                        className="h-4 w-4"
+                      />
+                    </td>
+                    <td className="px-4 py-2 text-sm text-gray-900">{emp.name}</td>
+                    <td className="px-4 py-2 text-sm text-gray-900">{emp.designation}</td>
+                    <td className="px-4 py-2 text-sm text-gray-900">{emp.school}</td>
+                    <td className="px-4 py-2 flex items-center text-sm">
+                      {statusIcon(emp.status)}
+                      <span className="ml-2">{emp.status}</span>
+                    </td>
+                    <td className="px-4 py-2 text-center">
+                      <select
+                        defaultValue=""
+                        onChange={(e) => {
+                          const status = e.target.value;
+                          if (status) updateAttendance(emp.id, status);
+                        }}
+                        className="border-gray-300 rounded-md py-1 px-2 text-sm"
+                      >
+                        <option value="">Select Action</option>
+                        {attendanceOptions.map((status, idx) => (
+                          <option key={idx} value={status}>{status}</option>
+                        ))}
+                      </select>
+                    </td>
+                  </tr>
+                ))}
+                {filteredEmployees.length === 0 && (
+                  <tr>
+                    <td colSpan="6" className="px-4 py-2 text-center text-sm text-gray-500">
+                      No employees found.
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
+        </div>
+          
+        </div>
+      </div>
   );
 }

@@ -64,7 +64,7 @@ export default function SchoolDetailsPage() {
         </Link>
 
         {/* School Information Card */}
-        <div className="bg-white border-l-2 border-primary p-6 rounded-lg shadow transition duration-300 mb-8 font-medium text-sm">
+        <div className="bg-white border-l-2 border-primary p-6 rounded-lg shadow-sm transition duration-300 mb-8 font-medium text-sm">
           <div className="flex items-center gap-3">
             <School className="w-7 h-7 text-primary" />
             <h1 className="text-2xl font-bold text-secondary">{schoolInfo.name}</h1>
@@ -93,55 +93,57 @@ export default function SchoolDetailsPage() {
         </div>
 
         {/* Employee Filter Component */}
-        <div className="bg-white p-6 rounded-lg shadow mb-8 border">
+        <div className="bg-white p-6 rounded-lg shadow-sm mb-8 border-l-2 border-primary">
           <h2 className="text-xl font-semibold text-gray-800 mb-4">Filter Employees</h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="flex flex-col md:flex-row md:items-end md:space-x-4">
             {/* Name Search */}
-            <div>
-              <label htmlFor="employeeSearch" className="block text-sm font-medium text-gray-700 mb-1">
-                Search by Name
-              </label>
-              <input
-                id="employeeSearch"
-                type="text"
-                placeholder="Employee name"
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="block w-full border-gray-300 rounded-md py-2 px-2 text-sm"
-              />
-            </div>
+            <div className="flex-1 mb-4 md:mb-0">
+      <label htmlFor="employeeSearch" className="block text-sm font-medium text-gray-700 mb-1">
+        Search by Name
+      </label>
+      <input
+        id="employeeSearch"
+        type="text"
+        placeholder="Employee name"
+        value={searchTerm}
+        onChange={(e) => setSearchTerm(e.target.value)}
+        className="block w-full border-gray-300 rounded-md py-2 px-2 text-sm border"
+      />
+    </div>
             {/* Designation Filter */}
-            <div>
-              <label htmlFor="designationFilter" className="block text-sm font-medium text-gray-700 mb-1">
-                Filter by Designation
-              </label>
-              <select
-                id="designationFilter"
-                value={designationFilter}
-                onChange={(e) => setDesignationFilter(e.target.value)}
-                className="block w-full border-gray-300 rounded-md py-2 px-2 text-sm"
-              >
-                <option value="">All Designations</option>
-                {uniqueDesignations.map((des, idx) => (
-                  <option key={idx} value={des}>
-                    {des}
-                  </option>
-                ))}
-              </select>
-            </div>
-            {/* Retirement Date Filter */}
-            <div>
-              <label htmlFor="retirementFilter" className="block text-sm font-medium text-gray-700 mb-1">
-                Filter by Retirement Date
-              </label>
-              <input
-                id="retirementFilter"
-                type="date"
-                value={retirementFilter}
-                onChange={(e) => setRetirementFilter(e.target.value)}
-                className="block w-full border-gray-300 rounded-md py-2 px-2 text-sm"
-              />
-            </div>
+            <div className="flex-1 mb-4 md:mb-0">
+      <label htmlFor="designationFilter" className="block text-sm font-medium text-gray-700 mb-1">
+        Filter by Designation
+      </label>
+      <select
+        id="designationFilter"
+        value={designationFilter}
+        onChange={(e) => setDesignationFilter(e.target.value)}
+        className="block w-full border-gray-300 rounded-md py-2 border px-2 text-sm"
+      >
+        <option value="">All Designations</option>
+        {uniqueDesignations.map((des, idx) => (
+          <option key={idx} value={des}>
+            {des}
+          </option>
+        ))}
+      </select>
+    </div>
+
+    {/* Retirement Date Filter */}
+    <div className="flex-1 mb-4 md:mb-0">
+      <label htmlFor="retirementFilter" className="block text-sm font-medium text-gray-700 mb-1">
+        Filter by Retirement Date
+      </label>
+      <input
+        id="retirementFilter"
+        type="date"
+        value={retirementFilter}
+        onChange={(e) => setRetirementFilter(e.target.value)}
+        className="block w-full border-gray-300 rounded-md py-2 border px-2 text-sm"
+      />
+    </div>
+
           </div>
         </div>
 
