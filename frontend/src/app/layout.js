@@ -4,7 +4,7 @@ import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
 // Using the Plus Jakarta Sans font from Google Fonts
-const plusJakartaSans = Plus_Jakarta_Sans({ subsets: ["latin"] });
+const plusJakartaSans = Plus_Jakarta_Sans({ subsets: ["latin"] });  // Metropolis Sans Saf
 
 export const metadata = {
   title: "EMS Admin Panel",

@@ -1,0 +1,171 @@
+{
+  "district": "Central District",
+  "zones": [
+    {
+      "zone": "assar",
+      "zonation": "I",
+      "schools": [
+        {
+          "id": 89,
+          "name": "Gerhold High School",
+          "address": "29894 Riverside Blvd, Reno, NV 89501",
+          "principal": "Divya Joshi",
+          "contact": "+1 (775) 249-7492",
+          "school_type": "Public",
+          "scheme": "elementary",
+          "sub_scheme": "10+2",
+          "employees": [
+            {
+              "udise_code": 307435,
+              "name_of_sanctioned_posts": "senior assistant",
+              "emp_name": "Amit Sharma",
+              "emp_id": 4623,
+              "date_of_birth": "1985-05-15",
+              "date_of_first_appointment": "2016-08-20",
+              "designation_at_first_appointment": "junior senior assistant",
+              "qualification": "M.Ed",
+              "subject_in_pg": "Computer Science",
+              "present_designation": "senior assistant",
+              "date_of_latest_promotion": "2019-05-17",
+              "date_of_retirement": "2050-05-15",
+              "date_from_which_working_in_this_current_office": "2016-08-20",
+              "last_three_postings": {
+                "first_posting": {
+                  "school": "Prev School 1",
+                  "start_date": "2016-08-20",
+                  "end_date": "2018-01-02"
+                },
+                "second_posting": {
+                  "school": "Prev School 2",
+                  "start_date": "2018-01-03",
+                  "end_date": "2019-05-18"
+                },
+                "third_posting": {
+                  "school": "Current School",
+                  "start_date": "2019-05-19",
+                  "end_date": "Present"
+                }
+              },
+              "current_payscale": "₹676821",
+              "pay_level": "Level 5",
+              "gross_salary": "₹949389",
+              "whether_nps_or_ops": "NPS"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "zone": "bhaderwah",
+      "zonation": "II",
+      "schools": [
+        {
+          "id": 90,
+          "name": "Sunshine High School",
+          "address": "1234 Park Ave, Bhaderwah, 12501",
+          "principal": "Rahul Verma",
+          "contact": "+1 (775) 249-7493",
+          "school_type": "Private",
+          "scheme": "secondary",
+          "sub_scheme": "10+2G",
+          "employees": [
+            {
+              "name_of_school": "Sunshine High School",
+              "udise_code": 407435,
+              "school_id": 90,
+              "name_of_sanctioned_posts": "math teacher",
+              "emp_name": "Priya Singh",
+              "emp_id": 5634,
+              "date_of_birth": "1989-11-15",
+              "date_of_first_appointment": "2018-09-01",
+              "designation_at_first_appointment": "junior math teacher",
+              "qualification": "M.Sc",
+              "subject_in_pg": "Mathematics",
+              "present_designation": "math teacher",
+              "date_of_latest_promotion": "2021-10-10",
+              "date_of_retirement": "2055-11-15",
+              "date_from_which_working_in_this_current_office": "2018-09-01",
+              "last_three_postings": {
+                "first_posting": {
+                  "school": "Prev School 1",
+                  "start_date": "2018-09-01",
+                  "end_date": "2020-01-15"
+                },
+                "second_posting": {
+                  "school": "Prev School 2",
+                  "start_date": "2020-01-16",
+                  "end_date": "2021-10-09"
+                },
+                "third_posting": {
+                  "school": "Current School",
+                  "start_date": "2021-10-10",
+                  "end_date": "Present"
+                }
+              },
+              "current_payscale": "₹520000",
+              "pay_level": "Level 7",
+              "gross_salary": "₹600000",
+              "whether_nps_or_ops": "OPS"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "zone": "bhagwah",
+      "zonation": "III",
+      "schools": [
+        {
+          "id": 91,
+          "name": "Bright Future School",
+          "address": "45 Bright Street, Bhaghwah, 13012",
+          "principal": "Anil Kumar",
+          "contact": "+1 (775) 249-7494",
+          "school_type": "Public",
+          "scheme": "secondary",
+          "sub_scheme": "sec.b",
+          "employees": [
+            {
+              "name_of_school": "Bright Future School",
+              "udise_code": 507435,
+              "school_id": 91,
+              "name_of_sanctioned_posts": "assistant director",
+              "emp_name": "Sandeep Sharma",
+              "emp_id": 5635,
+              "date_of_birth": "1980-06-20",
+              "date_of_first_appointment": "2015-03-05",
+              "designation_at_first_appointment": "junior assistant director",
+              "qualification": "M.A",
+              "subject_in_pg": "History",
+              "present_designation": "assistant director",
+              "date_of_latest_promotion": "2018-07-01",
+              "date_of_retirement": "2045-06-20",
+              "date_from_which_working_in_this_current_office": "2015-03-05",
+              "last_three_postings": {
+                "first_posting": {
+                  "school": "Prev School 1",
+                  "start_date": "2015-03-05",
+                  "end_date": "2017-02-25"
+                },
+                "second_posting": {
+                  "school": "Prev School 2",
+                  "start_date": "2017-02-26",
+                  "end_date": "2018-06-30"
+                },
+                "third_posting": {
+                  "school": "Current School",
+                  "start_date": "2018-07-01",
+                  "end_date": "Present"
+                }
+              },
+              "current_payscale": "₹700000",
+              "pay_level": "Level 6",
+              "gross_salary": "₹850000",
+              "whether_nps_or_ops": "NPS"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -1,174 +1,207 @@
 "use client";
+import { useState } from "react";
+import Link from "next/link";
+import { School } from "lucide-react";
+import districtData from "@/data/data.json"; // Adjust the path as necessary
 
-import { useState, useRef } from "react";
-import { ToastContainer, toast } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
-import { useOutsideClick } from "@/hooks/useOutsideClick";
-
-
-// Dummy Data for Schools
-const schools = [
-  { id: 1, name: "High School Sooli", address: "123 Main St", principal: "Mr. Smith", contact: "123-456-7890" },
-  { id: 2, name: "High School Nichlathara", address: "456 Elm St", principal: "Mrs. Johnson", contact: "987-654-3210" },
-  { id: 3, name: "High School Dugroon", address: "789 Oak St", principal: "Mr. Davis", contact: "555-123-4567" },
-];
-
-// Dummy Staff Data
-const staffData = [
-  { id: 1, name: "John Doe", designation: "Teacher", school: "School A", status: "Present" },
-  { id: 2, name: "Jane Smith", designation: "Administrator", school: "School B", status: "Absent" },
-  { id: 3, name: "Bob Johnson", designation: "Teacher", school: "School C", status: "Present" },
-  { id: 4, name: "Alice Brown", designation: "Teacher", school: "School A", status: "Present" },
-  { id: 5, name: "Charlie Davis", designation: "Administrator", school: "School C", status: "Absent" },
-];
+// Flatten schools from all zones and attach their zone info
+const allSchools = districtData.zones.flatMap((zone) =>
+  zone.schools.map((school) => ({ ...school, zone: zone.zone }))
+);
 
 export default function SchoolStatusPage() {
-  const modalRef = useRef(null);
+  const [selectedZone, setSelectedZone] = useState("");
+  const [selectedScheme, setSelectedScheme] = useState("");
+  const [selectedSubScheme, setSelectedSubScheme] = useState("");
+  const [filteredSchools, setFilteredSchools] = useState(allSchools);
 
+  // Get unique zone options from all schools
+  const zoneOptions = [...new Set(allSchools.map((s) => s.zone))];
 
-  const [selectedSchool, setSelectedSchool] = useState("");
-  const [searchTerm, setSearchTerm] = useState("");
-  const [selectedEmployee, setSelectedEmployee] = useState(null);
-  const [modalType, setModalType] = useState("");
+  // Derive scheme options based on selected zone (if any)
+  const filteredByZone = selectedZone
+    ? allSchools.filter((school) => school.zone === selectedZone)
+    : allSchools;
+  const schemeOptions = [...new Set(filteredByZone.map((school) => school.scheme))];
 
-  // Filter Staff Data
-  const filteredStaff = staffData.filter(
-    (staff) =>
-      (selectedSchool === "" || staff.school === selectedSchool) &&
-      (staff.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        staff.designation.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        staff.status.toLowerCase().includes(searchTerm.toLowerCase()))
-  );
+  // Derive sub scheme options based on selected zone and scheme
+  const filteredByZoneAndScheme = selectedScheme
+    ? filteredByZone.filter((school) => school.scheme === selectedScheme)
+    : filteredByZone;
+  const subSchemeOptions = [...new Set(filteredByZoneAndScheme.map((school) => school.sub_scheme))];
 
-  const selectedSchoolInfo = schools.find((s) => s.name === selectedSchool);
-
-  // Open Modal
-  const openModal = (type, employee) => {
-    setSelectedEmployee(employee);
-    setModalType(type);
-  };
-
-  // Close Modal
-  const closeModal = () => {
-    setSelectedEmployee(null);
-    setModalType("");
-  };
-
-  useOutsideClick(modalRef, closeModal);
-
-  // Handle Transfer Request
-  const handleTransferRequest = () => {
-    toast.success("Transfer request sent successfully!");
-    closeModal();
+  const handleFilter = () => {
+    const filtered = allSchools.filter((school) => {
+      if (selectedZone && school.zone !== selectedZone) return false;
+      if (selectedScheme && school.scheme !== selectedScheme) return false;
+      if (selectedSubScheme && school.sub_scheme !== selectedSubScheme) return false;
+      return true;
+    });
+    setFilteredSchools(filtered);
   };
 
   return (
-    <div className="bg-gray-100 p-6 min-h-screen">
-      <ToastContainer />
-      <h1 className="text-3xl font-bold mb-4">🏫 School Status Dashboard</h1>
+    <div className="min-h-screen">
+      <div className="max-w-7xl mx-auto px-4">
+        {/* Page Header */}
+        <header className="mb-8">
+          <h1 className="text-3xl font-bold text-secondary flex items-center gap-2">
+            <School className="w-8 h-8 text-primary" /> School Status Dashboard
+          </h1>
+          <p className="mt-2 font-medium text-gray-600">
+            Manage schools and view details
+          </p>
+        </header>
 
-      {/* School Selection & Search */}
-      <div className="flex space-x-4 mb-6">
-        <select
-          value={selectedSchool}
-          onChange={(e) => setSelectedSchool(e.target.value)}
-          className="border rounded-md p-3 w-1/4"
-        >
-          <option value="">Select a school</option>
-          {schools.map((school) => (
-            <option key={school.id} value={school.name}>
-              {school.name}
-            </option>
-          ))}
-        </select>
-
-        <input
-          className="border rounded-md p-3 w-1/3"
-          placeholder="Search by name, designation, or status"
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-        />
-      </div>
-
-      {/* School Information Card */}
-      {selectedSchoolInfo && (
-        <div className="bg-white shadow-md rounded-lg p-4 mb-6">
-          <h2 className="text-xl font-semibold">{selectedSchoolInfo.name}</h2>
-          <p>📍 Address: {selectedSchoolInfo.address}</p>
-          <p>👨‍🏫 Principal: {selectedSchoolInfo.principal}</p>
-          <p>📞 Contact: {selectedSchoolInfo.contact}</p>
-        </div>
-      )}
-
-      {/* Employee Cards */}
-      <h2 className="text-2xl font-semibold mb-4">👥 Employee Management</h2>
-      <div className="grid grid-cols-3 gap-4">
-        {filteredStaff.map((staff) => (
-          <div key={staff.id} className="bg-white shadow-md rounded-lg p-4">
-            <h3 className="font-semibold">{staff.name}</h3>
-            <p>{staff.designation}</p>
-            <p>🏫 {staff.school}</p>
-            <p className={`text-sm ${staff.status === "Present" ? "text-green-600" : "text-red-600"}`}>
-              {staff.status}
-            </p>
-            <div className="flex justify-between mt-2">
-              <button className="bg-blue-500 text-white px-3 py-1 rounded" onClick={() => openModal("view", staff)}>
-                View Details
-              </button>
-              <button className="bg-yellow-500 text-white px-3 py-1 rounded" onClick={() => openModal("edit", staff)}>
-                Edit
-              </button>
-              <button className="bg-red-500 text-white px-3 py-1 rounded" onClick={() => openModal("transfer", staff)}>
-                Transfer
+        {/* School Filtering Section */}
+        <div className="bg-white p-6 rounded-lg shadow-sm mb-8 border-l-2 border-primary">
+          <div className="flex flex-col md:flex-row md:items-end md:space-x-4">
+            {/* Zone Filter */}
+            <div className="flex-1 mb-4 md:mb-0">
+              <label htmlFor="zoneSelect" className="block text-sm font-medium text-gray-700 mb-1">
+                Select Zone
+              </label>
+              <select
+                id="zoneSelect"
+                value={selectedZone}
+                onChange={(e) => {
+                  setSelectedZone(e.target.value);
+                  // Reset scheme and sub scheme if zone changes
+                  setSelectedScheme("");
+                  setSelectedSubScheme("");
+                }}
+                className="block w-full border-gray-300 rounded-md py-2 border px-2 text-sm"
+              >
+                <option value="">All Zones</option>
+                {zoneOptions.map((zone, idx) => (
+                  <option key={idx} value={zone}>
+                    {zone}
+                  </option>
+                ))}
+              </select>
+            </div>
+            {/* Scheme Filter */}
+            <div className="flex-1 mb-4 md:mb-0">
+              <label htmlFor="schemeSelect" className="block text-sm font-medium text-gray-700 mb-1">
+                Select Scheme
+              </label>
+              <select
+                id="schemeSelect"
+                value={selectedScheme}
+                onChange={(e) => {
+                  setSelectedScheme(e.target.value);
+                  // Reset sub scheme if scheme changes
+                  setSelectedSubScheme("");
+                }}
+                className="block w-full border-gray-300 rounded-md py-2 border px-2 text-sm"
+              >
+                <option value="">All Schemes</option>
+                {schemeOptions.map((scheme, idx) => (
+                  <option key={idx} value={scheme}>
+                    {scheme}
+                  </option>
+                ))}
+              </select>
+            </div>
+            {/* Sub Scheme Filter */}
+            <div className="flex-1 mb-4 md:mb-0">
+              <label htmlFor="subSchemeSelect" className="block text-sm font-medium text-gray-700 mb-1">
+                Select Sub Scheme
+              </label>
+              <select
+                id="subSchemeSelect"
+                value={selectedSubScheme}
+                onChange={(e) => setSelectedSubScheme(e.target.value)}
+                className="block w-full border-gray-300 rounded-md py-2 border px-2 text-sm"
+              >
+                <option value="">All Sub Schemes</option>
+                {subSchemeOptions.map((subScheme, idx) => (
+                  <option key={idx} value={subScheme}>
+                    {subScheme}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div className="flex-1">
+              <button
+                onClick={handleFilter}
+                className="w-full py-2 px-4 bg-blue-500 font-medium text-[13px] rounded-full text-white hover:bg-blue-600 transition"
+              >
+                Filter Schools
               </button>
             </div>
           </div>
-        ))}
-      </div>
-
-      {/* Modal */}
-      {selectedEmployee && (
-        <div className="fixed inset-0 bg-gray-800 bg-opacity-50 flex justify-center items-center">
-          <div ref={modalRef} className="bg-white p-6 rounded-lg shadow-lg w-1/3">
-            <h2 className="text-xl font-bold mb-2">
-              {modalType === "view" && "👤 Employee Details"}
-              {modalType === "edit" && "✏️ Edit Employee"}
-              {modalType === "transfer" && "🔄 Transfer Employee"}
-            </h2>
-            <p><strong>Name:</strong> {selectedEmployee.name}</p>
-            <p><strong>Designation:</strong> {selectedEmployee.designation}</p>
-            <p><strong>School:</strong> {selectedEmployee.school}</p>
-
-            {/* Edit Form */}
-            {modalType === "edit" && (
-              <div>
-                <input className="border p-2 w-full mt-2" placeholder="Edit Name" defaultValue={selectedEmployee.name} />
-                <button className="bg-green-500 text-white px-4 py-2 mt-3 rounded w-full">Save Changes</button>
-              </div>
-            )}
-
-            {/* Transfer Form */}
-            {modalType === "transfer" && (
-              <div>
-                <select className="border p-2 w-full mt-2">
-                  {schools.map((school) => (
-                    <option key={school.id} value={school.name}>
-                      {school.name}
-                    </option>
-                  ))}
-                </select>
-                <button onClick={handleTransferRequest} className="bg-blue-500 text-white px-4 py-2 mt-3 rounded w-full">
-                  Request Transfer
-                </button>
-              </div>
-            )}
-
-            <button className="bg-gray-500 text-white px-4 py-2 mt-3 rounded w-full" onClick={closeModal}>
-              Close
-            </button>
-          </div>
         </div>
-      )}
+
+        {/* School Table with Horizontal Scroll */}
+        <div className="bg-white rounded-lg overflow-x-auto border">
+          <table className="min-w-full divide-y divide-gray-200">
+            <thead className="bg-gray-50">
+              <tr>
+                <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                  School Name
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                  Address
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                  Principal
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                  Contact
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                  Scheme
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                  Sub Scheme
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                  Actions
+                </th>
+              </tr>
+            </thead>
+            <tbody className="bg-white divide-y divide-gray-200">
+              {filteredSchools.map((school) => (
+                <tr key={school.id} className="hover:bg-gray-50">
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                    {school.name}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                    {school.address}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                    {school.principal}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                    {school.contact}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                    {school.scheme}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                    {school.sub_scheme}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm">
+                    <Link href={`/home/school-status/${encodeURIComponent(school.name)}`}>
+                      <button className="py-1 px-3 bg-primary text-white rounded-full font-medium text-xs hover:bg-blue-600 transition">
+                        View Details
+                      </button>
+                    </Link>
+                  </td>
+                </tr>
+              ))}
+              {filteredSchools.length === 0 && (
+                <tr>
+                  <td colSpan="7" className="px-6 py-4 text-center text-sm text-gray-500">
+                    No schools found.
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
+      </div>
     </div>
   );
 }

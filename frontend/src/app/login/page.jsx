@@ -4,37 +4,61 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 
+// Define three default users with roles and credentials
+const defaultUsers = [
+  { role: "mainAdmin", userId: "admin", password: "admin123" },
+  { role: "localAdmin", userId: "localadmin", password: "local123" },
+  { role: "normalUser", userId: "user", password: "user123" },
+];
+
 export default function LoginPage() {
-  const [userType, setUserType] = useState("");
+  const [userType, setUserType] = useState("mainAdmin"); // Default selected role
   const [userId, setUserId] = useState("");
   const [password, setPassword] = useState("");
   const router = useRouter();
 
   const handleLogin = (e) => {
     e.preventDefault();
-    // Implement login logic here
-    console.log("Login attempt", { userType, userId, password });
-    // For now, just redirect to dashboard
-    router.push("/home/dashboard");
+
+    // Check if entered credentials match one of the default users
+    const user = defaultUsers.find(
+      (u) =>
+        u.role === userType &&
+        u.userId === userId.trim() &&
+        u.password === password
+    );
+
+    if (user) {
+      // Store user details (including role) in localStorage
+      localStorage.setItem("user", JSON.stringify(user));
+      console.log("Login successful", user);
+      router.push("/home/dashboard");
+    } else {
+      alert("Invalid credentials. Please try again.");
+    }
   };
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-gray-100">
       <div className="bg-white p-8 rounded-lg shadow-lg w-[26rem]">
         <h2 className="text-xl font-semibold mb-4">Login</h2>
-        <p className="text-gray-500 mb-6 text-sm">Enter your credentials to access your account</p>
+        <p className="text-gray-500 mb-6 text-sm">
+          Enter your credentials to access your account
+        </p>
         <form onSubmit={handleLogin}>
           <div className="space-y-4 text-sm">
             {/* User Type Dropdown */}
             <div className="text-sm">
-              <label htmlFor="userType" className="block text-sm font-medium text-gray-700">User Type</label>
+              <label htmlFor="userType" className="block text-sm font-medium text-gray-700">
+                User Type
+              </label>
               <select
                 id="userType"
                 value={userType}
                 onChange={(e) => setUserType(e.target.value)}
                 className="w-full border-gray-300 border rounded-md p-2 mt-1"
               >
-                <option value="admin">Admin</option>
+                <option value="mainAdmin">Main Admin</option>
                 <option value="localAdmin">Local Admin</option>
                 <option value="normalUser">User</option>
               </select>
@@ -42,7 +66,9 @@ export default function LoginPage() {
 
             {/* User ID Input */}
             <div>
-              <label htmlFor="userId" className="block text-sm font-medium text-gray-700">User ID</label>
+              <label htmlFor="userId" className="block text-sm font-medium text-gray-700">
+                User ID
+              </label>
               <input
                 id="userId"
                 type="text"
@@ -54,7 +80,9 @@ export default function LoginPage() {
 
             {/* Password Input */}
             <div>
-              <label htmlFor="password" className="block text-sm font-medium text-gray-700">Password</label>
+              <label htmlFor="password" className="block text-sm font-medium text-gray-700">
+                Password
+              </label>
               <input
                 id="password"
                 type="password"
