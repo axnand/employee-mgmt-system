@@ -2,11 +2,15 @@
 import { useState } from "react";
 import Link from "next/link";
 import { School } from "lucide-react";
-import districtData from "@/data/data.json"; // Adjust the path as necessary
+import districtData from "@/data/data.json";
 
-// Flatten schools from all zones and attach their zone info
-const allSchools = districtData.zones.flatMap((zone) =>
-  zone.schools.map((school) => ({ ...school, zone: zone.zone }))
+// Flatten schools from all zones, attach zone info, and generate a unique id if needed.
+const allSchools = districtData.zones.flatMap((zone, zoneIndex) =>
+  zone.schools.map((school, schoolIndex) => ({
+    ...school,
+    zone: zone.zone,
+    id: school.id || `${zoneIndex}-${schoolIndex}`
+  }))
 );
 
 export default function SchoolStatusPage() {
@@ -15,20 +19,22 @@ export default function SchoolStatusPage() {
   const [selectedSubScheme, setSelectedSubScheme] = useState("");
   const [filteredSchools, setFilteredSchools] = useState(allSchools);
 
-  // Get unique zone options from all schools
+  // Unique zone options
   const zoneOptions = [...new Set(allSchools.map((s) => s.zone))];
 
-  // Derive scheme options based on selected zone (if any)
+  // Scheme options based on selected zone
   const filteredByZone = selectedZone
     ? allSchools.filter((school) => school.zone === selectedZone)
     : allSchools;
   const schemeOptions = [...new Set(filteredByZone.map((school) => school.scheme))];
 
-  // Derive sub scheme options based on selected zone and scheme
+  // Sub-scheme options based on selected zone and scheme
   const filteredByZoneAndScheme = selectedScheme
     ? filteredByZone.filter((school) => school.scheme === selectedScheme)
     : filteredByZone;
-  const subSchemeOptions = [...new Set(filteredByZoneAndScheme.map((school) => school.sub_scheme))];
+  const subSchemeOptions = [
+    ...new Set(filteredByZoneAndScheme.map((school) => school.sub_scheme))
+  ];
 
   const handleFilter = () => {
     const filtered = allSchools.filter((school) => {
@@ -41,7 +47,7 @@ export default function SchoolStatusPage() {
   };
 
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen capitalize">
       <div className="max-w-7xl mx-auto px-4">
         {/* Page Header */}
         <header className="mb-8">
@@ -58,7 +64,10 @@ export default function SchoolStatusPage() {
           <div className="flex flex-col md:flex-row md:items-end md:space-x-4">
             {/* Zone Filter */}
             <div className="flex-1 mb-4 md:mb-0">
-              <label htmlFor="zoneSelect" className="block text-sm font-medium text-gray-700 mb-1">
+              <label
+                htmlFor="zoneSelect"
+                className="block text-sm font-medium text-gray-700 mb-1"
+              >
                 Select Zone
               </label>
               <select
@@ -66,7 +75,7 @@ export default function SchoolStatusPage() {
                 value={selectedZone}
                 onChange={(e) => {
                   setSelectedZone(e.target.value);
-                  // Reset scheme and sub scheme if zone changes
+                  // Reset scheme and sub-scheme when zone changes
                   setSelectedScheme("");
                   setSelectedSubScheme("");
                 }}
@@ -82,7 +91,10 @@ export default function SchoolStatusPage() {
             </div>
             {/* Scheme Filter */}
             <div className="flex-1 mb-4 md:mb-0">
-              <label htmlFor="schemeSelect" className="block text-sm font-medium text-gray-700 mb-1">
+              <label
+                htmlFor="schemeSelect"
+                className="block text-sm font-medium text-gray-700 mb-1"
+              >
                 Select Scheme
               </label>
               <select
@@ -90,7 +102,7 @@ export default function SchoolStatusPage() {
                 value={selectedScheme}
                 onChange={(e) => {
                   setSelectedScheme(e.target.value);
-                  // Reset sub scheme if scheme changes
+                  // Reset sub-scheme when scheme changes
                   setSelectedSubScheme("");
                 }}
                 className="block w-full border-gray-300 rounded-md py-2 border px-2 text-sm"
@@ -105,7 +117,10 @@ export default function SchoolStatusPage() {
             </div>
             {/* Sub Scheme Filter */}
             <div className="flex-1 mb-4 md:mb-0">
-              <label htmlFor="subSchemeSelect" className="block text-sm font-medium text-gray-700 mb-1">
+              <label
+                htmlFor="subSchemeSelect"
+                className="block text-sm font-medium text-gray-700 mb-1"
+              >
                 Select Sub Scheme
               </label>
               <select
@@ -163,7 +178,7 @@ export default function SchoolStatusPage() {
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
               {filteredSchools.map((school) => (
-                <tr key={school.id} className="hover:bg-gray-50">
+                <tr key={school.id} className="">
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                     {school.name}
                   </td>
@@ -183,7 +198,7 @@ export default function SchoolStatusPage() {
                     {school.sub_scheme}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm">
-                    <Link href={`/home/school-status/${encodeURIComponent(school.name)}`}>
+                    <Link href={`/home/school-status/${school.id}`}>
                       <button className="py-1 px-3 bg-primary text-white rounded-full font-medium text-xs hover:bg-blue-600 transition">
                         View Details
                       </button>
