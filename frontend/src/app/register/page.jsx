@@ -38,8 +38,8 @@ export default function RegisterPage() {
                 className="w-full border-gray-300 border rounded-md p-2 mt-1"
               >
                 <option value="admin">Admin</option>
-                <option value="localAdmin">Local Admin</option>
-                <option value="normalUser">Normal User</option>
+                <option value="schoolAdmin">Local Admin</option>
+                <option value="staff">Normal User</option>
               </select>
             </div>
 

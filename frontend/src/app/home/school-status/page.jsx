@@ -51,7 +51,7 @@ export default function SchoolStatusPage() {
 
   return (
     <>
-    {userRole === "mainAdmin" ? (<div className="min-h-screen capitalize">
+    {userRole === "admin" ? (<div className="min-h-screen capitalize">
       <div className="max-w-7xl mx-auto px-4">
         {/* Page Header */}
         <header className="mb-8">

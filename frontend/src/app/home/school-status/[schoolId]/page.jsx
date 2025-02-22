@@ -86,7 +86,7 @@ export default function SchoolDetailsPage() {
   return (
     <div className="min-h-screen p-4 capitalize">
       <div className="max-w-7xl mx-auto">
-        {userRole === "mainAdmin" && (<Link href="/home/school-status">
+        {userRole === "admin" && (<Link href="/home/school-status">
           <button className="mb-6 text-[15px] font-semibold rounded-md text-secondary hover:text-primary transition flex items-center">
             <ChevronLeft className="w-4 h-4 mr-1" /> <span>Back</span>
           </button>

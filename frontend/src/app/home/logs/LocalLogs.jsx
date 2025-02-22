@@ -10,7 +10,7 @@ import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
 // Dummy Logs Data for Local Admin
-const localAdminLogs = [
+const schoolAdminLogs = [
   {
     id: 1,
     admin: "Local Admin",
@@ -59,7 +59,7 @@ const localStats = [
 ];
 
 export default function LocalLogsPage() {
-  const [logs] = useState(localAdminLogs);
+  const [logs] = useState(schoolAdminLogs);
   const [searchTerm, setSearchTerm] = useState("");
   const [modalData, setModalData] = useState(null);
 

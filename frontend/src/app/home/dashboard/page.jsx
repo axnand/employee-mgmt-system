@@ -1,17 +1,18 @@
 'use client'
 import React from 'react'
-import MainDashboardPage from './MainDashboardPage'
 import { useUser } from '@/context/UserContext'
-import LocalAdminDashboard from './LocalAdminDashboard';
-import UserDashboard from './UserDashboard';
+
+import StaffDashboard from './StaffDashboard'
+import AdminDashboardPage from './AdminDashboardPage'
+import SchoolAdminDashboard from './SchoolAdminDashboard'
 
 function page() {
   const{user , userRole} = useUser();
   return (
     <>
-    {userRole === "mainAdmin" && <MainDashboardPage/>}
-    {userRole === "localAdmin" && <LocalAdminDashboard/>}
-    {userRole === "normalUser" && <UserDashboard/>}
+    {userRole === "admin" && <AdminDashboardPage/>}
+    {userRole === "schoolAdmin" && <SchoolAdminDashboard/>}
+    {userRole === "staff" && <StaffDashboard/>}
     </>
     
   )

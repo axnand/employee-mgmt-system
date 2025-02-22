@@ -77,7 +77,7 @@ const totalEmployees = 120; // Example count
 const pendingTransfers = 3; // Example pending transfers
 const attendanceRate = 92; // Example percentage
 
-export default function LocalAdminDashboard() {
+export default function SchoolAdminDashboard() {
   const [recentActivities, setRecentActivities] = useState([]);
   const [filteredRetirements, setFilteredRetirements] = useState([]);
   const [filterDays, setFilterDays] = useState(30);

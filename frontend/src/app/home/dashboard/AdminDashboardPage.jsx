@@ -72,28 +72,28 @@ const retirementEmployees = [
      // soon (within 30 days if today is 2025-02-23)
   },
   {
-    emp_id: 4623,
+    emp_id: 4624,
     school_id: "89",
     emp_name: "Suman Verma",
     present_designation: "Principal",
     date_of_retirement: "2050-05-15", // far in the future
   },
   {
-    emp_id: 4623,
+    emp_id: 4625,
     school_id: "89",
     emp_name: "Rahul Singh",
     present_designation: "Teacher",
     date_of_retirement: "2025-03-05", // soon
   },
   {
-    emp_id: 4623,
+    emp_id: 4626,
     school_id: "89",
     emp_name: "Neha Gupta",
     present_designation: "Vice Principal",
     date_of_retirement: "2049-03-25", // far in the future
   },
   {
-    emp_id: 4623,
+    emp_id: 4627,
     school_id: "89",
     emp_name: "Rohit Kumar",
     present_designation: "Clerk",
@@ -110,7 +110,7 @@ const pendingTransfers = 5; // example placeholder
 // Colors for the Pie Chart
 const COLORS = ["#0088FE", "#00C49F", "#FFBB28", "#FF8042"];
 
-export default function MainDashboardPage() {
+export default function AdminDashboardPage() {
   const [recentActivities, setRecentActivities] = useState([]);
   const [filterDays, setFilterDays] = useState(30);
   const [filteredRetirements, setFilteredRetirements] = useState([]);

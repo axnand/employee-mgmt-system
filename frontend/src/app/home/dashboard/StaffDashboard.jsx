@@ -130,7 +130,7 @@
       },
     ];
 
-    export default function UserDashboard() {
+    export default function StaffDashboard() {
       const [profile, setProfile] = useState(initialEmployeeData);
       const [attendanceHistory, setAttendanceHistory] = useState([]);
       const [transferHistory, setTransferHistory] = useState([]);

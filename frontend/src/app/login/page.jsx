@@ -7,13 +7,13 @@ import { useUser } from "@/context/UserContext"; // Import your context
 
 // Define three default users with roles and credentials
 const defaultUsers = [
-  { role: "mainAdmin", userId: "admin", password: "admin123" },
-  { role: "localAdmin", userId: "localadmin", password: "local123", school: "School A", schoolId: "89" },
-  { role: "normalUser", userId: "user", password: "user123" },
+  { role: "admin", userId: "admin", password: "admin123" },
+  { role: "schoolAdmin", userId: "schoolAdmin", password: "school123", school: "School A", schoolId: "89" },
+  { role: "staff", userId: "staff", password: "staff123" },
 ];
 
 export default function LoginPage() {
-  const [userType, setUserType] = useState("mainAdmin"); // Default selected role
+  const [userType, setUserType] = useState("admin"); // Default selected role
   const [userId, setUserId] = useState("");
   const [password, setPassword] = useState("");
   const router = useRouter();
@@ -70,9 +70,9 @@ export default function LoginPage() {
                 onChange={(e) => setUserType(e.target.value)}
                 className="w-full border-gray-300 border rounded-md p-2 mt-1"
               >
-                <option value="mainAdmin">Main Admin</option>
-                <option value="localAdmin">Local Admin</option>
-                <option value="normalUser">User</option>
+                <option value="admin">Admin</option>
+                <option value="schoolAdmin">School Admin</option>
+                <option value="staff">Staff</option>
               </select>
             </div>
 
