@@ -95,7 +95,7 @@ export default function SchoolStatusPage() {
                 htmlFor="schemeSelect"
                 className="block text-sm font-medium text-gray-700 mb-1"
               >
-                Select Scheme
+                Select Type
               </label>
               <select
                 id="schemeSelect"
@@ -116,7 +116,7 @@ export default function SchoolStatusPage() {
               </select>
             </div>
             {/* Sub Scheme Filter */}
-            <div className="flex-1 mb-4 md:mb-0">
+            {/* <div className="flex-1 mb-4 md:mb-0">
               <label
                 htmlFor="subSchemeSelect"
                 className="block text-sm font-medium text-gray-700 mb-1"
@@ -136,11 +136,11 @@ export default function SchoolStatusPage() {
                   </option>
                 ))}
               </select>
-            </div>
-            <div className="flex-1">
+            </div> */}
+            <div className="flex-1 px-10">
               <button
                 onClick={handleFilter}
-                className="w-full py-2 px-4 bg-blue-500 font-medium text-[13px] rounded-full text-white hover:bg-blue-600 transition"
+                className="w-1/2 py-2 px-4 bg-blue-500 font-medium text-[13px] rounded-full text-white hover:bg-blue-600 transition"
               >
                 Filter Schools
               </button>
@@ -162,15 +162,15 @@ export default function SchoolStatusPage() {
                 <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
                   Principal
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                {/* <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
                   Contact
-                </th>
+                </th> */}
                 <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
-                  Scheme
+                  Type
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                {/* <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
                   Sub Scheme
-                </th>
+                </th> */}
                 <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
                   Actions
                 </th>
@@ -188,15 +188,15 @@ export default function SchoolStatusPage() {
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                     {school.principal}
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                  {/* <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                     {school.contact}
-                  </td>
+                  </td> */}
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                     {school.scheme}
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                  {/* <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                     {school.sub_scheme}
-                  </td>
+                  </td> */}
                   <td className="px-6 py-4 whitespace-nowrap text-sm">
                     <Link href={`/home/school-status/${school.id}`}>
                       <button className="py-1 px-3 bg-primary text-white rounded-full font-medium text-xs hover:bg-blue-600 transition">

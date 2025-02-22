@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useParams } from "next/navigation";
 import { Users, Search, ChevronLeft } from "lucide-react";
 import Link from "next/link";
@@ -11,40 +11,66 @@ const allSchools = districtData.zones.flatMap((zone, zoneIndex) =>
   zone.schools.map((school, schoolIndex) => ({
     ...school,
     zone: zone.zone,
-    id: school.id || `${zoneIndex}-${schoolIndex}`
+    id: school.id || `${zoneIndex}-${schoolIndex}`,
   }))
-);
+)
 
 export default function SchoolDetailsPage() {
-  // Retrieve the school id from URL params
   const { schoolId } = useParams();
-  console.log("school",schoolId);
-  console.log("allschool",allSchools);
-  const schoolInfo = allSchools.find(
-    (school) => school.id === parseInt(schoolId, 10)
+  const [allSchoolsState, setAllSchoolsState] = useState(allSchools);
+  const [schoolInfo, setSchoolInfo] = useState(
+    allSchoolsState.find((school) => school.id === parseInt(schoolId, 10))
   );
 
+  // Update schoolInfo whenever allSchoolsState changes
+  useEffect(() => {
+    setSchoolInfo(allSchoolsState.find((school) => school.id === parseInt(schoolId, 10)));
+  }, [allSchoolsState, schoolId]);
 
   // Employee filter states
   const [searchTerm, setSearchTerm] = useState("");
   const [designationFilter, setDesignationFilter] = useState("");
   const [retirementFilter, setRetirementFilter] = useState("");
+  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [newEmployeeData, setNewEmployeeData] = useState({});
 
   // Get employees from school data (or an empty array)
-  const employees = schoolInfo ? schoolInfo.employees : [];
+  const employees = schoolInfo ? schoolInfo.employees || [] : [];
 
   // Build unique designations from employees for the dropdown
   const uniqueDesignations = Array.from(new Set(employees.map(emp => emp.present_designation)));
 
-  // Filter employees based on all filters
+  // Filter employees based on search criteria
   const filteredEmployees = employees.filter((emp) => {
     const matchesSearch = emp.emp_name.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesDesignation =
-      designationFilter === "" || emp.present_designation === designationFilter;
-    const matchesRetirement =
-      retirementFilter === "" || emp.date_of_retirement === retirementFilter;
+    const matchesDesignation = designationFilter === "" || emp.present_designation === designationFilter;
+    const matchesRetirement = retirementFilter === "" || emp.date_of_retirement === retirementFilter;
     return matchesSearch && matchesDesignation && matchesRetirement;
   });
+
+  const handleSaveNewEmployee = () => {
+    if (!newEmployeeData.emp_id || !newEmployeeData.emp_name) {
+      alert("Please provide at least Employee ID and Name.");
+      return;
+    }
+
+    // Update the school in the state
+    const updatedSchools = allSchoolsState.map((school) => {
+      if (school.id === schoolInfo.id) {
+        return {
+          ...school,
+          employees: [...(school.employees || []), newEmployeeData], // Append new employee
+        };
+      }
+      return school;
+    });
+
+    setAllSchoolsState(updatedSchools); // Update global state
+    setIsAddModalOpen(false);
+    setNewEmployeeData({});
+
+    console.log("Updated Schools Data:", updatedSchools);
+  };
 
   if (!schoolInfo) {
     return (
@@ -83,11 +109,7 @@ export default function SchoolDetailsPage() {
               {schoolInfo.contact}
             </p>
             <p className="text-gray-600">
-              <span className="font-semibold text-secondary">School Type:</span> {schoolInfo.school_type}
-            </p>
-            <p className="text-gray-600">
-              <span className="font-semibold text-secondary">Scheme:</span> {schoolInfo.scheme}{" "}
-              <span className="font-semibold ml-1">| Sub Scheme:</span> {schoolInfo.sub_scheme}
+              <span className="font-semibold text-secondary">School Type:</span> {schoolInfo.scheme}{" "}
             </p>
           </div>
         </div>
@@ -149,9 +171,17 @@ export default function SchoolDetailsPage() {
 
         {/* Employee Search & Table */}
         <div className="bg-white p-6 rounded-lg shadow mb-8">
-          <h2 className="text-2xl font-semibold text-gray-800 mb-6 flex items-center gap-2">
-            <Users className="w-6 h-6 text-primary" /> Employees
-          </h2>
+          <div className="flex justify-between items-center">
+            <h2 className="text-2xl font-semibold text-gray-800 mb-6 flex items-center gap-2">
+              <Users className="w-6 h-6 text-primary" /> Employees
+            </h2>
+            <button
+                    onClick={() => setIsAddModalOpen(true)}
+                    className="font-semibold text-[13px] px-4 py-2 bg-primary transition text-white rounded hover:bg-blue-600"
+                  >
+                    Add New Employee
+                  </button>
+          </div>
           <div className="bg-white rounded-lg overflow-x-auto border">
           <table className="min-w-full divide-y divide-gray-200">
               <thead className="bg-gray-50">
@@ -209,6 +239,325 @@ export default function SchoolDetailsPage() {
           </div>
         </div>
       </div>
+
+      {isAddModalOpen && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 py-10">
+          <div className="bg-white  p-6 max-h-full overflow-y-auto w-full max-w-3xl">
+            <h2 className="text-xl font-bold mb-4 text-gray-800">
+              Add New Employee
+            </h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-sm">
+              {/* UDISE Code */}
+              <div>
+                <label className="font-semibold text-gray-600 block mb-1">
+                  UDISE Code
+                </label>
+                <input
+                  type="text"
+                  value={newEmployeeData.udise_code || ""}
+                  onChange={(e) =>
+                    setNewEmployeeData({
+                      ...newEmployeeData,
+                      udise_code: e.target.value,
+                    })
+                  }
+                  className="border border-gray-300 rounded w-full p-2"
+                />
+              </div>
+              {/* Name of Sanctioned Posts */}
+              <div>
+                <label className="font-semibold text-gray-600 block mb-1">
+                  Name of Sanctioned Posts
+                </label>
+                <input
+                  type="text"
+                  value={newEmployeeData.name_of_sanctioned_posts || ""}
+                  onChange={(e) =>
+                    setNewEmployeeData({
+                      ...newEmployeeData,
+                      name_of_sanctioned_posts: e.target.value,
+                    })
+                  }
+                  className="border border-gray-300 rounded w-full p-2"
+                />
+              </div>
+              {/* Employee Name */}
+              <div>
+                <label className="font-semibold text-gray-600 block mb-1">
+                  Employee Name
+                </label>
+                <input
+                  type="text"
+                  value={newEmployeeData.emp_name || ""}
+                  onChange={(e) =>
+                    setNewEmployeeData({
+                      ...newEmployeeData,
+                      emp_name: e.target.value,
+                    })
+                  }
+                  className="border border-gray-300 rounded w-full p-2"
+                />
+              </div>
+              {/* Employee ID */}
+              <div>
+                <label className="font-semibold text-gray-600 block mb-1">
+                  Employee ID
+                </label>
+                <input
+                  type="number"
+                  value={newEmployeeData.emp_id || ""}
+                  onChange={(e) =>
+                    setNewEmployeeData({
+                      ...newEmployeeData,
+                      emp_id: Number(e.target.value),
+                    })
+                  }
+                  className="border border-gray-300 rounded w-full p-2"
+                />
+              </div>
+              {/* Date of Birth */}
+              <div>
+                <label className="font-semibold text-gray-600 block mb-1">
+                  Date of Birth
+                </label>
+                <input
+                  type="date"
+                  value={newEmployeeData.date_of_birth || ""}
+                  onChange={(e) =>
+                    setNewEmployeeData({
+                      ...newEmployeeData,
+                      date_of_birth: e.target.value,
+                    })
+                  }
+                  className="border border-gray-300 rounded w-full p-2"
+                />
+              </div>
+              {/* Date of First Appointment */}
+              <div>
+                <label className="font-semibold text-gray-600 block mb-1">
+                  Date of First Appointment
+                </label>
+                <input
+                  type="date"
+                  value={newEmployeeData.date_of_first_appointment || ""}
+                  onChange={(e) =>
+                    setNewEmployeeData({
+                      ...newEmployeeData,
+                      date_of_first_appointment: e.target.value,
+                    })
+                  }
+                  className="border border-gray-300 rounded w-full p-2"
+                />
+              </div>
+              {/* Designation at First Appointment */}
+              <div>
+                <label className="font-semibold text-gray-600 block mb-1">
+                  Designation at First Appointment
+                </label>
+                <input
+                  type="text"
+                  value={newEmployeeData.designation_at_first_appointment || ""}
+                  onChange={(e) =>
+                    setNewEmployeeData({
+                      ...newEmployeeData,
+                      designation_at_first_appointment: e.target.value,
+                    })
+                  }
+                  className="border border-gray-300 rounded w-full p-2"
+                />
+              </div>
+              {/* Qualification */}
+              <div>
+                <label className="font-semibold text-gray-600 block mb-1">
+                  Qualification
+                </label>
+                <input
+                  type="text"
+                  value={newEmployeeData.qualification || ""}
+                  onChange={(e) =>
+                    setNewEmployeeData({
+                      ...newEmployeeData,
+                      qualification: e.target.value,
+                    })
+                  }
+                  className="border border-gray-300 rounded w-full p-2"
+                />
+              </div>
+              {/* Subject in PG */}
+              <div>
+                <label className="font-semibold text-gray-600 block mb-1">
+                  Subject in PG
+                </label>
+                <input
+                  type="text"
+                  value={newEmployeeData.subject_in_pg || ""}
+                  onChange={(e) =>
+                    setNewEmployeeData({
+                      ...newEmployeeData,
+                      subject_in_pg: e.target.value,
+                    })
+                  }
+                  className="border border-gray-300 rounded w-full p-2"
+                />
+              </div>
+              {/* Present Designation */}
+              <div>
+                <label className="font-semibold text-gray-600 block mb-1">
+                  Present Designation
+                </label>
+                <input
+                  type="text"
+                  value={newEmployeeData.present_designation || ""}
+                  onChange={(e) =>
+                    setNewEmployeeData({
+                      ...newEmployeeData,
+                      present_designation: e.target.value,
+                    })
+                  }
+                  className="border border-gray-300 rounded w-full p-2"
+                />
+              </div>
+              {/* Date of Latest Promotion */}
+              <div>
+                <label className="font-semibold text-gray-600 block mb-1">
+                  Date of Latest Promotion
+                </label>
+                <input
+                  type="date"
+                  value={newEmployeeData.date_of_latest_promotion || ""}
+                  onChange={(e) =>
+                    setNewEmployeeData({
+                      ...newEmployeeData,
+                      date_of_latest_promotion: e.target.value,
+                    })
+                  }
+                  className="border border-gray-300 rounded w-full p-2"
+                />
+              </div>
+              {/* Date of Retirement */}
+              <div>
+                <label className="font-semibold text-gray-600 block mb-1">
+                  Date of Retirement
+                </label>
+                <input
+                  type="date"
+                  value={newEmployeeData.date_of_retirement || ""}
+                  onChange={(e) =>
+                    setNewEmployeeData({
+                      ...newEmployeeData,
+                      date_of_retirement: e.target.value,
+                    })
+                  }
+                  className="border border-gray-300 rounded w-full p-2"
+                />
+              </div>
+              {/* Working Since (Current Office) */}
+              <div>
+                <label className="font-semibold text-gray-600 block mb-1">
+                  Working Since (Current Office)
+                </label>
+                <input
+                  type="date"
+                  value={
+                    newEmployeeData.date_from_which_working_in_this_current_office ||
+                    ""
+                  }
+                  onChange={(e) =>
+                    setNewEmployeeData({
+                      ...newEmployeeData,
+                      date_from_which_working_in_this_current_office:
+                        e.target.value,
+                    })
+                  }
+                  className="border border-gray-300 rounded w-full p-2"
+                />
+              </div>
+              {/* Current Payscale */}
+              <div>
+                <label className="font-semibold text-gray-600 block mb-1">
+                  Current Payscale
+                </label>
+                <input
+                  type="text"
+                  value={newEmployeeData.current_payscale || ""}
+                  onChange={(e) =>
+                    setNewEmployeeData({
+                      ...newEmployeeData,
+                      current_payscale: e.target.value,
+                    })
+                  }
+                  className="border border-gray-300 rounded w-full p-2"
+                />
+              </div>
+              {/* Pay Level */}
+              <div>
+                <label className="font-semibold text-gray-600 block mb-1">
+                  Pay Level
+                </label>
+                <input
+                  type="text"
+                  value={newEmployeeData.pay_level || ""}
+                  onChange={(e) =>
+                    setNewEmployeeData({
+                      ...newEmployeeData,
+                      pay_level: e.target.value,
+                    })
+                  }
+                  className="border border-gray-300 rounded w-full p-2"
+                />
+              </div>
+              {/* Gross Salary */}
+              <div>
+                <label className="font-semibold text-gray-600 block mb-1">
+                  Gross Salary
+                </label>
+                <input
+                  type="text"
+                  value={newEmployeeData.gross_salary || ""}
+                  onChange={(e) =>
+                    setNewEmployeeData({
+                      ...newEmployeeData,
+                      gross_salary: e.target.value,
+                    })
+                  }
+                  className="border border-gray-300 rounded w-full p-2"
+                />
+              </div>
+              {/* NPS/OPS */}
+              <div>
+                <label className="font-semibold text-gray-600 block mb-1">
+                  NPS/OPS
+                </label>
+                <input
+                  type="text"
+                  value={newEmployeeData.whether_nps_or_ops || ""}
+                  onChange={(e) =>
+                    setNewEmployeeData({
+                      ...newEmployeeData,
+                      whether_nps_or_ops: e.target.value,
+                    })
+                  }
+                  className="border border-gray-300 rounded w-full p-2"
+                />
+              </div>
+            </div>
+            <div className="mt-4 flex gap-4">
+              <button
+                onClick={handleSaveNewEmployee}
+                className="font-semibold text-[13px] px-4 py-2 bg-primary text-white rounded transition hover:bg-blue-600"
+              >
+                Save
+              </button>
+              <button
+                onClick={() => setIsAddModalOpen(false)}
+                className="font-semibold text-[13px] px-4 py-2 transition bg-gray-300 text-gray-700 rounded hover:bg-gray-400"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

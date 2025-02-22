@@ -24,11 +24,53 @@ import {
   ResponsiveContainer,
 } from "recharts";
 
+
 // Mock Data
 const attendanceData = [
   { date: "2024-02-01", present: 80, absent: 10, leave: 5 },
   { date: "2024-02-02", present: 75, absent: 12, leave: 8 },
   { date: "2024-02-03", present: 85, absent: 5, leave: 6 },
+];
+
+
+const retirementEmployees = [
+  {
+    emp_id: 4623,
+    school_id: "89",
+    emp_name: "Amit Sharma",
+    present_designation: "Senior Assistant",
+    date_of_retirement: "2025-03-15",
+    
+     // soon (within 30 days if today is 2025-02-23)
+  },
+  {
+    emp_id: 4623,
+    school_id: "89",
+    emp_name: "Suman Verma",
+    present_designation: "Principal",
+    date_of_retirement: "2050-05-15", // far in the future
+  },
+  {
+    emp_id: 4624,
+    school_id: "89",
+    emp_name: "Rahul Singh",
+    present_designation: "Teacher",
+    date_of_retirement: "2025-03-05", // soon
+  },
+  {
+    emp_id: 4625,
+    school_id: "89",
+    emp_name: "Neha Gupta",
+    present_designation: "Vice Principal",
+    date_of_retirement: "2049-03-25", // far in the future
+  },
+  {
+    emp_id: 4627,
+    school_id: "89",
+    emp_name: "Rohit Kumar",
+    present_designation: "Clerk",
+    date_of_retirement: "2025-02-28", // very soon
+  },
 ];
 
 const totalEmployees = 120; // Example count
@@ -37,6 +79,23 @@ const attendanceRate = 92; // Example percentage
 
 export default function LocalAdminDashboard() {
   const [recentActivities, setRecentActivities] = useState([]);
+  const [filteredRetirements, setFilteredRetirements] = useState([]);
+  const [filterDays, setFilterDays] = useState(30);
+
+  const computeDaysLeft = (dateOfRetirement) => {
+    const today = new Date();
+    const retirementDate = new Date(dateOfRetirement);
+    const diffTime = retirementDate - today;
+    return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+  };
+
+  useEffect(() => {
+      const filtered = retirementEmployees.filter((emp) => {
+        const daysLeft = computeDaysLeft(emp.date_of_retirement);
+        return daysLeft <= filterDays;
+      });
+      setFilteredRetirements(filtered);
+    }, [filterDays]);
 
   useEffect(() => {
     setRecentActivities([
@@ -117,6 +176,84 @@ export default function LocalAdminDashboard() {
               <FileText size={16} /> Generate Report
             </button>
           </Link>
+        </div>
+      </div>
+
+      <div className="bg-white shadow-sm rounded-lg p-4 border-l-2 border-primary">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4">
+          <h3 className="text-xl font-bold text-gray-800 mb-2 sm:mb-0">
+            Retirement Announcements
+          </h3>
+          <div className="flex items-center space-x-2">
+            <label htmlFor="filter" className="text-sm text-gray-700">
+              Show retirements in next (days):
+            </label>
+            <input
+              type="number"
+              id="filter"
+              value={filterDays}
+              onChange={(e) => setFilterDays(Number(e.target.value))}
+              className="w-16 border border-gray-300 rounded p-1 text-sm"
+            />
+          </div>
+        </div>
+        <div className="overflow-x-auto">
+          <table className="min-w-full divide-y divide-gray-200">
+            <thead className="bg-gray-100">
+              <tr>
+                <th className="px-4 py-2 text-left text-sm font-medium text-gray-700">
+                  Employee ID
+                </th>
+                <th className="px-4 py-2 text-left text-sm font-medium text-gray-700">
+                  Name
+                </th>
+                <th className="px-4 py-2 text-left text-sm font-medium text-gray-700">
+                  Designation
+                </th>
+                <th className="px-4 py-2 text-left text-sm font-medium text-gray-700">
+                  Date of Retirement
+                </th>
+                <th className="px-4 py-2 text-left text-sm font-medium text-gray-700">
+                  Actions
+                </th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-gray-200">
+              {filteredRetirements.map((emp) => (
+                <tr key={emp.emp_id}>
+                  <td className="px-4 py-2 text-sm text-gray-800">
+                    {emp.emp_id}
+                  </td>
+                  <td className="px-4 py-2 text-sm text-gray-800">
+                    {emp.emp_name}
+                  </td>
+                  <td className="px-4 py-2 text-sm text-gray-800">
+                    {emp.present_designation}
+                  </td>
+                  <td className="px-4 py-2 text-sm text-gray-800">
+                    {emp.date_of_retirement}
+                  </td>
+                  <td>
+                  <Link href={`/home/school-status/${emp.school_id}/4623`}>
+                        <button className="py-1 px-3 bg-primary text-white rounded-full font-medium text-xs hover:bg-blue-600 transition">
+                          View
+                        </button>
+                      </Link>
+                  </td>
+                </tr>
+              ))}
+              {filteredRetirements.length === 0 && (
+                <tr>
+                  <td
+                    colSpan="4"
+                    className="px-4 py-2 text-sm text-gray-700 text-center"
+                  >
+                    No retirements within the next {filterDays} days.
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
         </div>
       </div>
     </div>

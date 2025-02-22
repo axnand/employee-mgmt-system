@@ -11,7 +11,6 @@
           "address": "29894 Riverside Blvd, Reno, NV 89501",
           "principal": "Divya Joshi",
           "contact": "+1 (775) 249-7492",
-          "school_type": "Public",
           "scheme": "elementary",
           "sub_scheme": "10+2",
           "employees": [
@@ -65,7 +64,6 @@
           "address": "1234 Park Ave, Bhaderwah, 12501",
           "principal": "Rahul Verma",
           "contact": "+1 (775) 249-7493",
-          "school_type": "Private",
           "scheme": "secondary",
           "sub_scheme": "10+2G",
           "employees": [
@@ -121,7 +119,6 @@
           "address": "45 Bright Street, Bhaghwah, 13012",
           "principal": "Anil Kumar",
           "contact": "+1 (775) 249-7494",
-          "school_type": "Public",
           "scheme": "secondary",
           "sub_scheme": "sec.b",
           "employees": [
