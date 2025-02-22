@@ -5,6 +5,7 @@ import { Users, Search, ChevronLeft } from "lucide-react";
 import Link from "next/link";
 import districtData from "@/data/data.json";
 import { School, MapPin, User, Phone } from "lucide-react";
+import { useUser } from "@/context/UserContext";
 
 // Flatten schools from all zones, attach zone info, and generate a unique id if needed.
 const allSchools = districtData.zones.flatMap((zone, zoneIndex) =>
@@ -21,6 +22,8 @@ export default function SchoolDetailsPage() {
   const [schoolInfo, setSchoolInfo] = useState(
     allSchoolsState.find((school) => school.id === parseInt(schoolId, 10))
   );
+
+  const { user, userRole } = useUser();
 
   // Update schoolInfo whenever allSchoolsState changes
   useEffect(() => {
@@ -83,11 +86,11 @@ export default function SchoolDetailsPage() {
   return (
     <div className="min-h-screen p-4 capitalize">
       <div className="max-w-7xl mx-auto">
-        <Link href="/home/school-status">
+        {userRole === "mainAdmin" && (<Link href="/home/school-status">
           <button className="mb-6 text-[15px] font-semibold rounded-md text-secondary hover:text-primary transition flex items-center">
             <ChevronLeft className="w-4 h-4 mr-1" /> <span>Back</span>
           </button>
-        </Link>
+        </Link>)}
 
         {/* School Information Card */}
         <div className="bg-white border-l-2 border-primary p-6 rounded-lg shadow-sm transition duration-300 mb-8 font-medium text-sm">

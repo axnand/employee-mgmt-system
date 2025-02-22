@@ -1,4 +1,4 @@
-'use client'
+"use client";
 import React, { useState, useEffect, useMemo } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import {
@@ -9,6 +9,7 @@ import {
   ArrowLeftRightIcon,
   Clipboard,
   LogOut,
+  ChevronRight,
 } from "lucide-react";
 import Link from "next/link";
 import { TopBar } from "@/components/TopBar";
@@ -17,17 +18,20 @@ import { useUser } from "@/context/UserContext";
 export default function DashboardLayout({ children }) {
   const pathname = usePathname();
   const router = useRouter();
-  const [activeTab, setActiveTab] = useState('');
+  const [activeTab, setActiveTab] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  // State for toggling the Transfers subnav
+  const [transfersOpen, setTransfersOpen] = useState(false);
 
   // Retrieve the logged-in user from localStorage on mount
-  
   const { user, userRole } = useUser();
   console.log("User role:", userRole);
   console.log("User:", user);
 
   const schoolId = useMemo(() => {
-    return userRole === "localAdmin" && user?.schoolId ? parseInt(user.schoolId, 10) : null;
+    return userRole === "localAdmin" && user?.schoolId
+      ? parseInt(user.schoolId, 10)
+      : null;
   }, [userRole, user]);
 
   // Define navigation items for each role
@@ -45,8 +49,17 @@ export default function DashboardLayout({ children }) {
       },
       {
         title: "Transfers",
-        href: "/home/transfers",
         icon: <ArrowLeftRightIcon className="mr-2 h-5 w-5" />,
+        subNav: [
+          {
+            title: "Outgoing Transfers",
+            href: "/home/transfers/outgoing",
+          },
+          {
+            title: "Incoming Transfers",
+            href: "/home/transfers/incoming",
+          },
+        ],
       },
       {
         title: "Logs",
@@ -72,8 +85,17 @@ export default function DashboardLayout({ children }) {
       },
       {
         title: "Transfers",
-        href: "/home/transfers",
         icon: <ArrowLeftRightIcon className="mr-2 h-5 w-5" />,
+        subNav: [
+          {
+            title: "Outgoing Transfers",
+            href: "/home/transfers/outgoing",
+          },
+          {
+            title: "Incoming Transfers",
+            href: "/home/transfers/incoming",
+          },
+        ],
       },
       {
         title: "Logs",
@@ -87,7 +109,6 @@ export default function DashboardLayout({ children }) {
         href: "/home/dashboard",
         icon: <LayoutDashboard className="mr-2 h-5 w-5" />,
       },
-
     ],
   };
 
@@ -97,8 +118,17 @@ export default function DashboardLayout({ children }) {
   // Update active tab based on pathname
   useEffect(() => {
     navItems.forEach((item) => {
-      const segment = item.href.split("/").pop();
-      if (pathname.includes(segment)) {
+      // Check for subnav items as well
+      if (item.subNav) {
+        item.subNav.forEach((sub) => {
+          if (pathname.includes(sub.href.split("/").pop())) {
+            setActiveTab(sub.title);
+            setTransfersOpen(true);
+          }
+        });
+      }
+      const segment = item.href ? item.href.split("/").pop() : "";
+      if (segment && pathname.includes(segment)) {
         setActiveTab(item.title);
       }
     });
@@ -132,30 +162,70 @@ export default function DashboardLayout({ children }) {
           <hr className="mb-4" />
           <div className="flex flex-col justify-between text-sm h-full">
             <ul className="space-y-3">
-              {navItems.map((item) => (
-                <li key={item.title}>
-                  <Link
-                    href={item.href}
-                    className={`flex items-center hover:text-white transition py-3 px-2 rounded-md font-medium hover:bg-[#377DFF] ${
-                      activeTab === item.title
-                        ? "bg-[#377DFF] text-white"
-                        : "text-[#6c6d6d]"
-                    }`}
-                    onClick={() => handleTabClick(item.title)}
-                  >
-                    {item.icon}
-                    <span>{item.title}</span>
-                  </Link>
-                </li>
-              ))}
+              {navItems.map((item) =>
+                item.subNav ? (
+                  <li key={item.title}>
+                    <button
+                      className={`flex items-center w-full justify-between hover:text-white transition py-3 px-2 rounded-md font-medium hover:bg-[#377DFF] ${
+                        activeTab === item.title ? "bg-[#377DFF] text-white" : "text-[#6c6d6d]"
+                      }`}
+                      onClick={() => {
+                        setActiveTab(item.title);
+                        setTransfersOpen((prev) => !prev);
+                      }}
+                    >
+                      <div className="flex items-center">
+                        {item.icon}
+                        <span>{item.title}</span>
+                      </div>
+                      <ChevronRight
+                        className={`h-5 w-5 transition-transform duration-300 ${
+                          transfersOpen ? "rotate-90" : ""
+                        }`}
+                      />
+                    </button>
+                    <div
+                      className="overflow-hidden transition-all duration-300"
+                      style={{ maxHeight: transfersOpen ? "110px" : "0px" }}
+                    >
+                      <ul className="pl-8 my-2 gap-y-2 flex flex-col">
+                        {item.subNav.map((sub) => (
+                          <li key={sub.title}>
+                            <Link
+                              href={sub.href}
+                              className={`flex items-center hover:text-white transition py-3 px-2 rounded-md font-medium hover:bg-[#377DFF] ${
+                                activeTab === sub.title ? "bg-[#377DFF] text-white" : "text-[#6c6d6d]"
+                              }`}
+                              onClick={() => handleTabClick(sub.title)}
+                            >
+                              <span>{sub.title}</span>
+                            </Link>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  </li>
+                ) : (
+                  <li key={item.title}>
+                    <Link
+                      href={item.href}
+                      className={`flex items-center hover:text-white transition py-3 px-2 rounded-md font-medium hover:bg-[#377DFF] ${
+                        activeTab === item.title ? "bg-[#377DFF] text-white" : "text-[#6c6d6d]"
+                      }`}
+                      onClick={() => handleTabClick(item.title)}
+                    >
+                      {item.icon}
+                      <span>{item.title}</span>
+                    </Link>
+                  </li>
+                )
+              )}
             </ul>
             <div>
               <button
                 onClick={handleLogout}
                 className={`flex w-full items-center hover:text-white transition py-3 px-2 rounded-md font-medium hover:bg-[#377DFF] ${
-                  activeTab === "logout"
-                    ? "bg-[#377DFF] text-white"
-                    : "text-[#6c6d6d]"
+                  activeTab === "logout" ? "bg-[#377DFF] text-white" : "text-[#6c6d6d]"
                 }`}
               >
                 <LogOut className="mr-2 h-5 w-5" />

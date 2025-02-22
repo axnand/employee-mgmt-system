@@ -10,7 +10,7 @@ function page() {
   return (
     <>
     {userRole === "mainAdmin" && <TransfersPage/>}
-    {userRole === "localAdmin" && <LocalTransfersPage/>}
+    
     </>
     
   )

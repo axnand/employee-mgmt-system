@@ -1,8 +1,9 @@
 "use client";
-import { useState } from "react";
+import { use, useState } from "react";
 import Link from "next/link";
 import { School } from "lucide-react";
 import districtData from "@/data/data.json";
+import { useUser } from "@/context/UserContext";
 
 // Flatten schools from all zones, attach zone info, and generate a unique id if needed.
 const allSchools = districtData.zones.flatMap((zone, zoneIndex) =>
@@ -18,6 +19,8 @@ export default function SchoolStatusPage() {
   const [selectedScheme, setSelectedScheme] = useState("");
   const [selectedSubScheme, setSelectedSubScheme] = useState("");
   const [filteredSchools, setFilteredSchools] = useState(allSchools);
+
+  const { user, userRole } = useUser();
 
   // Unique zone options
   const zoneOptions = [...new Set(allSchools.map((s) => s.zone))];
@@ -47,7 +50,8 @@ export default function SchoolStatusPage() {
   };
 
   return (
-    <div className="min-h-screen capitalize">
+    <>
+    {userRole === "mainAdmin" ? (<div className="min-h-screen capitalize">
       <div className="max-w-7xl mx-auto px-4">
         {/* Page Header */}
         <header className="mb-8">
@@ -217,6 +221,9 @@ export default function SchoolStatusPage() {
           </table>
         </div>
       </div>
-    </div>
+    </div>):
+    <div className="h-full w-full flex justify-center items-center font-bold text-xl text-secondary">Unauthorized Access</div>
+    }
+    </>
   );
 }
