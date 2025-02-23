@@ -1,7 +1,7 @@
 "use client";
 import { useState, useEffect } from "react";
 import { useParams } from "next/navigation";
-import { Users, Search, ChevronLeft } from "lucide-react";
+import { Users, Search, ChevronLeft, Check, X, AlertTriangle, Briefcase } from "lucide-react";
 import Link from "next/link";
 import districtData from "@/data/data.json";
 import { School, MapPin, User, Phone } from "lucide-react";
@@ -73,6 +73,21 @@ export default function SchoolDetailsPage() {
     setNewEmployeeData({});
 
     console.log("Updated Schools Data:", updatedSchools);
+  };
+
+  const statusIcon = (attendance) => {
+    switch (attendance) {
+      case "Present":
+        return <Check className="w-5 h-5 text-green-500" />;
+      case "Absent":
+        return <X className="w-5 h-5 text-red-500" />;
+      case "Leave":
+        return <AlertTriangle className="w-5 h-5 text-yellow-500" />;
+      case "On Duty":
+        return <Briefcase className="w-5 h-5 text-blue-500" />;
+      default:
+        return null;
+    }
   };
 
   if (!schoolInfo) {
@@ -199,7 +214,7 @@ export default function SchoolDetailsPage() {
                     Designation
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
-                    Date of Retirement
+                    Status
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
                     Actions
@@ -218,8 +233,13 @@ export default function SchoolDetailsPage() {
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                       {emp.present_designation}
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                      {emp.date_of_retirement}
+                    <td className="px-6 py-4 whitespace-nowrap flex items-center text-sm text-gray-900">
+                    {emp.attendance ? (
+                            <>
+                            {statusIcon(emp.attendance)}
+                            <span className="ml-2">{emp.attendance}</span>
+                            </>
+                        ): "No Status"}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm">
                     <Link href={`/home/school-status/${encodeURIComponent(schoolInfo.id)}/${emp.emp_id}`}>

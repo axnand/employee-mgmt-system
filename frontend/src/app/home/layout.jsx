@@ -54,8 +54,8 @@ export default function DashboardLayout({ children }) {
         icon: <ArrowLeftRightIcon className="mr-2 h-5 w-5" />,
       },
       {
-        title: "Reports",
-        href: "/home/reports",
+        title: "Staff statement",
+        href: "/home/staff-statement",
         icon: <File className="mr-2 h-5 w-5" />,
       },
       {
@@ -96,8 +96,8 @@ export default function DashboardLayout({ children }) {
         ],
       },
       {
-        title: "Reports",
-        href: "/home/reports",
+        title: "Staff statement",
+        href: "/home/staff-statement",
         icon: <File className="mr-2 h-5 w-5" />,
       },
       {

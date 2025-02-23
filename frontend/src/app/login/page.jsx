@@ -8,7 +8,7 @@ import { useUser } from "@/context/UserContext"; // Import your context
 // Define three default users with roles and credentials
 const defaultUsers = [
   { role: "admin", userId: "admin", password: "admin123" },
-  { role: "schoolAdmin", userId: "schoolAdmin", password: "school123", school: "School A", schoolId: "89" },
+  { role: "schoolAdmin", userId: "schoolAdmin", password: "school123", schoolId: "101" },
   { role: "staff", userId: "staff", password: "staff123" },
 ];
 

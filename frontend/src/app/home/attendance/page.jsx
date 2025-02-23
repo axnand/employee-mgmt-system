@@ -1,28 +1,49 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Users, Search, Check, X, AlertTriangle, Briefcase, BookA, UserRoundPenIcon } from "lucide-react";
 import { ToastContainer, toast } from "react-toastify";
 import { User, UserCheck, UserX, UserMinus } from "lucide-react";
 import "react-toastify/dist/ReactToastify.css";
+import { useUser } from "@/context/UserContext";
+import schoolData from "@/data/data.json"; // import your JSON data
 
-// Mock Employee Data
-const mockEmployees = [
-  { id: 1, name: "John Doe", designation: "Teacher", school: "School A", status: "Present" },
-  { id: 2, name: "Jane Smith", designation: "Non-Teaching Staff", school: "School B", status: "Absent" },
-  { id: 3, name: "Alice Brown", designation: "Teacher", school: "School C", status: "Leave" },
-  { id: 4, name: "Michael Johnson", designation: "Non-Teaching Staff", school: "School A", status: "On Duty" },
-];
-
+// Define the possible attendance options
 const attendanceOptions = ["Present", "Absent", "Leave", "On Duty"];
 
 export default function AttendancePage() {
-  const [employees, setEmployees] = useState(mockEmployees);
+  const { user } = useUser();
+  const schoolId = user?.schoolId;
+  console.log("School ID:", schoolId);
+
+  // Initialize employees as an empty array.
+  const [employees, setEmployees] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [filterStatus, setFilterStatus] = useState("");
   const [bulkStatus, setBulkStatus] = useState("");
   const [selectedEmployees, setSelectedEmployees] = useState([]);
 
-  // Update attendance for individual employee
+  // useEffect to update employee data when the user (and schoolId) becomes available.
+  useEffect(() => {
+    if (schoolId) {
+      const school =
+        schoolData?.zones
+          .flatMap((zone) => zone.schools)
+          .find((s) => String(s.id) === String(schoolId)) || null;
+      console.log("Found School:", school);
+      if (school) {
+        const initialEmployees = school.employees.map((emp) => ({
+          id: emp.emp_id,
+          name: emp.emp_name,
+          designation: emp.present_designation,
+          school: school.name,
+          status: emp.attendance,
+        }));
+        setEmployees(initialEmployees);
+      }
+    }
+  }, [schoolId]);
+
+  // Update attendance for an individual employee
   const updateAttendance = (id, status) => {
     setEmployees((prev) =>
       prev.map((emp) => (emp.id === id ? { ...emp, status } : emp))
@@ -58,12 +79,12 @@ export default function AttendancePage() {
   // Toggle employee selection for bulk action
   const toggleSelectEmployee = (id) => {
     setSelectedEmployees((prev) =>
-      prev.includes(id) ? prev.filter(e => e !== id) : [...prev, id]
+      prev.includes(id) ? prev.filter((e) => e !== id) : [...prev, id]
     );
   };
 
   // Filter employees based on search term and attendance status filter
-  const filteredEmployees = employees.filter(emp => {
+  const filteredEmployees = employees.filter((emp) => {
     const matchesSearch =
       emp.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       emp.designation.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -89,69 +110,80 @@ export default function AttendancePage() {
   };
 
   return (
-    <div className=" min-h-screen">
-      <ToastContainer position="top-right" autoClose={3000} hideProgressBar={false} closeOnClick pauseOnHover draggable />
+    <div className="min-h-screen">
+      <ToastContainer
+        position="top-right"
+        autoClose={3000}
+        hideProgressBar={false}
+        closeOnClick
+        pauseOnHover
+        draggable
+      />
       <div className="max-w-7xl mx-auto">
-        <h1 className="text-2xl font-bold text-secondary flex items-center gap-2 mb-6"><BookA className="w-8 h-8 text-primary" />Attendance Dashboard</h1>
-
+        <h1 className="text-2xl font-bold text-secondary flex items-center gap-2 mb-6">
+          <BookA className="w-8 h-8 text-primary" /> Attendance Dashboard
+        </h1>
 
         {/* Dashboard Metrics */}
-        
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+          {/* Total Employees */}
+          <div className="bg-white shadow-sm rounded-lg p-4 flex flex-col border-l-2 border-primary">
+            <div className="flex items-center space-x-2">
+              <Users className="h-5 w-5 text-purple-700" />
+              <h3 className="text-[15px] font-semibold">Total Employees</h3>
+            </div>
+            <p className="text-[13px] pt-1 text-gray-600">Teaching & Non-Teaching staff</p>
+            <div className="text-2xl font-bold">{employees.length}</div>
+          </div>
 
-<div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-  {/* Total Employees */}
-  <div className="bg-white shadow-sm rounded-lg p-4 flex flex-col border-l-2 border-primary">
-    <div className="flex items-center space-x-2">
-      <Users className="h-5 w-5 text-purple-700" />
-      <h3 className="text-[15px] font-semibold">Total Employees</h3>
-    </div>
-    <p className="text-[13px] pt-1 text-gray-600">Teaching & Non-Teaching staff</p>
-    <div className="text-2xl font-bold">{employees.length}</div>
-  </div>
+          {/* Present Today */}
+          <div className="bg-white shadow-sm rounded-lg p-4 flex flex-col border-l-2 border-primary">
+            <div className="flex items-center space-x-2">
+              <UserCheck className="h-5 w-5 text-green-500" />
+              <h3 className="text-[15px] font-semibold">Present Today</h3>
+            </div>
+            <p className="text-[13px] pt-1 text-gray-600">Employees currently present</p>
+            <div className="text-2xl font-bold">
+              {employees.filter((emp) => emp.status === "Present").length}
+            </div>
+          </div>
 
-  {/* Present Today */}
-  <div className="bg-white shadow-sm rounded-lg p-4 flex flex-col border-l-2 border-primary">
-    <div className="flex items-center space-x-2">
-      <UserCheck className="h-5 w-5 text-green-500" />
-      <h3 className="text-[15px] font-semibold">Present Today</h3>
-    </div>
-    <p className="text-[13px] pt-1 text-gray-600">Employees currently present</p>
-    <div className="text-2xl font-bold">{employees.filter(emp => emp.status === "Present").length}</div>
-  </div>
+          {/* Absent Today */}
+          <div className="bg-white shadow-sm rounded-lg p-4 flex flex-col border-l-2 border-primary">
+            <div className="flex items-center space-x-2">
+              <UserX className="h-5 w-5 text-red-500" />
+              <h3 className="text-[15px] font-semibold">Absent Today</h3>
+            </div>
+            <p className="text-[13px] pt-1 text-gray-600">Employees who are absent</p>
+            <div className="text-2xl font-bold">
+              {employees.filter((emp) => emp.status === "Absent").length}
+            </div>
+          </div>
 
-  {/* Absent Today */}
-  <div className="bg-white shadow-sm rounded-lg p-4 flex flex-col border-l-2 border-primary">
-    <div className="flex items-center space-x-2">
-      <UserX className="h-5 w-5 text-red-500" />
-      <h3 className="text-[15px] font-semibold">Absent Today</h3>
-    </div>
-    <p className="text-[13px] pt-1 text-gray-600">Employees who are absent</p>
-    <div className="text-2xl font-bold">{employees.filter(emp => emp.status === "Absent").length}</div>
-  </div>
+          {/* On Leave */}
+          <div className="bg-white shadow-sm rounded-lg p-4 flex flex-col border-l-2 border-primary">
+            <div className="flex items-center space-x-2">
+              <UserMinus className="h-5 w-5 text-yellow-500" />
+              <h3 className="text-[15px] font-semibold">On Leave</h3>
+            </div>
+            <p className="text-[13px] pt-1 text-gray-600">Employees on leave today</p>
+            <div className="text-2xl font-bold">
+              {employees.filter((emp) => emp.status === "Leave").length}
+            </div>
+          </div>
 
-  {/* On Leave */}
-  <div className="bg-white shadow-sm rounded-lg p-4 flex flex-col border-l-2 border-primary">
-    <div className="flex items-center space-x-2">
-      <UserMinus className="h-5 w-5 text-yellow-500" />
-      <h3 className="text-[15px] font-semibold">On Leave</h3>
-    </div>
-    <p className="text-[13px] pt-1 text-gray-600">Employees on leave today</p>
-    <div className="text-2xl font-bold">{employees.filter(emp => emp.status === "Leave").length}</div>
-  </div>
-
-  <div className="bg-white shadow-sm rounded-lg p-4 flex flex-col border-l-2 border-primary">
-    <div className="flex items-center space-x-2">
-      <UserRoundPenIcon className="h-5 w-5 text-blue-500" />
-      <h3 className="text-[15px] font-semibold">On Duty</h3>
-    </div>
-    <p className="text-[13px] pt-1 text-gray-600">Employees who are on office duty</p>
-    <div className="text-2xl font-bold">{employees.filter(emp => emp.status === "On Duty").length}</div>
-  </div>
-</div>
-
-
-        {/* Bulk Update Section */}
-        
+          {/* On Duty */}
+          <div className="bg-white shadow-sm rounded-lg p-4 flex flex-col border-l-2 border-primary">
+            <div className="flex items-center space-x-2">
+              <UserRoundPenIcon className="h-5 w-5 text-blue-500" />
+              <h3 className="text-[15px] font-semibold">On Duty</h3>
+            </div>
+            <p className="text-[13px] pt-1 text-gray-600">Employees on office duty</p>
+            <div className="text-2xl font-bold">
+              {employees.filter((emp) => emp.status === "On Duty").length}
+            </div>
+          </div>
+        </div>
 
         {/* Filters */}
         <div className="bg-white p-6 rounded-lg shadow-sm mb-6 border-l-[2px] border-primary">
@@ -185,47 +217,48 @@ export default function AttendancePage() {
               >
                 <option value="">All</option>
                 {attendanceOptions.map((status, idx) => (
-                  <option key={idx} value={status}>{status}</option>
+                  <option key={idx} value={status}>
+                    {status}
+                  </option>
                 ))}
               </select>
             </div>
           </div>
         </div>
-        
 
         {/* Attendance Table */}
         <div className="bg-white p-6 rounded-lg shadow-sm">
           <h2 className="text-2xl font-semibold text-gray-800 mb-4 flex items-center gap-2">
             <Users className="w-6 h-6 text-primary" /> Employee Attendance
           </h2>
-          <div className="w-full flex items-center  justify-end">
-        <div className=" flex items-center mb-6 gap-2">
-          
-          <div className="flex flex-col sm:flex-row sm:items-end sm:space-x-4">
-              <select
-                id="bulkStatus"
-                value={bulkStatus}
-                onChange={(e) => setBulkStatus(e.target.value)}
-                className="block w-full border-gray-300 rounded-md border py-2 px-2 text-sm"
-              >
-                <option value="">-- Select Attendance Status --</option>
-                {attendanceOptions.map((status, idx) => (
-                  <option key={idx} value={status}>{status}</option>
-                ))}
-              </select>
-            </div>
-            <div>
-              <button
-                className="bg-primary hover:bg-blue-600 transition text-sm font-semibold text-white px-4 py-2 rounded-md"
-                onClick={applyBulkUpdate}
-              >
-                Apply
-              </button>
+          <div className="w-full flex items-center justify-end">
+            <div className="flex items-center mb-6 gap-2">
+              <div className="flex flex-col sm:flex-row sm:items-end sm:space-x-4">
+                <select
+                  id="bulkStatus"
+                  value={bulkStatus}
+                  onChange={(e) => setBulkStatus(e.target.value)}
+                  className="block w-full border-gray-300 rounded-md border py-2 px-2 text-sm"
+                >
+                  <option value="">-- Select Attendance Status --</option>
+                  {attendanceOptions.map((status, idx) => (
+                    <option key={idx} value={status}>
+                      {status}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div>
+                <button
+                  className="bg-primary hover:bg-blue-600 transition text-sm font-semibold text-white px-4 py-2 rounded-md"
+                  onClick={applyBulkUpdate}
+                >
+                  Apply
+                </button>
+              </div>
             </div>
           </div>
-          
-        </div>
-        <div className="overflow-x-auto">
+          <div className="overflow-x-auto">
             <table className="min-w-full divide-y divide-gray-200">
               <thead className="bg-gray-50">
                 <tr>
@@ -238,7 +271,7 @@ export default function AttendancePage() {
                       }
                       onChange={(e) => {
                         if (e.target.checked) {
-                          setSelectedEmployees(filteredEmployees.map(emp => emp.id));
+                          setSelectedEmployees(filteredEmployees.map((emp) => emp.id));
                         } else {
                           setSelectedEmployees([]);
                         }
@@ -264,7 +297,7 @@ export default function AttendancePage() {
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
-                {filteredEmployees.map(emp => (
+                {filteredEmployees.map((emp) => (
                   <tr key={emp.id}>
                     <td className="px-4 py-2">
                       <input
@@ -292,7 +325,9 @@ export default function AttendancePage() {
                       >
                         <option value="">Select Action</option>
                         {attendanceOptions.map((status, idx) => (
-                          <option key={idx} value={status}>{status}</option>
+                          <option key={idx} value={status}>
+                            {status}
+                          </option>
                         ))}
                       </select>
                     </td>
@@ -309,8 +344,7 @@ export default function AttendancePage() {
             </table>
           </div>
         </div>
-          
-        </div>
       </div>
+    </div>
   );
 }
