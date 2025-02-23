@@ -10,6 +10,7 @@ import {
   Clipboard,
   LogOut,
   ChevronRight,
+  File,
 } from "lucide-react";
 import Link from "next/link";
 import { TopBar } from "@/components/TopBar";
@@ -53,10 +54,16 @@ export default function DashboardLayout({ children }) {
         icon: <ArrowLeftRightIcon className="mr-2 h-5 w-5" />,
       },
       {
+        title: "Reports",
+        href: "/home/reports",
+        icon: <File className="mr-2 h-5 w-5" />,
+      },
+      {
         title: "Logs",
         href: "/home/logs",
         icon: <Clipboard className="mr-2 h-5 w-5" />,
       },
+      
     ],
     schoolAdmin: [
       {
@@ -89,10 +96,16 @@ export default function DashboardLayout({ children }) {
         ],
       },
       {
+        title: "Reports",
+        href: "/home/reports",
+        icon: <File className="mr-2 h-5 w-5" />,
+      },
+      {
         title: "Logs",
         href: "/home/logs",
         icon: <Clipboard className="mr-2 h-5 w-5" />,
       },
+      
     ],
     staff: [
       {
