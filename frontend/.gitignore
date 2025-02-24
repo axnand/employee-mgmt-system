@@ -40,5 +40,6 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
-#pnpm if using then remove from gitignore
+
+#pnpm (If using then remove from gitignore)
 pnpm-lock.yaml
