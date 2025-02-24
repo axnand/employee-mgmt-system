@@ -16,6 +16,8 @@
     import Calendar from "react-calendar";
     import "react-calendar/dist/Calendar.css";
 
+    import "@/styles/customCalendar.css"
+
     // Dummy employee/user data
     const initialEmployeeData = {
       udise_code: 307435,
@@ -58,33 +60,33 @@
     // "Present" means on duty, "Absent" is absent, "Leave" means on leave.
     const attendanceHistoryData = [
       { date: "2025-02-01", status: "Present" },
-      { date: "2025-02-02", status: "Absent" },
-      { date: "2025-02-03", status: "Leave" },
+      { date: "2025-02-02", status: "Present" },
+      { date: "2025-02-03", status: "Present" },
       { date: "2025-02-04", status: "Present" },
       { date: "2025-02-05", status: "Present" },
-      { date: "2025-02-06", status: "Absent" },
+      { date: "2025-02-06", status: "Present" },
       { date: "2025-02-07", status: "Leave" },
-      { date: "2025-02-08", status: "Present" },
-      { date: "2025-02-09", status: "Present" },
-      { date: "2025-02-10", status: "Absent" },
-      { date: "2025-02-11", status: "Leave" },
+      { date: "2025-02-08", status: "Leave" },
+      { date: "2025-02-09", status: "Absent" },
+      { date: "2025-02-10", status: "Present" },
+      { date: "2025-02-11", status: "Present" },
       { date: "2025-02-12", status: "Present" },
       { date: "2025-02-13", status: "Present" },
-      { date: "2025-02-14", status: "Absent" },
-      { date: "2025-02-15", status: "Leave" },
+      { date: "2025-02-14", status: "Present" },
+      { date: "2025-02-15", status: "Present" },
       { date: "2025-02-16", status: "Present" },
       { date: "2025-02-17", status: "Present" },
-      { date: "2025-02-18", status: "Absent" },
-      { date: "2025-02-19", status: "Leave" },
+      { date: "2025-02-18", status: "Present" },
+      { date: "2025-02-19", status: "Present" },
       { date: "2025-02-20", status: "Present" },
-      { date: "2025-02-21", status: "Absent" },
-      { date: "2025-02-22", status: "Leave" },
+      { date: "2025-02-21", status: "Present" },
+      { date: "2025-02-22", status: "Present" },
       { date: "2025-02-23", status: "Present" },
-      { date: "2025-02-24", status: "Absent" },
+      { date: "2025-02-24", status: "Present" },
       { date: "2025-02-25", status: "Leave" },
       { date: "2025-02-26", status: "Present" },
-      { date: "2025-02-27", status: "Absent" },
-      { date: "2025-02-28", status: "Leave" },
+      { date: "2025-02-27", status: "Present" },
+      { date: "2025-02-28", status: "Present" },
       { date: "2025-02-29", status: "Present" },
     ];
 
@@ -110,7 +112,7 @@
       },
     ];
 
-    const COLORS = ["#00C49F", "#FF8042", "#FFBB28"]; // Blue, Red, Yellow
+    const COLORS = ["#00C49F", "#FF8042", "#FFBB28"]; // Green, Red, Yellow
 
     // Dummy Transfer History Data for the timeline
     const transferHistoryData = [
@@ -140,6 +142,13 @@
         // In production, fetch the employee's attendance and transfer history via an API
         setAttendanceHistory(attendanceHistoryData);
         setTransferHistory(transferHistoryData);
+
+        //console.log to verify the attendance map
+        const map = attendanceHistoryData.reduce((acc, record) => {
+          acc[record.date] = record.status;
+          return acc;
+        }, {});
+        console.log("Attendance Map:", map);
       }, []);
 
       // Create a lookup map from date string (YYYY-MM-DD) to attendance status.
@@ -152,9 +161,14 @@
       // tileClassName returns a custom class based on the attendance status.
       const getTileClassName = ({ date, view }) => {
         if (view === "month") {
-          const dateString = date.toISOString().split("T")[0]; // Ensure date is in YYYY-MM-DD format
+          // Format date to YYYY-MM-DD
+          const year = date.getFullYear();
+          const month = String(date.getMonth() + 1).padStart(2, "0");
+          const day = String(date.getDate()).padStart(2, "0");
+          const dateString = `${year}-${month}-${day}`;
+
           const status = attendanceMap[dateString];
-      
+
           if (status === "Present") return "calendar-present";
           if (status === "Absent") return "calendar-absent";
           if (status === "Leave") return "calendar-leave";
@@ -186,14 +200,17 @@
               <div className="mt-8 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 text-sm text-gray-600 font-medium">
                 <div className="space-y-3">
                   <p>
-                    <strong className="mr-1">UDISE Code:</strong> {profile.udise_code}
+                    <strong className="mr-1">UDISE Code:</strong>{" "}
+                    {profile.udise_code}
                   </p>
                   <p>
                     <strong className="mr-1">Sanctioned Post:</strong>{" "}
                     {profile.name_of_sanctioned_posts}
                   </p>
                   <p>
-                    <strong className="mr-1">Designation at First Appointment:</strong>{" "}
+                    <strong className="mr-1">
+                      Designation at First Appointment:
+                    </strong>{" "}
                     {profile.designation_at_first_appointment}
                   </p>
                   <p>
@@ -211,13 +228,16 @@
                 </div>
                 <div className="space-y-3">
                   <p>
-                    <strong className="mr-1">Date of Birth:</strong> {profile.date_of_birth}
+                    <strong className="mr-1">Date of Birth:</strong>{" "}
+                    {profile.date_of_birth}
                   </p>
                   <p>
-                    <strong className="mr-1">Qualification:</strong> {profile.qualification}
+                    <strong className="mr-1">Qualification:</strong>{" "}
+                    {profile.qualification}
                   </p>
                   <p>
-                    <strong className="mr-1">Subject (PG):</strong> {profile.subject_in_pg}
+                    <strong className="mr-1">Subject (PG):</strong>{" "}
+                    {profile.subject_in_pg}
                   </p>
                   <p>
                     <strong className="mr-1">
@@ -226,36 +246,41 @@
                     {profile.date_from_which_working_in_this_current_office}
                   </p>
                   <p>
-                    <strong className="mr-1">Current Payscale:</strong> {profile.current_payscale}
+                    <strong className="mr-1">Current Payscale:</strong>{" "}
+                    {profile.current_payscale}
                   </p>
                   <p>
-                    <strong className="mr-1">Pay Level:</strong> {profile.pay_level}
+                    <strong className="mr-1">Pay Level:</strong>{" "}
+                    {profile.pay_level}
                   </p>
                 </div>
                 <div className="space-y-3">
                   <p>
-                    <strong className="mr-1">Gross Salary:</strong> {profile.gross_salary}
+                    <strong className="mr-1">Gross Salary:</strong>{" "}
+                    {profile.gross_salary}
                   </p>
                   <p>
-                    <strong className="mr-1">NPS or OPS:</strong> {profile.whether_nps_or_ops}
+                    <strong className="mr-1">NPS or OPS:</strong>{" "}
+                    {profile.whether_nps_or_ops}
                   </p>
                   <div className="mt-2">
                     <strong className="block mb-1">Last Three Postings:</strong>
                     <ul className="list-disc list-inside text-[13px]">
                       <li>
                         {profile.last_three_postings.first_posting.school} (
-                        {profile.last_three_postings.first_posting.start_date} to{" "}
-                        {profile.last_three_postings.first_posting.end_date})
+                        {profile.last_three_postings.first_posting.start_date}{" "}
+                        to {profile.last_three_postings.first_posting.end_date})
                       </li>
                       <li>
                         {profile.last_three_postings.second_posting.school} (
-                        {profile.last_three_postings.second_posting.start_date} to{" "}
-                        {profile.last_three_postings.second_posting.end_date})
+                        {profile.last_three_postings.second_posting.start_date}{" "}
+                        to {profile.last_three_postings.second_posting.end_date}
+                        )
                       </li>
                       <li>
                         {profile.last_three_postings.third_posting.school} (
-                        {profile.last_three_postings.third_posting.start_date} to{" "}
-                        {profile.last_three_postings.third_posting.end_date})
+                        {profile.last_three_postings.third_posting.start_date}{" "}
+                        to {profile.last_three_postings.third_posting.end_date})
                       </li>
                     </ul>
                   </div>
@@ -271,7 +296,9 @@
                   <LucideCalendar className="w-5 h-5 text-purple-500" />
                   Attendance Summary
                 </h3>
-                <p className="text-gray-500 text-sm mt-1">Summary (Past Records)</p>
+                <p className="text-gray-500 text-sm mt-1">
+                  Summary (Past Records)
+                </p>
                 <div className="mt-4 h-64">
                   <ResponsiveContainer width="100%" height="100%">
                     <PieChart>
@@ -310,9 +337,20 @@
                   <LucideCalendar className="w-5 h-5 text-green-500" />
                   Attendance Calendar
                 </h3>
-                <p className="text-gray-500 text-sm mt-1">
-                  Red = Absent, Blue = On Duty, Yellow = On Leave
-                </p>
+                <div className="text-gray-500 text-sm mt-3 flex flex-wrap gap-4">
+                  <div className="flex items-center gap-2">
+                    <div className="w-3 h-3 rounded-full bg-[#00C49F]"></div>
+                    <span>Present</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <div className="w-3 h-3 rounded-full bg-[#FF8042]"></div>
+                    <span>Absent</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <div className="w-3 h-3 rounded-full bg-[#FFBB28]"></div>
+                    <span>Leave</span>
+                  </div>
+                </div>
                 <div className="mt-10 w-full flex justify-center">
                   {/* For consistency, we set locale to "en-GB" so that date labels match */}
                   <Calendar
@@ -360,69 +398,6 @@
               </div>
             </div>
           </div>
-
-          {/* Custom Tailwind + React-Calendar Styling */}
-          <style jsx>{`
-            /* Base overrides for React-Calendar for a cleaner look */
-            .react-calendar {
-              border: none;
-              border-radius: 0.5rem;
-              overflow: hidden;
-            }
-            .react-calendar__navigation {
-              background-color: #f3f4f6;
-              padding: 0.5rem;
-            }
-            .react-calendar__navigation button {
-              color: #374151;
-              min-width: 40px;
-              background: none;
-              margin: 0 0.2rem;
-            }
-            .react-calendar__month-view__weekdays {
-              text-transform: uppercase;
-              font-size: 0.75rem;
-              color: #9ca3af;
-            }
-            .react-calendar__tile {
-              padding: 0.75rem 0;
-              height: 3rem;
-              text-align: center;
-              border-radius: 0;
-            }
-            /* Highlight the current day */
-            .react-calendar__tile--now {
-              background: #e0f2fe !important;
-              border-radius: 0;
-            }
-            .react-calendar__tile:hover {
-              background: #f9fafb;
-            }
-            /* Custom classes for attendance statuses:
-              The <abbr> inside each tile is styled as a circle. */
-            .react-calendar__tile.calendar-present > abbr,
-            .react-calendar__tile.calendar-absent > abbr,
-            .react-calendar__tile.calendar-leave > abbr {
-              display: inline-block;
-              width: 2rem;
-              height: 2rem;
-              line-height: 2rem;
-              text-align: center;
-              border-radius: 50%;
-            }
-            .react-calendar__tile.calendar-present > abbr {
-              background-color: #3b82f6; /* Blue for On Duty */
-              color: #fff;
-            }
-            .react-calendar__tile.calendar-absent > abbr {
-              background-color: #ef4444; /* Red for Absent */
-              color: #fff;
-            }
-            .react-calendar__tile.calendar-leave > abbr {
-              background-color: #facc15; /* Yellow for On Leave */
-              color: #000;
-            }
-          `}</style>
         </div>
       );
     }

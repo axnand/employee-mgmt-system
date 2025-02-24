@@ -4,14 +4,14 @@ import React, { createContext, useContext, useState, useEffect } from "react";
 // Create the context with default values.
 const UserContext = createContext({
   user: null,
-  userRole: "staff",
+  userRole: "",
   setUser: () => {},
   setUserRole: () => {},
 });
 
 export function UserProvider({ children }) {
   const [user, setUser] = useState(null);
-  const [userRole, setUserRole] = useState("staff");
+  const [userRole, setUserRole] = useState("");
 
   // Retrieve the logged-in user from localStorage when the component mounts.
   useEffect(() => {
@@ -19,7 +19,7 @@ export function UserProvider({ children }) {
     if (storedUser) {
       const parsedUser = JSON.parse(storedUser);
       setUser(parsedUser);
-      setUserRole(parsedUser.role || "staff");
+      setUserRole(parsedUser.role || "");
     }
   }, []);
 
