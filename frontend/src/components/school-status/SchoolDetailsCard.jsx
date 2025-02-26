@@ -17,6 +17,7 @@ import {
 import { School, MapPin, User, Phone } from "lucide-react";
 import { useUser } from "@/context/UserContext";
 
+
 export default function SchoolDetailsCard({ schoolInfo }) {
   const { userRole } = useUser();
 
@@ -38,6 +39,7 @@ export default function SchoolDetailsCard({ schoolInfo }) {
   const uniqueDesignations = Array.from(
     new Set(employees.map((emp) => emp.present_designation))
   );
+  
   
 
   // Filter employees based on search criteria using the new structure's fields
@@ -92,6 +94,25 @@ export default function SchoolDetailsCard({ schoolInfo }) {
       </div>
     );
   }
+  const [showError, setShowError] = useState(false); // Track user interaction
+  const getSanctionedPosts = () => {
+    if (newEmployeeData.category === "Teaching") return teachingPosts;
+    if (newEmployeeData.category === "Non-Teaching") return nonTeachingPosts;
+    return [];
+  };
+  const nonTeachingPosts = [
+    "Accountant", "Accounts Assistant", "Assistant Director (P & S)", "CEO", "Driver",
+    "Head Assistant", "Junior Assistant", "Laboratory Assistant", "Library Assistant",
+    "Senior Assistant", "Statistical Assistant", "Assistant Programmer",
+    "Assistant Engineer", "Computer Assistant"
+  ];
+  const teachingPosts = [
+    "Lecturer", "Lecturer Physical Education", "Physical Education Master",
+    "Physical Education Teacher", "Principal GHSS", "Principal HSS", "Teacher",
+    "Teacher 3rd RRET NP", "Teacher RRET NP", "Teacher Grade II",
+    "Teacher Grade III", "Teacher RET SSA", "Teacher RRET SSA",
+    "Special Education Teacher"
+  ];
 
   return (
     <div className="min-h-screen capitalize">
@@ -354,18 +375,70 @@ export default function SchoolDetailsCard({ schoolInfo }) {
                   className="border border-gray-300 rounded w-full p-2"
                 />
               </div>
-              {/* Name of Sanctioned Posts */}
-              <div>
-                <label className="font-semibold text-gray-600 block mb-1">Name of Sanctioned Posts</label>
-                <input
-                  type="text"
-                  value={newEmployeeData.name_of_sanctioned_posts || ""}
-                  onChange={(e) =>
-                    setNewEmployeeData({ ...newEmployeeData, name_of_sanctioned_posts: e.target.value })
-                  }
-                  className="border border-gray-300 rounded w-full p-2"
-                />
-              </div>
+{/* Employee Category */}
+<div>
+  <label htmlFor="employeeCategory" className="block text-sm font-medium text-gray-700 mb-1">
+    Select Employee Category
+  </label>
+  <select
+    id="employeeCategory"
+    value={newEmployeeData.category || ""}
+    onChange={(e) => {
+      setNewEmployeeData({
+        ...newEmployeeData,
+        category: e.target.value,
+        name_of_sanctioned_posts: ""
+      });
+      setShowError(false); // Reset error when a category is selected
+    }}
+    className="block w-full border-gray-300 rounded-md py-2 px-2 text-sm border"
+  >
+    <option value="">Select Category</option>
+    {uniqueCategory.map((category, index) => (
+      <option key={index} value={category}>
+        {category}
+      </option>
+    ))}
+  </select>
+</div>
+
+{/* Name of Sanctioned Posts */}
+<div>
+  <label className="font-semibold text-gray-600 block mb-1">Name of Sanctioned Posts</label>
+  <select
+    value={newEmployeeData.name_of_sanctioned_posts || ""}
+    onChange={(e) => {
+      if (!newEmployeeData.category) {
+        setShowError(true);
+        return;
+      }
+      setNewEmployeeData({ ...newEmployeeData, name_of_sanctioned_posts: e.target.value });
+    }}
+    onFocus={() => {
+      if (!newEmployeeData.category) {
+        setShowError(true);
+      }
+    }}
+    className={`border rounded w-full p-2 ${
+      showError && !newEmployeeData.category ? "border-red-500" : "border-gray-300"
+    }`}
+  >
+    <option value="">
+      {newEmployeeData.category ? "Select Post" : "Please select a category first"}
+    </option>
+    {newEmployeeData.category &&
+      getSanctionedPosts().map((post, index) => (
+        <option key={index} value={post}>
+          {post}
+        </option>
+      ))}
+  </select>
+  {showError && !newEmployeeData.category && (
+    <p className="text-red-500 text-sm mt-1">Please select a category first.</p>
+  )}
+</div>
+
+
               {/* Employee Name */}
               <div>
                 <label className="font-semibold text-gray-600 block mb-1">Employee Name</label>
@@ -390,25 +463,7 @@ export default function SchoolDetailsCard({ schoolInfo }) {
                   className="border border-gray-300 rounded w-full p-2"
                 />
               </div>
-              {/* Employee Category */}
-                 <div>
-                 <label htmlFor="employeeCategory" className="block text-sm font-medium text-gray-700 mb-1">
-                   Select Employee Category
-                </label>
-               <select
-                  id="employeeCategory"
-                  value={newEmployeeData.category || ""}
-                  onChange={(e) => setNewEmployeeData({ ...newEmployeeData, category: e.target.value })}
-                 className="block w-full border-gray-300 rounded-md py-2 px-2 text-sm border"
-               >
-              <option value="">Select Category</option>
-               {uniqueCategory.map((category, index) => (
-              <option key={index} value={category}>
-               {category}
-              </option>
-               ))}
-             </select>
-              </div>
+              
               {/* Date of Birth */}
               <div>
                 <label className="font-semibold text-gray-600 block mb-1">Date of Birth</label>
