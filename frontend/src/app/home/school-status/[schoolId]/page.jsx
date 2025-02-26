@@ -171,7 +171,7 @@ export default function SchoolDetailsPage() {
     </div>
 
     {/* Retirement Date Filter */}
-    <div className="flex-1 mb-4 md:mb-0">
+    {/* <div className="flex-1 mb-4 md:mb-0">
       <label htmlFor="retirementFilter" className="block text-sm font-medium text-gray-700 mb-1">
         Filter by Retirement Date
       </label>
@@ -182,7 +182,7 @@ export default function SchoolDetailsPage() {
         onChange={(e) => setRetirementFilter(e.target.value)}
         className="block w-full border-gray-300 rounded-md py-2 border px-2 text-sm"
       />
-    </div>
+    </div> */}
 
           </div>
         </div>
