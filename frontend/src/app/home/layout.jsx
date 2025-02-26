@@ -54,7 +54,7 @@ export default function DashboardLayout({ children }) {
         icon: <ArrowLeftRightIcon className="mr-2 h-5 w-5" />,
       },
       {
-        title: "Staff statement",
+        title: "Reports",
         href: "/home/staff-statement",
         icon: <File className="mr-2 h-5 w-5" />,
       },

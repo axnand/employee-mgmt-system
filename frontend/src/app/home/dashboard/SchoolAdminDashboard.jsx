@@ -55,14 +55,14 @@ const retirementEmployees = [
     school_id: "89",
     emp_name: "Rahul Singh",
     present_designation: "Teacher",
-    date_of_retirement: "2025-03-05", // soon
+    date_of_retirement: "2025-03-05", 
   },
   {
     emp_id: 4625,
     school_id: "89",
     emp_name: "Neha Gupta",
     present_designation: "Vice Principal",
-    date_of_retirement: "2049-03-25", // far in the future
+    date_of_retirement: "2049-03-25", 
   },
   {
     emp_id: 4627,

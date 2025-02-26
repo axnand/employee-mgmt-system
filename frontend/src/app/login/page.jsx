@@ -3,9 +3,9 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { useUser } from "@/context/UserContext"; // Import your context
+import { useUser } from "@/context/UserContext"; 
 
-// Define three default users with roles and credentials
+
 const defaultUsers = [
   { role: "admin", userId: "admin", password: "admin123" },
   { role: "schoolAdmin", userId: "schoolAdmin", password: "school123", schoolId: "101" },
