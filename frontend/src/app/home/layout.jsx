@@ -76,11 +76,11 @@ export default function DashboardLayout({ children }) {
         href: `/home/school-status/${schoolId}`,
         icon: <Users className="mr-2 h-5 w-5" />,
       },
-      {
-        title: "Attendance",
-        href: "/home/attendance",
-        icon: <BookA className="mr-2 h-5 w-5" />,
-      },
+      // {
+      //   title: "Attendance",
+      //   href: "/home/attendance",
+      //   icon: <BookA className="mr-2 h-5 w-5" />,
+      // },
       {
         title: "Transfers",
         icon: <ArrowLeftRightIcon className="mr-2 h-5 w-5" />,

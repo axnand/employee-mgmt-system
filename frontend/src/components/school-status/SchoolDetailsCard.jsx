@@ -29,23 +29,31 @@ export default function SchoolDetailsCard({ schoolInfo }) {
   const [retirementFilter, setRetirementFilter] = useState("");
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [newEmployeeData, setNewEmployeeData] = useState({});
+  const [categoryFilter, setCategoryFilter] = useState("");
+  
+  // Build unique category from the employees list
+  const uniqueCategory = Array.from(new Set(employees.map((emp) => emp.category)));
 
   // Build unique designations from the employees list
   const uniqueDesignations = Array.from(
     new Set(employees.map((emp) => emp.present_designation))
   );
+  
 
   // Filter employees based on search criteria using the new structure's fields
   const filteredEmployees = employees.filter((emp) => {
     const matchesSearch = emp.emp_name
       .toLowerCase()
       .includes(searchTerm.toLowerCase());
+      const matchesCategory = categoryFilter === "" ||
+      emp.category === categoryFilter;
     const matchesDesignation =
       designationFilter === "" ||
       emp.present_designation === designationFilter;
-    const matchesRetirement =
-      retirementFilter === "" || emp.date_of_retirement === retirementFilter;
-    return matchesSearch && matchesDesignation && matchesRetirement;
+
+    // const matchesRetirement =
+    //   retirementFilter === "" || emp.date_of_retirement === retirementFilter;
+    return matchesSearch && matchesCategory && matchesDesignation ;
   });
 
   const handleSaveNewEmployee = () => {
@@ -62,20 +70,20 @@ export default function SchoolDetailsCard({ schoolInfo }) {
   };
 
   // Map attendance values to icons using the new 'attendance' field
-  const statusIcon = (attendance) => {
-    switch (attendance) {
-      case "Present":
-        return <Check className="w-5 h-5 text-green-500" />;
-      case "Absent":
-        return <X className="w-5 h-5 text-red-500" />;
-      case "Leave":
-        return <AlertTriangle className="w-5 h-5 text-yellow-500" />;
-      case "On Duty":
-        return <Briefcase className="w-5 h-5 text-blue-500" />;
-      default:
-        return null;
-    }
-  };
+  // const statusIcon = (attendance) => {
+  //   switch (attendance) {
+  //     case "Present":
+  //       return <Check className="w-5 h-5 text-green-500" />;
+  //     case "Absent":
+  //       return <X className="w-5 h-5 text-red-500" />;
+  //     case "Leave":
+  //       return <AlertTriangle className="w-5 h-5 text-yellow-500" />;
+  //     case "On Duty":
+  //       return <Briefcase className="w-5 h-5 text-blue-500" />;
+  //     default:
+  //       return null;
+  //   }
+  // };
 
   if (!schoolInfo) {
     return (
@@ -88,13 +96,13 @@ export default function SchoolDetailsCard({ schoolInfo }) {
   return (
     <div className="min-h-screen capitalize">
       <div className="max-w-7xl mx-auto">
-        {userRole === "admin" && (
+        {/* {userRole === "admin" && (
           <Link href="/home/school-status">
             <button className="mb-6 text-[15px] font-semibold rounded-md text-secondary hover:text-primary transition flex items-center">
               <ChevronLeft className="w-4 h-4 mr-1" /> <span>Back</span>
             </button>
           </Link>
-        )}
+        )} */}
 
         {/* School Information Card */}
         <div className="bg-white border-l-2 border-primary p-6 rounded-lg shadow-sm transition duration-300 mb-8 font-medium text-sm">
@@ -142,6 +150,25 @@ export default function SchoolDetailsCard({ schoolInfo }) {
                 className="block w-full border-gray-300 rounded-md py-2 px-2 text-sm border"
               />
             </div>
+             {/* Category Filter */}
+     <div className="flex-1 mb-4 md:mb-0">
+      <label htmlFor="designationFilter" className="block text-sm font-medium text-gray-700 mb-1">
+        Filter by Category
+      </label>
+      <select
+        id="categoryFilter"
+        value={categoryFilter}
+        onChange={(e) => setCategoryFilter(e.target.value)}
+        className="block w-full border-gray-300 rounded-md py-2 border px-2 text-sm"
+      >
+        <option value="">All Categories</option>
+        {uniqueCategory.map((ctg, idx) => (
+          <option key={idx} value={ctg}>
+            {ctg}
+          </option>
+        ))}
+      </select>
+    </div>
             {/* Designation Filter */}
             <div className="flex-1 mb-4 md:mb-0">
               <label htmlFor="designationFilter" className="block text-sm font-medium text-gray-700 mb-1">
@@ -161,6 +188,19 @@ export default function SchoolDetailsCard({ schoolInfo }) {
                 ))}
               </select>
             </div>
+            {/* Retirement Date Filter
+    <div className="flex-1 mb-4 md:mb-0">
+      <label htmlFor="retirementFilter" className="block text-sm font-medium text-gray-700 mb-1">
+        Filter by Retirement Date
+      </label>
+      <input
+        id="retirementFilter"
+        type="date"
+        value={retirementFilter}
+        onChange={(e) => setRetirementFilter(e.target.value)}
+        className="block w-full border-gray-300 rounded-md py-2 border px-2 text-sm"
+      />
+    </div>  */}
           </div>
         </div>
 
@@ -176,7 +216,7 @@ export default function SchoolDetailsCard({ schoolInfo }) {
             <div className="text-2xl font-bold">{employees.length}</div>
           </div>
 
-          {/* Present Today */}
+          {/* Present Today
           <div className="bg-white shadow-sm rounded-lg p-4 flex flex-col border-l-2 border-primary">
             <div className="flex items-center space-x-2">
               <UserCheck className="h-5 w-5 text-green-500" />
@@ -186,10 +226,10 @@ export default function SchoolDetailsCard({ schoolInfo }) {
             <div className="text-2xl font-bold">
               {employees.filter((emp) => emp.attendance === "Present").length}
             </div>
-          </div>
+          </div> */}
 
           {/* Absent Today */}
-          <div className="bg-white shadow-sm rounded-lg p-4 flex flex-col border-l-2 border-primary">
+          {/* <div className="bg-white shadow-sm rounded-lg p-4 flex flex-col border-l-2 border-primary">
             <div className="flex items-center space-x-2">
               <UserX className="h-5 w-5 text-red-500" />
               <h3 className="text-[15px] font-semibold">Absent Today</h3>
@@ -198,10 +238,10 @@ export default function SchoolDetailsCard({ schoolInfo }) {
             <div className="text-2xl font-bold">
               {employees.filter((emp) => emp.attendance === "Absent").length}
             </div>
-          </div>
+          </div> */}
 
           {/* On Leave */}
-          <div className="bg-white shadow-sm rounded-lg p-4 flex flex-col border-l-2 border-primary">
+          {/* <div className="bg-white shadow-sm rounded-lg p-4 flex flex-col border-l-2 border-primary">
             <div className="flex items-center space-x-2">
               <UserMinus className="h-5 w-5 text-yellow-500" />
               <h3 className="text-[15px] font-semibold">On Leave</h3>
@@ -210,10 +250,10 @@ export default function SchoolDetailsCard({ schoolInfo }) {
             <div className="text-2xl font-bold">
               {employees.filter((emp) => emp.attendance === "Leave").length}
             </div>
-          </div>
+          </div> */}
 
           {/* On Duty */}
-          <div className="bg-white shadow-sm rounded-lg p-4 flex flex-col border-l-2 border-primary">
+          {/* <div className="bg-white shadow-sm rounded-lg p-4 flex flex-col border-l-2 border-primary">
             <div className="flex items-center space-x-2">
               <UserRoundPenIcon className="h-5 w-5 text-blue-500" />
               <h3 className="text-[15px] font-semibold">On Duty</h3>
@@ -222,7 +262,7 @@ export default function SchoolDetailsCard({ schoolInfo }) {
             <div className="text-2xl font-bold">
               {employees.filter((emp) => emp.attendance === "On Duty").length}
             </div>
-          </div>
+          </div> */}
         </div>
 
         {/* Employee Search & Table */}
@@ -251,9 +291,9 @@ export default function SchoolDetailsCard({ schoolInfo }) {
                   <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
                     Designation
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                  {/* <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
                     Status
-                  </th>
+                  </th> */}
                   <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
                     Actions
                   </th>
@@ -265,14 +305,14 @@ export default function SchoolDetailsCard({ schoolInfo }) {
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{emp.emp_id}</td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{emp.emp_name}</td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{emp.present_designation}</td>
-                    <td className="px-6 py-4 whitespace-nowrap flex items-center text-sm text-gray-900">
+                    {/* <td className="px-6 py-4 whitespace-nowrap flex items-center text-sm text-gray-900">
                         {emp.attendance ? (
                             <>
                             {statusIcon(emp.attendance)}
                             <span className="ml-2">{emp.attendance}</span>
                             </>
                         ): "No Status"}
-                        </td>
+                        </td> */}
 
                     <td className="px-6 py-4 whitespace-nowrap text-sm">
                       <Link href={`/home/school-status/${encodeURIComponent(schoolInfo.id)}/${emp.emp_id}`}>
@@ -349,6 +389,25 @@ export default function SchoolDetailsCard({ schoolInfo }) {
                   }
                   className="border border-gray-300 rounded w-full p-2"
                 />
+              </div>
+              {/* Employee Category */}
+                 <div>
+                 <label htmlFor="employeeCategory" className="block text-sm font-medium text-gray-700 mb-1">
+                   Select Employee Category
+                </label>
+               <select
+                  id="employeeCategory"
+                  value={newEmployeeData.category || ""}
+                  onChange={(e) => setNewEmployeeData({ ...newEmployeeData, category: e.target.value })}
+                 className="block w-full border-gray-300 rounded-md py-2 px-2 text-sm border"
+               >
+              <option value="">Select Category</option>
+               {uniqueCategory.map((category, index) => (
+              <option key={index} value={category}>
+               {category}
+              </option>
+               ))}
+             </select>
               </div>
               {/* Date of Birth */}
               <div>

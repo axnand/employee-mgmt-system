@@ -8,7 +8,7 @@ import { useUser } from "@/context/UserContext";
 import schoolData from "@/data/data.json"; // import your JSON data
 
 // Define the possible attendance options
-const attendanceOptions = ["Present", "Absent", "Leave", "On Duty"];
+// const attendanceOptions = ["Present", "Absent", "Leave", "On Duty"];
 
 export default function AttendancePage() {
   const { user } = useUser();
@@ -44,15 +44,15 @@ export default function AttendancePage() {
   }, [schoolId]);
 
   // Update attendance for an individual employee
-  const updateAttendance = (id, status) => {
-    setEmployees((prev) =>
-      prev.map((emp) => (emp.id === id ? { ...emp, status } : emp))
-    );
-    toast.success(`Attendance marked as ${status} for employee ${id}`, {
-      autoClose: 3000,
-      toastId: `attendance-toast-${id}`,
-    });
-  };
+  // const updateAttendance = (id, status) => {
+  //   setEmployees((prev) =>
+  //     prev.map((emp) => (emp.id === id ? { ...emp, status } : emp))
+  //   );
+  //   toast.success(`Attendance marked as ${status} for employee ${id}`, {
+  //     autoClose: 3000,
+  //     toastId: `attendance-toast-${id}`,
+  //   });
+  // };
 
   // Handle bulk update
   const applyBulkUpdate = () => {
@@ -227,7 +227,7 @@ export default function AttendancePage() {
         </div>
 
         {/* Attendance Table */}
-        <div className="bg-white p-6 rounded-lg shadow-sm">
+        {/* <div className="bg-white p-6 rounded-lg shadow-sm">
           <h2 className="text-2xl font-semibold text-gray-800 mb-4 flex items-center gap-2">
             <Users className="w-6 h-6 text-primary" /> Employee Attendance
           </h2>
@@ -343,7 +343,7 @@ export default function AttendancePage() {
               </tbody>
             </table>
           </div>
-        </div>
+        </div> */}
       </div>
     </div>
   );
