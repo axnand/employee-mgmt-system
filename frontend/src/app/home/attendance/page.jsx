@@ -135,7 +135,7 @@ export default function AttendancePage() {
             <p className="text-[13px] pt-1 text-gray-600">Teaching & Non-Teaching staff</p>
             <div className="text-2xl font-bold">{employees.length}</div>
           </div>
-
+          
           {/* Present Today */}
           <div className="bg-white shadow-sm rounded-lg p-4 flex flex-col border-l-2 border-primary">
             <div className="flex items-center space-x-2">

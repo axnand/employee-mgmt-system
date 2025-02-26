@@ -36,19 +36,24 @@ export default function SchoolDetailsPage() {
   const [retirementFilter, setRetirementFilter] = useState("");
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [newEmployeeData, setNewEmployeeData] = useState({});
+  const [categoryFilter, setCategoryFilter] = useState("");
 
   // Get employees from school data (or an empty array)
   const employees = schoolInfo ? schoolInfo.employees || [] : [];
+  // Build unique category from the employees list
+  const uniqueCategory = Array.from(new Set(employees.map(emp => emp.category)));
 
   // Build unique designations from employees for the dropdown
   const uniqueDesignations = Array.from(new Set(employees.map(emp => emp.present_designation)));
 
+
   // Filter employees based on search criteria
   const filteredEmployees = employees.filter((emp) => {
     const matchesSearch = emp.emp_name.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesCategory = categoryFilter === "" || emp.category === categoryFilter;
     const matchesDesignation = designationFilter === "" || emp.present_designation === designationFilter;
-    const matchesRetirement = retirementFilter === "" || emp.date_of_retirement === retirementFilter;
-    return matchesSearch && matchesDesignation && matchesRetirement;
+    // const matchesRetirement = retirementFilter === "" || emp.date_of_retirement === retirementFilter;
+    return matchesSearch && matchesCategory && matchesDesignation ;
   });
 
   const handleSaveNewEmployee = () => {
@@ -78,7 +83,7 @@ export default function SchoolDetailsPage() {
   const statusIcon = (attendance) => {
     switch (attendance) {
       case "Present":
-        return <Check className="w-5 h-5 text-green-500" />;
+        return <Check className="w-5 h-5 text-green-500" />;  
       case "Absent":
         return <X className="w-5 h-5 text-red-500" />;
       case "Leave":
@@ -150,6 +155,25 @@ export default function SchoolDetailsPage() {
         className="block w-full border-gray-300 rounded-md py-2 px-2 text-sm border"
       />
     </div>
+             {/* Category Filter */}
+             <div className="flex-1 mb-4 md:mb-0">
+      <label htmlFor="designationFilter" className="block text-sm font-medium text-gray-700 mb-1">
+        Filter by Category
+      </label>
+      <select
+        id="categoryFilter"
+        value={categoryFilter}
+        onChange={(e) => setCategoryFilter(e.target.value)}
+        className="block w-full border-gray-300 rounded-md py-2 border px-2 text-sm"
+      >
+        <option value="">All Categories</option>
+        {uniqueCategory.map((ctg, idx) => (
+          <option key={idx} value={ctg}>
+            {ctg}
+          </option>
+        ))}
+      </select>
+    </div>
             {/* Designation Filter */}
             <div className="flex-1 mb-4 md:mb-0">
       <label htmlFor="designationFilter" className="block text-sm font-medium text-gray-700 mb-1">
@@ -170,7 +194,8 @@ export default function SchoolDetailsPage() {
       </select>
     </div>
 
-    {/* Retirement Date Filter */}
+{/* 
+    Retirement Date Filter
     <div className="flex-1 mb-4 md:mb-0">
       <label htmlFor="retirementFilter" className="block text-sm font-medium text-gray-700 mb-1">
         Filter by Retirement Date
@@ -182,7 +207,7 @@ export default function SchoolDetailsPage() {
         onChange={(e) => setRetirementFilter(e.target.value)}
         className="block w-full border-gray-300 rounded-md py-2 border px-2 text-sm"
       />
-    </div>
+    </div> */}
 
           </div>
         </div>
@@ -337,6 +362,25 @@ export default function SchoolDetailsPage() {
                   }
                   className="border border-gray-300 rounded w-full p-2"
                 />
+              </div>
+             {/* Employee Category */}
+               <div>
+                 <label htmlFor="employeeCategory" className="block text-sm font-medium text-gray-700 mb-1">
+                   Select Employee Category
+                </label>
+               <select
+                  id="employeeCategory"
+                  value={newEmployeeData.category || ""}
+                  onChange={(e) => setNewEmployeeData({ ...newEmployeeData, category: e.target.value })}
+                 className="block w-full border-gray-300 rounded-md py-2 px-2 text-sm border"
+               >
+              <option value="">Select Category</option>
+               {uniqueCategory.map((category, index) => (
+              <option key={index} value={category}>
+               {category}
+              </option>
+               ))}
+             </select>
               </div>
               {/* Date of Birth */}
               <div>
