@@ -312,6 +312,25 @@ export default function SchoolDetailsPage() {
                   className="border border-gray-300 rounded w-full p-2"
                 />
               </div>
+              {/* Employee Category */}
+              <div>
+                 <label htmlFor="employeeCategory" className="block text-sm font-medium text-gray-700 mb-1">
+                   Select Employee Category
+                </label>
+               <select
+                  id="employeeCategory"
+                  value={newEmployeeData.category || ""}
+                  onChange={(e) => setNewEmployeeData({ ...newEmployeeData, category: e.target.value })}
+                 className="block w-full border-gray-300 rounded-md py-2 px-2 text-sm border"
+               >
+              <option value="">Select Category</option>
+               {uniqueCategory.map((category, index) => (
+              <option key={index} value={category}>
+               {category}
+              </option>
+               ))}
+             </select>
+              </div>
               {/* Name of Sanctioned Posts */}
               <div>
                 <label className="font-semibold text-gray-600 block mb-1">
@@ -363,25 +382,7 @@ export default function SchoolDetailsPage() {
                   className="border border-gray-300 rounded w-full p-2"
                 />
               </div>
-             {/* Employee Category */}
-               <div>
-                 <label htmlFor="employeeCategory" className="block text-sm font-medium text-gray-700 mb-1">
-                   Select Employee Category
-                </label>
-               <select
-                  id="employeeCategory"
-                  value={newEmployeeData.category || ""}
-                  onChange={(e) => setNewEmployeeData({ ...newEmployeeData, category: e.target.value })}
-                 className="block w-full border-gray-300 rounded-md py-2 px-2 text-sm border"
-               >
-              <option value="">Select Category</option>
-               {uniqueCategory.map((category, index) => (
-              <option key={index} value={category}>
-               {category}
-              </option>
-               ))}
-             </select>
-              </div>
+             
               {/* Date of Birth */}
               <div>
                 <label className="font-semibold text-gray-600 block mb-1">
