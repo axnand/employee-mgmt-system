@@ -238,9 +238,9 @@ export default function SchoolDetailsPage() {
                   <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
                     Designation
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                  {/* <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
                     Status
-                  </th>
+                  </th> */}
                   <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
                     Actions
                   </th>
@@ -258,14 +258,14 @@ export default function SchoolDetailsPage() {
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                       {emp.present_designation}
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap flex items-center text-sm text-gray-900">
+                    {/* <td className="px-6 py-4 whitespace-nowrap flex items-center text-sm text-gray-900">
                     {emp.attendance ? (
                             <>
                             {statusIcon(emp.attendance)}
                             <span className="ml-2">{emp.attendance}</span>
                             </>
                         ): "No Status"}
-                    </td>
+                    </td> */}
                     <td className="px-6 py-4 whitespace-nowrap text-sm">
                     <Link href={`/home/school-status/${encodeURIComponent(schoolInfo.id)}/${emp.emp_id}`}>
                         <button className="py-1 px-3 bg-primary text-white rounded-full font-medium text-xs hover:bg-blue-600 transition">
