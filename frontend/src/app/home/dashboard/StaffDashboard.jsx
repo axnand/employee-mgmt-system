@@ -56,61 +56,61 @@
 
     // Dummy attendance history data
     // "Present" means on duty, "Absent" is absent, "Leave" means on leave.
-    const attendanceHistoryData = [
-      { date: "2025-02-01", status: "Present" },
-      { date: "2025-02-02", status: "Present" },
-      { date: "2025-02-03", status: "Present" },
-      { date: "2025-02-04", status: "Present" },
-      { date: "2025-02-05", status: "Present" },
-      { date: "2025-02-06", status: "Present" },
-      { date: "2025-02-07", status: "Leave" },
-      { date: "2025-02-08", status: "Leave" },
-      { date: "2025-02-09", status: "Absent" },
-      { date: "2025-02-10", status: "Present" },
-      { date: "2025-02-11", status: "Present" },
-      { date: "2025-02-12", status: "Present" },
-      { date: "2025-02-13", status: "Present" },
-      { date: "2025-02-14", status: "Present" },
-      { date: "2025-02-15", status: "Present" },
-      { date: "2025-02-16", status: "Present" },
-      { date: "2025-02-17", status: "Present" },
-      { date: "2025-02-18", status: "Present" },
-      { date: "2025-02-19", status: "Present" },
-      { date: "2025-02-20", status: "Present" },
-      { date: "2025-02-21", status: "Present" },
-      { date: "2025-02-22", status: "Present" },
-      { date: "2025-02-23", status: "Present" },
-      { date: "2025-02-24", status: "Present" },
-      { date: "2025-02-25", status: "Leave" },
-      { date: "2025-02-26", status: "Present" },
-      { date: "2025-02-27", status: "Present" },
-      { date: "2025-02-28", status: "Present" },
-      { date: "2025-02-29", status: "Present" },
-    ];
+    // const attendanceHistoryData = [
+    //   { date: "2025-02-01", status: "Present" },
+    //   { date: "2025-02-02", status: "Present" },
+    //   { date: "2025-02-03", status: "Present" },
+    //   { date: "2025-02-04", status: "Present" },
+    //   { date: "2025-02-05", status: "Present" },
+    //   { date: "2025-02-06", status: "Present" },
+    //   { date: "2025-02-07", status: "Leave" },
+    //   { date: "2025-02-08", status: "Leave" },
+    //   { date: "2025-02-09", status: "Absent" },
+    //   { date: "2025-02-10", status: "Present" },
+    //   { date: "2025-02-11", status: "Present" },
+    //   { date: "2025-02-12", status: "Present" },
+    //   { date: "2025-02-13", status: "Present" },
+    //   { date: "2025-02-14", status: "Present" },
+    //   { date: "2025-02-15", status: "Present" },
+    //   { date: "2025-02-16", status: "Present" },
+    //   { date: "2025-02-17", status: "Present" },
+    //   { date: "2025-02-18", status: "Present" },
+    //   { date: "2025-02-19", status: "Present" },
+    //   { date: "2025-02-20", status: "Present" },
+    //   { date: "2025-02-21", status: "Present" },
+    //   { date: "2025-02-22", status: "Present" },
+    //   { date: "2025-02-23", status: "Present" },
+    //   { date: "2025-02-24", status: "Present" },
+    //   { date: "2025-02-25", status: "Leave" },
+    //   { date: "2025-02-26", status: "Present" },
+    //   { date: "2025-02-27", status: "Present" },
+    //   { date: "2025-02-28", status: "Present" },
+    //   { date: "2025-02-29", status: "Present" },
+    // ];
 
-    // Prepare data for the attendance summary pie chart
-    const attendanceSummary = [
-      {
-        status: "Present",
-        count: attendanceHistoryData.filter(
-          (item) => item.status === "Present"
-        ).length,
-      },
-      {
-        status: "Absent",
-        count: attendanceHistoryData.filter(
-          (item) => item.status === "Absent"
-        ).length,
-      },
-      {
-        status: "Leave",
-        count: attendanceHistoryData.filter(
-          (item) => item.status === "Leave"
-        ).length,
-      },
-    ];
+    // // Prepare data for the attendance summary pie chart
+    // const attendanceSummary = [
+    //   {
+    //     status: "Present",
+    //     count: attendanceHistoryData.filter(
+    //       (item) => item.status === "Present"
+    //     ).length,
+    //   },
+    //   {
+    //     status: "Absent",
+    //     count: attendanceHistoryData.filter(
+    //       (item) => item.status === "Absent"
+    //     ).length,
+    //   },
+    //   {
+    //     status: "Leave",
+    //     count: attendanceHistoryData.filter(
+    //       (item) => item.status === "Leave"
+    //     ).length,
+    //   },
+    // ];
 
-    const COLORS = ["#00C49F", "#FF8042", "#FFBB28"]; // Green, Red, Yellow
+    // const COLORS = ["#00C49F", "#FF8042", "#FFBB28"]; // Green, Red, Yellow
 
     // Dummy Transfer History Data for the timeline
     const transferHistoryData = [

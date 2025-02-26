@@ -75,7 +75,7 @@ const retirementEmployees = [
 
 const totalEmployees = 120; // Example count
 const pendingTransfers = 3; // Example pending transfers
-const attendanceRate = 92; // Example percentage
+// const attendanceRate = 92; // Example percentage
 
 export default function SchoolAdminDashboard() {
   const [recentActivities, setRecentActivities] = useState([]);
@@ -119,7 +119,7 @@ export default function SchoolAdminDashboard() {
           <div className="text-2xl font-bold">{totalEmployees}</div>
         </div>
 
-        {/* Attendance Rate */}
+        {/* Attendance Rate
         <div className="bg-white shadow-sm rounded-lg p-4 border-l-2 border-primary">
           <div className="flex items-center space-x-2">
             <Clipboard className="h-5 w-5 text-blue-500" />
@@ -127,7 +127,7 @@ export default function SchoolAdminDashboard() {
           </div>
           <p className="text-[13px] pt-1 text-gray-600">Daily School Attendance</p>
           <div className="text-2xl font-bold">{attendanceRate}%</div>
-        </div>
+        </div> */}
 
         {/* Pending Transfers */}
         <div className="bg-white shadow-sm rounded-lg p-4 border-l-2 border-primary">
@@ -140,7 +140,7 @@ export default function SchoolAdminDashboard() {
         </div>
       </div>
 
-      {/* Attendance Chart */}
+      {/* Attendance Chart
       <div className="bg-white shadow-sm rounded-lg p-4">
         <h3 className="text-xl font-bold mb-4 text-[#071e38]">Attendance Trends</h3>
         <ResponsiveContainer width="100%" height={300}>
@@ -155,17 +155,17 @@ export default function SchoolAdminDashboard() {
             <Bar dataKey="leave" fill="#FFBB28" barSize={40} radius={[5, 5, 0, 0]} />
           </BarChart>
         </ResponsiveContainer>
-      </div>
+      </div> */}
 
       {/* Quick Actions */}
       <div className="bg-white shadow-sm rounded-lg p-4 border-l-2 border-primary">
         <h3 className="text-xl font-bold mb-4 text-secondary">Quick Actions</h3>
         <div className="mt-4 flex gap-x-3 items-center">
-          <Link href="/home/mark-attendance">
+          {/* <Link href="/home/mark-attendance">
             <button className="w-full py-2 px-4 bg-[#377DFF] text-white rounded shadow-md text-sm font-semibold hover:bg-[#2d6ca3] flex items-center justify-center gap-2">
               <Clipboard size={16} /> Mark Attendance
             </button>
-          </Link>
+          </Link> */}
           <Link href="/home/request-transfer">
             <button className="w-full py-2 px-4 bg-[#377DFF] text-white rounded shadow-md text-sm font-semibold hover:bg-[#2d6ca3] flex items-center justify-center gap-2">
               <ArrowLeftRight size={16} /> Request Transfer

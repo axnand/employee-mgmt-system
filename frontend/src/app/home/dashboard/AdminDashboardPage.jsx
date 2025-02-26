@@ -10,7 +10,7 @@ import {
   Legend,
   LineChart,
   Line,
-  PieChart,
+  // PieChart,
   Pie,
   Cell,
 } from "recharts";
@@ -108,7 +108,7 @@ const totalStudents = enrollmentData[enrollmentData.length - 1].students;
 const pendingTransfers = 5; // example placeholder
 
 // Colors for the Pie Chart
-const COLORS = ["#0088FE", "#00C49F", "#FFBB28", "#FF8042"];
+// const COLORS = ["#0088FE", "#00C49F", "#FFBB28", "#FF8042"];
 
 export default function AdminDashboardPage() {
   const [recentActivities, setRecentActivities] = useState([]);
@@ -259,7 +259,7 @@ export default function AdminDashboardPage() {
         </div>
 
         {/* Attendance Status (Pie Chart) */}
-        <div className="bg-white shadow-sm rounded-lg p-4 w-2/5">
+        {/* <div className="bg-white shadow-sm rounded-lg p-4 w-2/5">
           <h3 className="text-xl font-bold mb-6 text-gray-800">
             Attendance Status
           </h3>
@@ -292,8 +292,8 @@ export default function AdminDashboardPage() {
               <Legend wrapperStyle={{ fontSize: "14px", color: "#377DFF", fontWeight: "500" }} />
             </PieChart>
           </ResponsiveContainer>
-        </div>
-      </div>
+        </div>*/}
+      </div> 
 
       {/* Recent Activities */}
       <div className="bg-white shadow-sm rounded-lg p-4 border-l-2 border-primary">
