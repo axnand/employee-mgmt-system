@@ -70,20 +70,20 @@ export default function SchoolDetailsCard({ schoolInfo }) {
   };
 
   // Map attendance values to icons using the new 'attendance' field
-  const statusIcon = (attendance) => {
-    switch (attendance) {
-      case "Present":
-        return <Check className="w-5 h-5 text-green-500" />;
-      case "Absent":
-        return <X className="w-5 h-5 text-red-500" />;
-      case "Leave":
-        return <AlertTriangle className="w-5 h-5 text-yellow-500" />;
-      case "On Duty":
-        return <Briefcase className="w-5 h-5 text-blue-500" />;
-      default:
-        return null;
-    }
-  };
+  // const statusIcon = (attendance) => {
+  //   switch (attendance) {
+  //     case "Present":
+  //       return <Check className="w-5 h-5 text-green-500" />;
+  //     case "Absent":
+  //       return <X className="w-5 h-5 text-red-500" />;
+  //     case "Leave":
+  //       return <AlertTriangle className="w-5 h-5 text-yellow-500" />;
+  //     case "On Duty":
+  //       return <Briefcase className="w-5 h-5 text-blue-500" />;
+  //     default:
+  //       return null;
+  //   }
+  // };
 
   if (!schoolInfo) {
     return (
@@ -216,7 +216,7 @@ export default function SchoolDetailsCard({ schoolInfo }) {
             <div className="text-2xl font-bold">{employees.length}</div>
           </div>
 
-          {/* Present Today */}
+          {/* Present Today
           <div className="bg-white shadow-sm rounded-lg p-4 flex flex-col border-l-2 border-primary">
             <div className="flex items-center space-x-2">
               <UserCheck className="h-5 w-5 text-green-500" />
@@ -226,10 +226,10 @@ export default function SchoolDetailsCard({ schoolInfo }) {
             <div className="text-2xl font-bold">
               {employees.filter((emp) => emp.attendance === "Present").length}
             </div>
-          </div>
+          </div> */}
 
           {/* Absent Today */}
-          <div className="bg-white shadow-sm rounded-lg p-4 flex flex-col border-l-2 border-primary">
+          {/* <div className="bg-white shadow-sm rounded-lg p-4 flex flex-col border-l-2 border-primary">
             <div className="flex items-center space-x-2">
               <UserX className="h-5 w-5 text-red-500" />
               <h3 className="text-[15px] font-semibold">Absent Today</h3>
@@ -238,10 +238,10 @@ export default function SchoolDetailsCard({ schoolInfo }) {
             <div className="text-2xl font-bold">
               {employees.filter((emp) => emp.attendance === "Absent").length}
             </div>
-          </div>
+          </div> */}
 
           {/* On Leave */}
-          <div className="bg-white shadow-sm rounded-lg p-4 flex flex-col border-l-2 border-primary">
+          {/* <div className="bg-white shadow-sm rounded-lg p-4 flex flex-col border-l-2 border-primary">
             <div className="flex items-center space-x-2">
               <UserMinus className="h-5 w-5 text-yellow-500" />
               <h3 className="text-[15px] font-semibold">On Leave</h3>
@@ -250,10 +250,10 @@ export default function SchoolDetailsCard({ schoolInfo }) {
             <div className="text-2xl font-bold">
               {employees.filter((emp) => emp.attendance === "Leave").length}
             </div>
-          </div>
+          </div> */}
 
           {/* On Duty */}
-          <div className="bg-white shadow-sm rounded-lg p-4 flex flex-col border-l-2 border-primary">
+          {/* <div className="bg-white shadow-sm rounded-lg p-4 flex flex-col border-l-2 border-primary">
             <div className="flex items-center space-x-2">
               <UserRoundPenIcon className="h-5 w-5 text-blue-500" />
               <h3 className="text-[15px] font-semibold">On Duty</h3>
@@ -262,7 +262,7 @@ export default function SchoolDetailsCard({ schoolInfo }) {
             <div className="text-2xl font-bold">
               {employees.filter((emp) => emp.attendance === "On Duty").length}
             </div>
-          </div>
+          </div> */}
         </div>
 
         {/* Employee Search & Table */}

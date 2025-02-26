@@ -80,20 +80,20 @@ export default function SchoolDetailsPage() {
     console.log("Updated Schools Data:", updatedSchools);
   };
 
-  const statusIcon = (attendance) => {
-    switch (attendance) {
-      case "Present":
-        return <Check className="w-5 h-5 text-green-500" />;  
-      case "Absent":
-        return <X className="w-5 h-5 text-red-500" />;
-      case "Leave":
-        return <AlertTriangle className="w-5 h-5 text-yellow-500" />;
-      case "On Duty":
-        return <Briefcase className="w-5 h-5 text-blue-500" />;
-      default:
-        return null;
-    }
-  };
+  // const statusIcon = (attendance) => {
+  //   switch (attendance) {
+  //     case "Present":
+  //       return <Check className="w-5 h-5 text-green-500" />;  
+  //     case "Absent":
+  //       return <X className="w-5 h-5 text-red-500" />;
+  //     case "Leave":
+  //       return <AlertTriangle className="w-5 h-5 text-yellow-500" />;
+  //     case "On Duty":
+  //       return <Briefcase className="w-5 h-5 text-blue-500" />;
+  //     default:
+  //       return null;
+  //   }
+  // };
 
   if (!schoolInfo) {
     return (
