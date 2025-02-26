@@ -138,15 +138,15 @@
 
       useEffect(() => {
         // In production, fetch the employee's attendance and transfer history via an API
-        setAttendanceHistory(attendanceHistoryData);
+        // setAttendanceHistory(attendanceHistoryData);
         setTransferHistory(transferHistoryData);
 
         //console.log to verify the attendance map
-        const map = attendanceHistoryData.reduce((acc, record) => {
-          acc[record.date] = record.status;
-          return acc;
-        }, {});
-        console.log("Attendance Map:", map);
+        // const map = attendanceHistoryData.reduce((acc, record) => {
+        //   acc[record.date] = record.status;
+        //   return acc;
+        // }, {});
+        // console.log("Attendance Map:", map);
       }, []);
 
       // Create a lookup map from date string (YYYY-MM-DD) to attendance status.
@@ -287,8 +287,8 @@
             </div>
 
             {/* Attendance Summary and Calendar */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 font-medium">
-              {/* Attendance Summary (Pie Chart) */}
+            {/* <div className="grid grid-cols-1 md:grid-cols-2 gap-4 font-medium">
+              
               <div className="bg-white shadow rounded-lg p-6">
                 <h3 className="text-xl font-bold text-gray-800 flex items-center gap-2">
                   <LucideCalendar className="w-5 h-5 text-purple-500" />
@@ -329,7 +329,7 @@
                 </div>
               </div>
 
-              {/* Attendance Calendar */}
+              
               <div className="bg-white shadow rounded-lg p-6">
                 <h3 className="text-xl font-bold text-gray-800 flex items-center gap-2">
                   <LucideCalendar className="w-5 h-5 text-green-500" />
@@ -349,8 +349,7 @@
                     <span>Leave</span>
                   </div>
                 </div>
-                <div className="mt-10 w-full flex justify-center">
-                  {/* For consistency, we set locale to "en-GB" so that date labels match */}
+                <
                   <Calendar
                     onChange={setSelectedDate}
                     value={selectedDate}
@@ -359,7 +358,7 @@
                   />
                 </div>
               </div>
-            </div>
+            </div> */}
 
             {/* Transfer History Timeline */}
             <div className="bg-white shadow rounded-lg p-6 border-l-4 border-primary font-medium">
