@@ -13,4 +13,4 @@ const LogSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-export default mongoose.model("Log", LogSchema);
+export default mongoose.models.Log || mongoose.model("Log", LogSchema);

@@ -1,9 +1,12 @@
+// models/District.js
 import mongoose from "mongoose";
-import Zone from "./Zone.js";
 
-const DistrictSchema = new mongoose.Schema({
-  districtName: { type: String, required: true }, // e.g. "Central District"
-  zones: [Zone.schema]
-});
+const DistrictSchema = new mongoose.Schema(
+  {
+    name: { type: String, required: true },
+    zones: [{ type: mongoose.Schema.Types.ObjectId, ref: "Zone" }],
+  },
+  { timestamps: true }
+);
 
-export default mongoose.model("District", DistrictSchema);
+export default mongoose.models.District || mongoose.model("District", DistrictSchema);

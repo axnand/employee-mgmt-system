@@ -29,7 +29,7 @@ router.post("/register-school-admin", protect, isAdmin, registerSchoolAdmin);
 
 /**
  * POST /api/auth/register-staff
- * Protected route - School admin can register new staff (or main admin can do it globally).
+ * Protected route - School admin (or main admin) can register new staff.
  */
 router.post("/register-staff", protect, isSchoolAdmin, registerStaff);
 

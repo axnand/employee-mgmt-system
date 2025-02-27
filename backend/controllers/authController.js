@@ -3,66 +3,67 @@ import User from "../models/User.js";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import { createLog } from "../services/logService.js";
-import { registerSchoolAdmin as registerAdminService, registerStaff as registerStaffService, updatePassword as updatePasswordService } from "../services/userService.js";
+import {
+  registerSchoolAdmin as registerAdminService,
+  registerStaff as registerStaffService,
+  updatePassword as updatePasswordService
+} from "../services/userService.js";
 
 /**
  * POST /api/auth/login
- * Logs in a user (admin, schoolAdmin, or staff).
+ * Logs in a user (admin, schoolAdmin, or staff) based on the provided login type.
+ * Expected req.body: { userId, password, loginAs }
  */
 export const loginUser = async (req, res) => {
-  try {
-    const { userId, password } = req.body;
-    const user = await User.findOne({ userId });
-
-    if (!user) {
-      return res.status(401).json({ message: "Invalid credentials" });
-    }
-
-    const isMatch = await user.comparePassword(password);
-    console.log("Comparing password:", password, "with hash:", user.password);
-console.log("Password match result:", isMatch);
-    if (!isMatch) {
-      // Log failed login attempt
+    try {
+      const { userId, password, loginAs } = req.body;
+      const user = await User.findOne({ userId });
+  
+      if (!user) {
+        return res.status(401).json({ message: "Invalid credentials" });
+      }
+  
+      if (loginAs && user.role !== loginAs) {
+        return res.status(403).json({ message: `You are not authorized to login as ${loginAs}` });
+      }
+  
+      const isMatch = await user.comparePassword(password);
+      if (!isMatch) {
+        await createLog({
+          admin: userId,
+          role: user.role,
+          action: "Failed Login",
+          description: "Unsuccessful login attempt",
+          ip: req.ip,
+        });
+        return res.status(401).json({ message: "Invalid credentials" });
+      }
+  
+      // Generate token regardless, including a flag if password hasn't been changed.
+      const token = jwt.sign(
+        { userId: user._id, role: user.role, schoolId: user.schoolId, forcePasswordChange: !user.passwordChanged },
+        process.env.JWT_SECRET,
+        { expiresIn: "1d" }
+      );
+  
       await createLog({
         admin: userId,
-        role: user.role,
-        action: "Failed Login",
-        description: "Unsuccessful login attempt",
+        role: user.role === "admin" ? "Super Admin" : user.role,
+        action: "Login",
+        description: `${userId} logged in successfully as ${user.role}`,
         ip: req.ip,
       });
-      return res.status(401).json({ message: "Invalid credentials" });
-    }
-
-    // If user has not changed default password yet (for schoolAdmin or staff)
-    if (!user.passwordChanged && (user.role === "schoolAdmin" || user.role === "staff")) {
+  
       return res.status(200).json({
-        message: "Change password required",
-        forcePasswordChange: true,
-        userId: user._id,
+        message: "Login successful",
+        token,
+        role: user.role,
+        forcePasswordChange: !user.passwordChanged
       });
+    } catch (error) {
+      return res.status(500).json({ message: "Error logging in", error: error.message });
     }
-
-    // Generate JWT token
-    const token = jwt.sign(
-      { userId: user._id, role: user.role, schoolId: user.schoolId },
-      process.env.JWT_SECRET,
-      { expiresIn: "1d" }
-    );
-
-    // Log successful login
-    await createLog({
-      admin: userId,
-      role: user.role === "admin" ? "Super Admin" : "Admin",
-      action: "Login",
-      description: `${userId} logged in successfully`,
-      ip: req.ip,
-    });
-
-    res.status(200).json({ message: "Login successful", token });
-  } catch (error) {
-    res.status(500).json({ message: "Error logging in", error });
-  }
-};
+  };
 
 /**
  * PUT /api/auth/update-password
@@ -73,7 +74,6 @@ export const updatePassword = async (req, res) => {
     // We assume the user is authenticated and we have userId in req.user
     const { newPassword } = req.body;
     const updatedUser = await updatePasswordService(req.user.userId, newPassword, req.ip);
-
     res.status(200).json({ message: "Password updated successfully", user: updatedUser });
   } catch (error) {
     res.status(500).json({ message: "Error updating password", error: error.message });
@@ -82,14 +82,19 @@ export const updatePassword = async (req, res) => {
 
 /**
  * POST /api/auth/register-school-admin
- * Only main admin can register a new school admin.
+ * Only the main admin can register a new school admin.
+ * Expected req.body: { userId, password, schoolId } and (if needed) additional school info.
  */
 export const registerSchoolAdmin = async (req, res) => {
   try {
+    // Ensure only the main admin can register a school admin
+    if (req.user.role !== "admin") {
+      return res.status(403).json({ message: "Only the main admin can register a school admin" });
+    }
+
     // Expected: { userId, password, schoolId } in req.body
     const { userId, password, schoolId } = req.body;
     const newUser = await registerAdminService({ userId, password, schoolId }, req.user, req.ip);
-
     res.status(201).json({ message: "School admin registered", userId: newUser._id });
   } catch (error) {
     res.status(500).json({ message: "Error registering school admin", error: error.message });
@@ -98,14 +103,18 @@ export const registerSchoolAdmin = async (req, res) => {
 
 /**
  * POST /api/auth/register-staff
- * School admin can register new staff.
+ * Allows either the main admin or a school admin to register new staff.
+ * Expected req.body: { userId, password, employeeId }.
  */
 export const registerStaff = async (req, res) => {
   try {
+    // Allow only school admins or the main admin to add employees
+    if (!(req.user.role === "schoolAdmin" || req.user.role === "admin")) {
+      return res.status(403).json({ message: "Only school admins or the main admin can register staff" });
+    }
     // Expected: { userId, password, employeeId } in req.body
     const { userId, password, employeeId } = req.body;
     const newUser = await registerStaffService({ userId, password, employeeId }, req.user, req.ip);
-
     res.status(201).json({ message: "Staff registered", userId: newUser._id });
   } catch (error) {
     res.status(500).json({ message: "Error registering staff", error: error.message });

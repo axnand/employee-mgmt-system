@@ -1,13 +1,14 @@
+// models/User.js
 import mongoose from "mongoose";
 import bcrypt from "bcrypt";
 
 const UserSchema = new mongoose.Schema(
   {
     userId: { type: String, required: true, unique: true },
-    role: { 
-      type: String, 
-      enum: ["admin", "schoolAdmin", "staff"], 
-      required: true 
+    role: {
+      type: String,
+      enum: ["admin", "schoolAdmin", "staff"],
+      required: true,
     },
     password: { type: String, required: true },
     schoolId: { type: mongoose.Schema.Types.ObjectId, ref: "School" },
@@ -29,10 +30,8 @@ UserSchema.pre("save", async function (next) {
   }
 });
 
-UserSchema.methods.comparePassword = async function(candidatePassword) {
-    return await bcrypt.compare(candidatePassword, this.password);
-    
-  };
-  
+UserSchema.methods.comparePassword = async function (candidatePassword) {
+  return await bcrypt.compare(candidatePassword, this.password);
+};
 
-export default mongoose.model("User", UserSchema);
+export default mongoose.models.User || mongoose.model("User", UserSchema);

@@ -3,21 +3,19 @@ import Log from "../models/Log.js";
 
 /**
  * GET /api/logs
- * Returns log entries.
- * - Main admin sees all logs.
- * - School admin sees only logs related to their school.
+ * - Main admin: views logs for all zones and schools.
+ * - School admin: views only logs related to their school.
+ *   (This includes events like creation, update, deletion of employees, schools, zones,
+ *    transfer events, and login events.)
  */
 export const getLogs = async (req, res) => {
   try {
     const { role, schoolId } = req.user;
     let filter = {};
-
     if (role === "schoolAdmin") {
-      // Assuming your Log model stores the school name or ID in a field named "school"
-      // You may need to adjust the filter based on how you store the school data.
-      filter = { school: req.user.schoolName || schoolId };
+      // For school admins, filter by school identifier.
+      filter = { school: schoolId };
     }
-
     const logs = await Log.find(filter).sort({ createdAt: -1 }).exec();
     res.json({ logs });
   } catch (error) {
@@ -36,8 +34,7 @@ export const getLocalStats = async (req, res) => {
     
     let match = { createdAt: { $gte: twentyFourHoursAgo } };
     if (role === "schoolAdmin") {
-      // If school admins are restricted by their school, adjust the filter accordingly.
-      match.school = req.user.schoolName || schoolId;
+      match.school = schoolId;
     }
 
     const stats = await Log.aggregate([
@@ -50,18 +47,13 @@ export const getLocalStats = async (req, res) => {
       }
     ]);
 
-    // Construct a stats object.
     const totalActions = stats.reduce((acc, cur) => acc + cur.count, 0);
-    const attendanceUpdates = stats.find(s => s._id === "Attendance Update")?.count || 0;
-    const transfersProcessed = stats.find(s => s._id === "Employee Transfer Request")?.count || 0;
-    const profileModifications = stats.find(s => s._id.toLowerCase().includes("profile"))?.count || 0;
-
     res.json({
       stats: [
         { title: "Total Actions (24h)", value: totalActions },
-        { title: "Attendance Updates", value: attendanceUpdates },
-        { title: "Transfers Processed", value: transfersProcessed },
-        { title: "Profile Modifications", value: profileModifications }
+        { title: "Transfers Processed", value: stats.find(s => s._id === "Transfer Request Review")?.count || 0 },
+        { title: "Employee Updates", value: stats.find(s => s._id === "Update Employee")?.count || 0 },
+        // Add additional stat entries as needed.
       ]
     });
   } catch (error) {

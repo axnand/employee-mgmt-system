@@ -14,30 +14,24 @@ export const createTransferRequest = async (
   currentUser,
   ip
 ) => {
-  // Validate the source school exists.
   const fromSchool = await School.findById(fromSchoolId);
   if (!fromSchool) {
     throw new Error("Source school not found");
   }
-  // Check if employeeId exists in the school's employees array.
   const isEmployeeInSchool = fromSchool.employees.some(
     (empId) => empId.toString() === employeeId
   );
   if (!isEmployeeInSchool) {
     throw new Error("Employee not found in your school");
   }
-
-  // Create the transfer request with the comment included.
   const transferRequest = await TransferRequest.create({
     employee: employeeId,
     fromSchool: fromSchoolId,
     toSchool: toSchoolId,
     requestedBy,
     status: "pending",
-    comment, // Store the comment/reason provided.
+    comment,
   });
-
-  // Log the creation.
   await createLog({
     admin: currentUser.userId,
     role: currentUser.role,
@@ -46,12 +40,11 @@ export const createTransferRequest = async (
     description: `Initiated transfer request for employee ${employeeId}. Reason: ${comment}`,
     ip,
   });
-
   return transferRequest;
 };
 
 /**
- * Approves or rejects a transfer request by main admin.
+ * Approves or rejects a transfer request by the main admin.
  * @param {String} requestId - The ID of the TransferRequest.
  * @param {String} action - "approve" or "reject".
  * @param {Object} currentUser - The main admin user.
@@ -62,7 +55,6 @@ export const approveTransferRequest = async (requestId, action, currentUser, ip)
   if (!transferRequest) {
     throw new Error("Transfer request not found");
   }
-
   if (action === "approve") {
     transferRequest.status = "approved_by_main";
   } else if (action === "reject") {
@@ -70,9 +62,7 @@ export const approveTransferRequest = async (requestId, action, currentUser, ip)
   } else {
     throw new Error("Invalid action");
   }
-
   await transferRequest.save();
-
   await createLog({
     admin: currentUser.userId,
     role: "Super Admin",
@@ -80,7 +70,6 @@ export const approveTransferRequest = async (requestId, action, currentUser, ip)
     description: `${action} transfer request ${transferRequest._id}`,
     ip,
   });
-
   return transferRequest;
 };
 
@@ -96,28 +85,22 @@ export const respondToTransferRequest = async (requestId, action, currentUser, i
   if (!transferRequest) {
     throw new Error("Transfer request not found");
   }
-
   if (transferRequest.status !== "approved_by_main") {
     throw new Error("Transfer request has not been approved by the main admin yet");
   }
-
   if (action === "accept") {
     transferRequest.status = "accepted_by_receiving";
-
-    // Fetch both schools to update their employees lists.
     const fromSchool = await School.findById(transferRequest.fromSchool);
     const toSchool = await School.findById(transferRequest.toSchool);
     if (!fromSchool || !toSchool) {
       throw new Error("One of the schools was not found");
     }
-
-    // Remove the employee from the source school.
+    // Remove employee from source school's list.
     fromSchool.employees = fromSchool.employees.filter(
       (empId) => empId.toString() !== transferRequest.employee.toString()
     );
     await fromSchool.save();
-
-    // Add the employee to the destination school if not already present.
+    // Add employee to destination school's list.
     if (!toSchool.employees.includes(transferRequest.employee)) {
       toSchool.employees.push(transferRequest.employee);
     }
@@ -127,9 +110,7 @@ export const respondToTransferRequest = async (requestId, action, currentUser, i
   } else {
     throw new Error("Invalid action");
   }
-
   await transferRequest.save();
-
   await createLog({
     admin: currentUser.userId,
     role: currentUser.role,
@@ -137,6 +118,5 @@ export const respondToTransferRequest = async (requestId, action, currentUser, i
     description: `${action} transfer request ${transferRequest._id}`,
     ip,
   });
-
   return transferRequest;
 };

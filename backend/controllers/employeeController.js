@@ -1,28 +1,27 @@
 // controllers/employeeController.js
+import mongoose from "mongoose";
 import Employee from "../models/Employee.js";
 import School from "../models/School.js";
 import { createLog } from "../services/logService.js";
 
 /**
  * GET /api/employees
- * - Main admin can view all employees.
- * - School admin can view employees in their school only.
+ * - Main admin: gets all employees.
+ * - School admin: gets employees only from their school.
  */
 export const getEmployees = async (req, res) => {
   try {
     let employees;
     if (req.user.role === "admin") {
-      // Main admin: get all employees
+      // Main admin can view all employees.
       employees = await Employee.find({});
     } else if (req.user.role === "schoolAdmin") {
-      // School admin: find employees in this admin's school
-      // We assume we store the school's _id in req.user.schoolId
+      // School admin: find employees in his/her school.
       const school = await School.findById(req.user.schoolId).populate("employees");
       employees = school ? school.employees : [];
     } else {
       return res.status(403).json({ message: "Not authorized to view employees" });
     }
-
     res.json(employees);
   } catch (error) {
     res.status(500).json({ message: "Error fetching employees", error });
@@ -32,7 +31,7 @@ export const getEmployees = async (req, res) => {
 /**
  * GET /api/employees/:id
  * - Main admin can view any employee.
- * - School admin can view only if the employee is in their school.
+ * - School admin can view an employee only if that employee belongs to their school.
  */
 export const getEmployeeById = async (req, res) => {
   try {
@@ -40,11 +39,9 @@ export const getEmployeeById = async (req, res) => {
     if (!employee) {
       return res.status(404).json({ message: "Employee not found" });
     }
-
     if (req.user.role === "admin") {
       return res.json(employee);
     } else if (req.user.role === "schoolAdmin") {
-      // Check if this employee is in the school
       const school = await School.findById(req.user.schoolId).populate("employees");
       const inSchool = school.employees.some(
         (emp) => emp._id.toString() === employee._id.toString()
@@ -63,36 +60,36 @@ export const getEmployeeById = async (req, res) => {
 
 /**
  * POST /api/employees
- * - School admin can create employees in their school.
+ * - Allows main admin or school admin to create an employee.
+ *   School admins always create employees in their own school.
+ *   Main admin may specify the school in req.body.
  */
 export const createEmployee = async (req, res) => {
   try {
-    const { sanctionedPost, employeeName, staffType } = req.body;
-    // Additional fields as needed
-
-    // Create the employee record
+    // Force school admin's employees to belong to their school.
+    const schoolId = req.user.role === "schoolAdmin" ? req.user.schoolId : req.body.school;
+    
+    // Create employee record using fields from req.body.
     const newEmployee = await Employee.create({
-      sanctionedPost,
-      employeeName,
-      staffType,
-      // etc.
+      ...req.body,
+      school: schoolId,
     });
 
-    // Add this employee to the school's employees array
-    const school = await School.findById(req.user.schoolId);
+    // Add the employee to the school's employee array.
+    const school = await School.findById(schoolId);
     if (!school) {
       return res.status(404).json({ message: "School not found" });
     }
     school.employees.push(newEmployee._id);
     await school.save();
 
-    // Log creation
+    // Log the creation action.
     await createLog({
       admin: req.user.userId,
       role: req.user.role,
       action: "Create Employee",
       school: school.name,
-      description: `Created new employee ${employeeName} in school ${school.name}`,
+      description: `Created new employee ${newEmployee.employeeName} in school ${school.name}`,
       ip: req.ip,
     });
 
@@ -104,24 +101,24 @@ export const createEmployee = async (req, res) => {
 
 /**
  * PUT /api/employees/:id
- * - School admin can update employees in their school.
+ * - Main admin can update any employee.
+ * - School admin can update only employees in their school.
  */
 export const updateEmployee = async (req, res) => {
   try {
-    // Check if employee is in this school
-    const school = await School.findById(req.user.schoolId);
-    if (!school) {
-      return res.status(404).json({ message: "School not found" });
+    // For school admins, ensure the employee belongs to their school.
+    if (req.user.role === "schoolAdmin") {
+      const school = await School.findById(req.user.schoolId);
+      if (!school) {
+        return res.status(404).json({ message: "School not found" });
+      }
+      const isEmployeeInSchool = school.employees.some(
+        (empId) => empId.toString() === req.params.id
+      );
+      if (!isEmployeeInSchool) {
+        return res.status(403).json({ message: "Not authorized to update this employee" });
+      }
     }
-
-    const isEmployeeInSchool = school.employees.some(
-      (empId) => empId.toString() === req.params.id
-    );
-    if (!isEmployeeInSchool && req.user.role !== "admin") {
-      return res.status(403).json({ message: "Not authorized to update this employee" });
-    }
-
-    // Update the employee
     const updatedEmployee = await Employee.findByIdAndUpdate(
       req.params.id,
       { ...req.body },
@@ -130,8 +127,6 @@ export const updateEmployee = async (req, res) => {
     if (!updatedEmployee) {
       return res.status(404).json({ message: "Employee not found" });
     }
-
-    // Log update
     await createLog({
       admin: req.user.userId,
       role: req.user.role,
@@ -139,7 +134,6 @@ export const updateEmployee = async (req, res) => {
       description: `Updated employee ${updatedEmployee.employeeName}`,
       ip: req.ip,
     });
-
     res.json(updatedEmployee);
   } catch (error) {
     res.status(500).json({ message: "Error updating employee", error });
@@ -148,34 +142,33 @@ export const updateEmployee = async (req, res) => {
 
 /**
  * DELETE /api/employees/:id
- * - School admin can remove employees in their school.
+ * - Main admin can delete any employee.
+ * - School admin can delete only employees in their school.
  */
 export const deleteEmployee = async (req, res) => {
   try {
-    const school = await School.findById(req.user.schoolId);
-    if (!school) {
-      return res.status(404).json({ message: "School not found" });
+    // For school admins, check that the employee belongs to their school.
+    if (req.user.role === "schoolAdmin") {
+      const school = await School.findById(req.user.schoolId);
+      if (!school) {
+        return res.status(404).json({ message: "School not found" });
+      }
+      const isEmployeeInSchool = school.employees.some(
+        (empId) => empId.toString() === req.params.id
+      );
+      if (!isEmployeeInSchool) {
+        return res.status(403).json({ message: "Not authorized to delete this employee" });
+      }
+      // Remove the employee from the school's array.
+      school.employees = school.employees.filter(
+        (empId) => empId.toString() !== req.params.id
+      );
+      await school.save();
     }
-
-    const isEmployeeInSchool = school.employees.some(
-      (empId) => empId.toString() === req.params.id
-    );
-    if (!isEmployeeInSchool && req.user.role !== "admin") {
-      return res.status(403).json({ message: "Not authorized to delete this employee" });
-    }
-
-    // Remove from school's array
-    school.employees = school.employees.filter(
-      (empId) => empId.toString() !== req.params.id
-    );
-    await school.save();
-
     const deletedEmp = await Employee.findByIdAndDelete(req.params.id);
     if (!deletedEmp) {
       return res.status(404).json({ message: "Employee not found" });
     }
-
-    // Log deletion
     await createLog({
       admin: req.user.userId,
       role: req.user.role,
@@ -183,7 +176,6 @@ export const deleteEmployee = async (req, res) => {
       description: `Deleted employee ${deletedEmp.employeeName}`,
       ip: req.ip,
     });
-
     res.json({ message: "Employee deleted" });
   } catch (error) {
     res.status(500).json({ message: "Error deleting employee", error });

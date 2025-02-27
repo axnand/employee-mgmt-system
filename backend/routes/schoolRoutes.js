@@ -18,7 +18,7 @@ router.get("/", protect, isAdmin, getAllSchools);
 /**
  * GET /api/schools/mine
  * Protected route - 
- *  - School admin can view details of their own school only.
+ *  - School admin can view details of their own school.
  */
 router.get("/mine", protect, isSchoolAdmin, getMySchool);
 

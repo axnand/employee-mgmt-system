@@ -1,4 +1,3 @@
-// middleware/authMiddleware.js
 import jwt from "jsonwebtoken";
 
 /**
@@ -6,32 +5,43 @@ import jwt from "jsonwebtoken";
  */
 export const protect = (req, res, next) => {
   let token;
-
-  // Tokens are typically sent in the "Authorization" header as "Bearer <token>"
   if (
     req.headers.authorization &&
-    req.headers.authorization.startsWith("Bearer")
+    req.headers.authorization.startsWith("Bearer ")
   ) {
     try {
       token = req.headers.authorization.split(" ")[1];
       const decoded = jwt.verify(token, process.env.JWT_SECRET);
-
       // Attach user data to req.user
       req.user = {
         userId: decoded.userId,
         role: decoded.role,
         schoolId: decoded.schoolId || null,
       };
-
       next();
     } catch (error) {
+      console.error("Token verification failed:", error);
       return res.status(401).json({ message: "Not authorized, token failed" });
     }
-  }
-
-  if (!token) {
+  } else {
     return res.status(401).json({ message: "Not authorized, no token" });
   }
+};
+
+/**
+ * authorizeRoles - Generic middleware to check if the user's role is one of the allowed roles.
+ * Usage: router.use(authorizeRoles("admin", "schoolAdmin"))
+ */
+export const authorizeRoles = (...allowedRoles) => {
+  return (req, res, next) => {
+    if (req.user && allowedRoles.includes(req.user.role)) {
+      next();
+    } else {
+      return res
+        .status(403)
+        .json({ message: "Access denied: insufficient permissions" });
+    }
+  };
 };
 
 /**

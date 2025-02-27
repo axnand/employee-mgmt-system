@@ -6,14 +6,14 @@ import {
   updateEmployee,
   deleteEmployee,
 } from "../controllers/employeeController.js";
-import { protect, isAdmin, isSchoolAdmin } from "../middleware/authMiddleware.js";
+import { protect, authorizeRoles } from "../middleware/authMiddleware.js";
 
 const router = express.Router();
 
 /**
  * GET /api/employees
  * Protected route - 
- *  - Main admin can view all employees across schools.
+ *  - Main admin can view all employees.
  *  - School admin can view only employees in their school.
  */
 router.get("/", protect, getEmployees);
@@ -22,29 +22,29 @@ router.get("/", protect, getEmployees);
  * GET /api/employees/:id
  * Protected route - 
  *  - Main admin can view any employee.
- *  - School admin can view only if the employee is in their school.
+ *  - School admin can view an employee only if they belong to their school.
  */
 router.get("/:id", protect, getEmployeeById);
 
 /**
  * POST /api/employees
  * Protected route - 
- *  - Only school admin (or main admin, if desired) can create employees in their school.
+ *  - Both main admin and school admin can create an employee.
  */
-router.post("/", protect, isSchoolAdmin, createEmployee);
+router.post("/", protect, authorizeRoles("admin", "schoolAdmin"), createEmployee);
 
 /**
  * PUT /api/employees/:id
  * Protected route - 
- *  - Only school admin can update employees in their school.
+ *  - Both main admin and school admin can update an employee.
  */
-router.put("/:id", protect, isSchoolAdmin, updateEmployee);
+router.put("/:id", protect, authorizeRoles("admin", "schoolAdmin"), updateEmployee);
 
 /**
  * DELETE /api/employees/:id
  * Protected route - 
- *  - Only school admin can remove employees in their school.
+ *  - Both main admin and school admin can delete an employee.
  */
-router.delete("/:id", protect, isSchoolAdmin, deleteEmployee);
+router.delete("/:id", protect, authorizeRoles("admin", "schoolAdmin"), deleteEmployee);
 
 export default router;

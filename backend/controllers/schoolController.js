@@ -3,12 +3,23 @@ import School from "../models/School.js";
 
 /**
  * GET /api/schools
- * - Main admin can view all schools.
+ * - Main admin: view all schools.
+ * - School admin: view only their own school.
  */
 export const getAllSchools = async (req, res) => {
   try {
-    const schools = await School.find({});
-    res.json(schools);
+    if (req.user.role === "admin") {
+      const schools = await School.find({}).populate("employees");
+      return res.json(schools);
+    } else if (req.user.role === "schoolAdmin") {
+      const school = await School.findById(req.user.schoolId).populate("employees");
+      if (!school) {
+        return res.status(404).json({ message: "School not found" });
+      }
+      return res.json([school]); // return as an array for consistency
+    } else {
+      return res.status(403).json({ message: "Not authorized to view schools" });
+    }
   } catch (error) {
     res.status(500).json({ message: "Error fetching schools", error });
   }
@@ -16,7 +27,7 @@ export const getAllSchools = async (req, res) => {
 
 /**
  * GET /api/schools/mine
- * - School admin can view details of their own school.
+ * - School admin: view details of their own school.
  */
 export const getMySchool = async (req, res) => {
   try {
@@ -32,7 +43,7 @@ export const getMySchool = async (req, res) => {
 
 /**
  * GET /api/schools/:id
- * - Main admin can view details of any school by ID.
+ * - Main admin: view details of any school by ID.
  */
 export const getSchoolById = async (req, res) => {
   try {
