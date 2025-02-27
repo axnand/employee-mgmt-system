@@ -3,6 +3,7 @@ import {
   getAllSchools,
   getSchoolById,
   getMySchool,
+  getSchoolStatus,
 } from "../controllers/schoolController.js";
 import { protect, isAdmin, isSchoolAdmin } from "../middleware/authMiddleware.js";
 
@@ -28,5 +29,7 @@ router.get("/mine", protect, isSchoolAdmin, getMySchool);
  *  - Main admin can view details of any school by ID.
  */
 router.get("/:id", protect, isAdmin, getSchoolById);
+
+router.get("/status", protect, isAdmin, getSchoolStatus);
 
 export default router;

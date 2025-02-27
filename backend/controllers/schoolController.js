@@ -56,3 +56,19 @@ export const getSchoolById = async (req, res) => {
     res.status(500).json({ message: "Error fetching school by ID", error });
   }
 };
+
+
+/**
+ * GET /api/schools/status
+ * - Returns zones with their schools grouped together.
+ * - Accessible to the main admin.
+ */
+export const getSchoolStatus = async (req, res) => {
+    try {
+      // Find all zones and populate the associated schools.
+      const zones = await Zone.find({}).populate("schools");
+      res.status(200).json({ zones });
+    } catch (error) {
+      res.status(500).json({ message: "Error fetching school status", error: error.message });
+    }
+  };
