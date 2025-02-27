@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import {
   ResponsiveContainer,
   CartesianGrid,
@@ -10,136 +10,117 @@ import {
   Legend,
   LineChart,
   Line,
-  // PieChart,
+  PieChart,
   Pie,
   Cell,
 } from "recharts";
 import {
   LayoutDashboard,
-  School,
+  School as SchoolIcon,
   Users,
   ArrowLeftRight,
-  Clipboard,
 } from "lucide-react";
 import Link from "next/link";
+import { useQuery } from "@tanstack/react-query";
+import axiosClient from "@/api/axiosClient";
 
-/* 
-  SAMPLE DATA (You’d likely fetch real data from an API in production)
-*/
+// ---------- API FETCH FUNCTIONS ----------
 
-// School-wise Enrollment
-const schoolData = [
-  { name: "School A", students: 400 },
-  { name: "School B", students: 300 },
-  { name: "School C", students: 500 },
-  { name: "School D", students: 200 },
-  { name: "School E", students: 350 },
-];
+// Fetch all schools (for total schools and student count)
+const fetchSchools = async () => {
+  const res = await axiosClient.get("/schools");
+  return res.data; // expects an array of school objects with numberOfStudents field
+};
 
-// Yearly Enrollment Trends
-const enrollmentData = [
-  { year: "2018", students: 1200 },
-  { year: "2019", students: 1300 },
-  { year: "2020", students: 1400 },
-  { year: "2021", students: 1600 },
-  { year: "2022", students: 1800 },
-  { year: "2024", students: 2200 },
-];
+// Fetch all employees (for total staff and staff distribution)
+const fetchEmployees = async () => {
+  const res = await axiosClient.get("/employees");
+  return res.data; // expects an array of employee objects with staffType field
+};
 
-// Staff Distribution
-const staffData = [
-  { name: "Teaching", value: 300 },
-  { name: "Non-Teaching", value: 200 },
-];
+// Fetch all transfers (to compute pending transfers)
+const fetchTransfers = async () => {
+  const res = await axiosClient.get("/transfers");
+  // Based on our routes, response has { transferRequests: [...] }
+  return res.data.transferRequests;
+};
 
-// Attendance Status Data for Pie Chart
-const attendanceStatusData = [
-  { name: "Present", value: 800 },
-  { name: "Absent", value: 50 },
-  { name: "On Leave", value: 30 },
-  { name: "On Duty", value: 20 },
-];
+// Fetch enrollment trends (if available; otherwise, use sample data)
+const fetchEnrollmentTrends = async () => {
+  // Replace with your real endpoint if available.
+  return [
+    { year: "2018", students: 1200 },
+    { year: "2019", students: 1300 },
+    { year: "2020", students: 1400 },
+    { year: "2021", students: 1600 },
+    { year: "2022", students: 1800 },
+    { year: "2024", students: 2200 },
+  ];
+};
 
-// Retirement Employees Sample Data
-const retirementEmployees = [
-  {
-    emp_id: 4623,
-    school_id: "89",
-    emp_name: "Amit Sharma",
-    present_designation: "Senior Assistant",
-    date_of_retirement: "2025-03-15",
-    
-     // soon (within 30 days if today is 2025-02-23)
-  },
-  {
-    emp_id: 4624,
-    school_id: "89",
-    emp_name: "Suman Verma",
-    present_designation: "Principal",
-    date_of_retirement: "2050-05-15", // far in the future
-  },
-  {
-    emp_id: 4625,
-    school_id: "89",
-    emp_name: "Rahul Singh",
-    present_designation: "Teacher",
-    date_of_retirement: "2025-03-05", // soon
-  },
-  {
-    emp_id: 4626,
-    school_id: "89",
-    emp_name: "Neha Gupta",
-    present_designation: "Vice Principal",
-    date_of_retirement: "2049-03-25", // far in the future
-  },
-  {
-    emp_id: 4627,
-    school_id: "89",
-    emp_name: "Rohit Kumar",
-    present_designation: "Clerk",
-    date_of_retirement: "2025-02-28", // very soon
-  },
-];
+// Fetch recent activities (logs) for the dashboard
+const fetchRecentActivities = async () => {
+  const res = await axiosClient.get("/logs");
+  // Assume logs are sorted descending by createdAt; take top 3.
+  return res.data.logs.slice(0, 3);
+};
 
-// Extra metrics for the dashboard
-const totalSchools = schoolData.length;
-const totalStaff = staffData.reduce((acc, curr) => acc + curr.value, 0);
-const totalStudents = enrollmentData[enrollmentData.length - 1].students;
-const pendingTransfers = 5; // example placeholder
+// Fetch retirement employees based on filterDays; expects endpoint with query param.
+const fetchRetirements = async (days) => {
+  const res = await axiosClient.get(`/employees/retirements?days=${days}`);
+  return res.data.retirements; // expects an array of retirement employee objects
+};
 
-// Colors for the Pie Chart
-// const COLORS = ["#0088FE", "#00C49F", "#FFBB28", "#FF8042"];
+// ---------- Dashboard Component ----------
 
 export default function AdminDashboardPage() {
-  const [recentActivities, setRecentActivities] = useState([]);
   const [filterDays, setFilterDays] = useState(30);
-  const [filteredRetirements, setFilteredRetirements] = useState([]);
 
-  // Sample recent activities
-  useEffect(() => {
-    setRecentActivities([
-      { action: "Logged in", time: "2022-09-12 10:20 AM" },
-      { action: "Updated School Info", time: "2022-09-11 05:10 PM" },
-      { action: "Added New Employee", time: "2022-09-10 11:30 AM" },
-    ]);
-  }, []);
+  // Use react-query to fetch data from the backend.
+  const { data: schools = [] } = useQuery({
+    queryKey: ["schools"],
+    queryFn: fetchSchools,
+  });
+  const { data: employees = [] } = useQuery({
+    queryKey: ["employees"],
+    queryFn: fetchEmployees,
+  });
+  const { data: transfers = [] } = useQuery({
+    queryKey: ["transfers"],
+    queryFn: fetchTransfers,
+  });
+  const { data: enrollmentData = [] } = useQuery({
+    queryKey: ["enrollmentTrends"],
+    queryFn: fetchEnrollmentTrends,
+  });
+  const { data: recentActivities = [] } = useQuery({
+    queryKey: ["recentActivities"],
+    queryFn: fetchRecentActivities,
+  });
+  const { data: retirementEmployees = [] } = useQuery({
+    queryKey: ["retirements", filterDays],
+    queryFn: () => fetchRetirements(filterDays),
+    keepPreviousData: true,
+  });
 
-  // Function to compute days left until retirement from today
-  const computeDaysLeft = (dateOfRetirement) => {
-    const today = new Date();
-    const retirementDate = new Date(dateOfRetirement);
-    const diffTime = retirementDate - today;
-    return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-  };
+  // ---------- Derived Metrics ----------
 
-  // Filter retirement employees based on filterDays
-  useEffect(() => {
-    const filtered = retirementEmployees.filter((emp) => {
-      const daysLeft = computeDaysLeft(emp.date_of_retirement);
-      return daysLeft <= filterDays;
-    });
-    setFilteredRetirements(filtered);
-  }, [filterDays]);
+  const totalSchools = schools.length;
+  const totalStudents = schools.reduce(
+    (acc, school) => acc + (school.numberOfStudents || 0),
+    0
+  );
+  const totalStaff = employees.length;
+  const pendingTransfers = transfers.filter((t) => t.status === "pending").length;
+
+  // Staff distribution: count based on staffType.
+  const teachingCount = employees.filter((emp) => emp.staffType === "teaching").length;
+  const nonTeachingCount = employees.filter((emp) => emp.staffType === "non-teaching").length;
+  const staffData = [
+    { name: "Teaching", value: teachingCount },
+    { name: "Non-Teaching", value: nonTeachingCount },
+  ];
+  const COLORS = ["#0088FE", "#00C49F"];
 
   return (
     <div className="grid grid-cols-1 gap-4">
@@ -148,7 +129,7 @@ export default function AdminDashboardPage() {
         {/* Total Schools */}
         <div className="bg-white shadow-sm rounded-lg p-4 flex flex-col border-l-2 border-primary">
           <div className="flex items-center space-x-2">
-            <School className="h-5 w-5 text-blue-500" />
+            <SchoolIcon className="h-5 w-5 text-blue-500" />
             <h3 className="text-[15px] font-semibold text-gray-800">
               Total Schools
             </h3>
@@ -222,102 +203,52 @@ export default function AdminDashboardPage() {
               <CartesianGrid strokeDasharray="3 3" />
               <XAxis
                 dataKey="year"
-                tick={{
-                  fontSize: 14,
-                  fill: "#0d2745",
-                  style: { fontWeight: "600" },
-                }}
+                tick={{ fontSize: 14, fill: "#0d2745", style: { fontWeight: "600" } }}
                 tickLine={{ stroke: "#377DFF" }}
               />
               <YAxis
-                tick={{
-                  fontSize: 14,
-                  fill: "#0d2745",
-                  style: { fontWeight: "600" },
-                }}
+                tick={{ fontSize: 14, fill: "#0d2745", style: { fontWeight: "600" } }}
                 tickLine={{ stroke: "#377DFF" }}
               />
-              <Tooltip
-                contentStyle={{
-                  backgroundColor: "#0a0a0a",
-                  color: "#fff",
-                  fontSize: "14px",
-                }}
-                itemStyle={{ color: "#377DFF" }}
-              />
+              <Tooltip contentStyle={{ backgroundColor: "#0a0a0a", color: "#fff", fontSize: "14px" }} itemStyle={{ color: "#377DFF" }} />
               <Legend wrapperStyle={{ fontSize: "14px", color: "#377DFF" }} />
-              <Line
-                type="monotone"
-                dataKey="students"
-                stroke="#377DFF"
-                strokeWidth={3}
-                dot={{ r: 5 }}
-                activeDot={{ r: 8 }}
-              />
+              <Line type="monotone" dataKey="students" stroke="#377DFF" strokeWidth={3} dot={{ r: 5 }} activeDot={{ r: 8 }} />
             </LineChart>
           </ResponsiveContainer>
         </div>
 
-        {/* Attendance Status (Pie Chart) */}
-        {/* <div className="bg-white shadow-sm rounded-lg p-4 w-2/5">
+        {/* Staff Distribution (Pie Chart) */}
+        <div className="bg-white shadow-sm rounded-lg p-4 w-2/5">
           <h3 className="text-xl font-bold mb-6 text-gray-800">
-            Attendance Status
+            Staff Distribution
           </h3>
           <ResponsiveContainer width="100%" height={300}>
             <PieChart>
-              <Pie
-                data={attendanceStatusData}
-                dataKey="value"
-                nameKey="name"
-                cx="50%"
-                cy="50%"
-                outerRadius={80}
-                label
-              >
-                {attendanceStatusData.map((entry, index) => (
-                  <Cell
-                    key={`cell-${index}`}
-                    fill={COLORS[index % COLORS.length]}
-                  />
+              <Pie data={staffData} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={80} label>
+                {staffData.map((entry, index) => (
+                  <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                 ))}
               </Pie>
-              <Tooltip
-                contentStyle={{
-                  backgroundColor: "#0a0a0a",
-                  color: "#fff",
-                  fontSize: "14px",
-                }}
-                itemStyle={{ color: "#fff" }}
-              />
+              <Tooltip contentStyle={{ backgroundColor: "#0a0a0a", color: "#fff", fontSize: "14px" }} itemStyle={{ color: "#fff" }} />
               <Legend wrapperStyle={{ fontSize: "14px", color: "#377DFF", fontWeight: "500" }} />
             </PieChart>
           </ResponsiveContainer>
-        </div>*/}
-      </div> 
+        </div>
+      </div>
 
       {/* Recent Activities */}
       <div className="bg-white shadow-sm rounded-lg p-4 border-l-2 border-primary">
-        <h3 className="text-xl font-bold mb-4 text-gray-800">
-          Recent Activities
-        </h3>
+        <h3 className="text-xl font-bold mb-4 text-gray-800">Recent Activities</h3>
         <div className="divide-y divide-gray-200 mt-2">
           {recentActivities.map((activity, index) => (
-            <div
-              key={index}
-              className="py-2 flex items-center justify-between text-sm font-medium text-gray-600"
-            >
+            <div key={index} className="py-2 flex items-center justify-between text-sm font-medium text-gray-600">
               <span>{activity.action}</span>
-              <span className="text-gray-400 text-[13px]">
-                {activity.time}
-              </span>
+              <span className="text-gray-400 text-[13px]">{activity.time}</span>
             </div>
           ))}
         </div>
         <div className="mt-4 text-right">
-          <Link
-            href="/home/logs"
-            className="text-blue-600 font-semibold hover:underline text-sm"
-          >
+          <Link href="/home/logs" className="text-blue-600 font-semibold hover:underline text-sm">
             View All Logs
           </Link>
         </div>
@@ -346,53 +277,32 @@ export default function AdminDashboardPage() {
           <table className="min-w-full divide-y divide-gray-200">
             <thead className="bg-gray-100">
               <tr>
-                <th className="px-4 py-2 text-left text-sm font-medium text-gray-700">
-                  Employee ID
-                </th>
-                <th className="px-4 py-2 text-left text-sm font-medium text-gray-700">
-                  Name
-                </th>
-                <th className="px-4 py-2 text-left text-sm font-medium text-gray-700">
-                  Designation
-                </th>
-                <th className="px-4 py-2 text-left text-sm font-medium text-gray-700">
-                  Date of Retirement
-                </th>
-                <th className="px-4 py-2 text-left text-sm font-medium text-gray-700">
-                  Actions
-                </th>
+                <th className="px-4 py-2 text-left text-sm font-medium text-gray-700">Employee ID</th>
+                <th className="px-4 py-2 text-left text-sm font-medium text-gray-700">Name</th>
+                <th className="px-4 py-2 text-left text-sm font-medium text-gray-700">Designation</th>
+                <th className="px-4 py-2 text-left text-sm font-medium text-gray-700">Date of Retirement</th>
+                <th className="px-4 py-2 text-left text-sm font-medium text-gray-700">Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-200">
-              {filteredRetirements.map((emp) => (
+              {retirementEmployees.map((emp) => (
                 <tr key={emp.emp_id}>
-                  <td className="px-4 py-2 text-sm text-gray-800">
-                    {emp.emp_id}
-                  </td>
-                  <td className="px-4 py-2 text-sm text-gray-800">
-                    {emp.emp_name}
-                  </td>
-                  <td className="px-4 py-2 text-sm text-gray-800">
-                    {emp.present_designation}
-                  </td>
-                  <td className="px-4 py-2 text-sm text-gray-800">
-                    {emp.date_of_retirement}
-                  </td>
+                  <td className="px-4 py-2 text-sm text-gray-800">{emp.emp_id}</td>
+                  <td className="px-4 py-2 text-sm text-gray-800">{emp.emp_name}</td>
+                  <td className="px-4 py-2 text-sm text-gray-800">{emp.present_designation}</td>
+                  <td className="px-4 py-2 text-sm text-gray-800">{emp.date_of_retirement}</td>
                   <td>
-                  <Link href={`/home/school-status/${emp.school_id}/${emp.emp_id}`}>
-                        <button className="py-1 px-3 bg-primary text-white rounded-full font-medium text-xs hover:bg-blue-600 transition">
-                          View
-                        </button>
-                      </Link>
+                    <Link href={`/home/school-status/${emp.school_id}/${emp.emp_id}`}>
+                      <button className="py-1 px-3 bg-primary text-white rounded-full font-medium text-xs hover:bg-blue-600 transition">
+                        View
+                      </button>
+                    </Link>
                   </td>
                 </tr>
               ))}
-              {filteredRetirements.length === 0 && (
+              {retirementEmployees.length === 0 && (
                 <tr>
-                  <td
-                    colSpan="4"
-                    className="px-4 py-2 text-sm text-gray-700 text-center"
-                  >
+                  <td colSpan="5" className="px-4 py-2 text-sm text-gray-700 text-center">
                     No retirements within the next {filterDays} days.
                   </td>
                 </tr>
