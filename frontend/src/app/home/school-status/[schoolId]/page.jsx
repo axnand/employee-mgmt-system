@@ -479,40 +479,46 @@ export default function SchoolDetailsPage() {
                   className="border border-gray-300 rounded w-full p-2"
                 />
               </div>
-              {/* Qualification */}
-              <div>
-                <label className="font-semibold text-gray-600 block mb-1">
-                  Qualification
-                </label>
-                <input
-                  type="text"
-                  value={newEmployeeData.qualification || ""}
-                  onChange={(e) =>
-                    setNewEmployeeData({
-                      ...newEmployeeData,
-                      qualification: e.target.value,
-                    })
-                  }
-                  className="border border-gray-300 rounded w-full p-2"
-                />
-              </div>
-              {/* Subject in PG */}
-              <div>
-                <label className="font-semibold text-gray-600 block mb-1">
-                  Subject in PG
-                </label>
-                <input
-                  type="text"
-                  value={newEmployeeData.subject_in_pg || ""}
-                  onChange={(e) =>
-                    setNewEmployeeData({
-                      ...newEmployeeData,
-                      subject_in_pg: e.target.value,
-                    })
-                  }
-                  className="border border-gray-300 rounded w-full p-2"
-                />
-              </div>
+ {/* Qualification (B.Ed) */}
+<div>
+  <label className="font-semibold text-gray-600 block mb-1">
+    Qualification (B.Ed)
+  </label>
+  <select
+    value={newEmployeeData.qualification || ""}
+    onChange={(e) =>
+      setNewEmployeeData({
+        ...newEmployeeData,
+        qualification: e.target.value,
+      })
+    }
+    className="border border-gray-300 rounded w-full p-2"
+  >
+    <option value="">Select</option>
+    <option value="Yes">Yes</option>
+    <option value="No">No</option>
+  </select>
+</div>
+
+{/* Subject in PG */}
+<div>
+  <label className="font-semibold text-gray-600 block mb-1">
+    Subject in PG
+  </label>
+  <input
+    type="text"
+    value={newEmployeeData.subject_in_pg || ""}
+    onChange={(e) =>
+      setNewEmployeeData({
+        ...newEmployeeData,
+        subject_in_pg: e.target.value,
+      })
+    }
+    className="border border-gray-300 rounded w-full p-2"
+    disabled={newEmployeeData.qualification !== "Yes"}
+  />
+</div>
+
               {/* Present Designation */}
               <div>
                 <label className="font-semibold text-gray-600 block mb-1">
