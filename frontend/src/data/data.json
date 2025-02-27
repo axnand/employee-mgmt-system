@@ -7,15 +7,17 @@
           "schools": [
               {
                   "id": 101,
+                  "udise_code": 101001,
                   "name": "Sanskriti Vidyalaya",
                   "address": "Plot 12, Sector 5, Jammu, J&K 180001",
                   "principal": "Amit Kumar",
                   "contact": "+91-9876543210",
                   "scheme": "elementary",
                   "sub_scheme": "10+2",
+
                   "employees": [
                       {
-                          "udise_code": 101001,
+                          
                           "name_of_sanctioned_posts": "TEACHER",
                           "emp_name": "Rohit Verma",
                           "emp_id": 1001,
