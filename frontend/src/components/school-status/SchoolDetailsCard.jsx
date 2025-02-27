@@ -488,54 +488,151 @@ export default function SchoolDetailsCard({ schoolInfo }) {
                   className="border border-gray-300 rounded w-full p-2"
                 />
               </div>
-              {/* Designation at First Appointment */}
-              <div>
-                <label className="font-semibold text-gray-600 block mb-1">Designation at First Appointment</label>
-                <input
-                  type="text"
-                  value={newEmployeeData.designation_at_first_appointment || ""}
-                  onChange={(e) =>
-                    setNewEmployeeData({ ...newEmployeeData, designation_at_first_appointment: e.target.value })
-                  }
-                  className="border border-gray-300 rounded w-full p-2"
-                />
-              </div>
-              {/* Qualification */}
-              <div>
-                <label className="font-semibold text-gray-600 block mb-1">Qualification</label>
-                <input
-                  type="text"
-                  value={newEmployeeData.qualification || ""}
-                  onChange={(e) =>
-                    setNewEmployeeData({ ...newEmployeeData, qualification: e.target.value })
-                  }
-                  className="border border-gray-300 rounded w-full p-2"
-                />
-              </div>
-              {/* Subject in PG */}
-              <div>
-                <label className="font-semibold text-gray-600 block mb-1">Subject in PG</label>
-                <input
-                  type="text"
-                  value={newEmployeeData.subject_in_pg || ""}
-                  onChange={(e) =>
-                    setNewEmployeeData({ ...newEmployeeData, subject_in_pg: e.target.value })
-                  }
-                  className="border border-gray-300 rounded w-full p-2"
-                />
-              </div>
-              {/* Present Designation */}
-              <div>
-                <label className="font-semibold text-gray-600 block mb-1">Present Designation</label>
-                <input
-                  type="text"
-                  value={newEmployeeData.present_designation || ""}
-                  onChange={(e) =>
-                    setNewEmployeeData({ ...newEmployeeData, present_designation: e.target.value })
-                  }
-                  className="border border-gray-300 rounded w-full p-2"
-                />
-              </div>
+            
+             {/* Designation at First Appointment */}
+<div>
+  <label className="font-semibold text-gray-600 block mb-1">
+    Designation at First Appointment
+  </label>
+  <select
+    value={newEmployeeData.designation_at_first_appointment || ""}
+    onChange={(e) =>
+      setNewEmployeeData({
+        ...newEmployeeData,
+        designation_at_first_appointment: e.target.value,
+      })
+    }
+    className="border border-gray-300 rounded w-full p-2"
+  >
+    <option value="">Select Designation</option>
+
+    {/* Designations Sorted Alphabetically */}
+    <option value="Accountant">Accountant</option>
+    <option value="Accounts Assistant">Accounts Assistant</option>
+    <option value="Assistant Director (P & S)">Assistant Director (P & S)</option>
+    <option value="Assistant Engineer">Assistant Engineer</option>
+    <option value="Assistant Programmer">Assistant Programmer</option>
+    <option value="CEO">CEO</option>
+    <option value="Clerk">Clerk</option>
+    <option value="Computer Assistant">Computer Assistant</option>
+    <option value="Driver">Driver</option>
+    <option value="Head Assistant">Head Assistant</option>
+    <option value="Junior Assistant">Junior Assistant</option>
+    <option value="Laboratory Assistant">Laboratory Assistant</option>
+    <option value="Lecturer">Lecturer</option>
+    <option value="Lecturer Physical Education">Lecturer Physical Education</option>
+    <option value="Library Assistant">Library Assistant</option>
+    <option value="Physical Education Master">Physical Education Master</option>
+    <option value="Physical Education Teacher">Physical Education Teacher</option>
+    <option value="Principal GHSS">Principal GHSS</option>
+    <option value="Principal HSS">Principal HSS</option>
+    <option value="Registrar">Registrar</option>
+    <option value="Senior Assistant">Senior Assistant</option>
+    <option value="Special Education Teacher">Special Education Teacher</option>
+    <option value="Statistical Assistant">Statistical Assistant</option>
+    <option value="Teacher">Teacher</option>
+    <option value="Teacher 3rd RRET NP">Teacher 3rd RRET NP</option>
+    <option value="Teacher Grade II">Teacher Grade II</option>
+    <option value="Teacher Grade III">Teacher Grade III</option>
+    <option value="Teacher RET SSA">Teacher RET SSA</option>
+    <option value="Teacher RRET NP">Teacher RRET NP</option>
+    <option value="Teacher RRET SSA">Teacher RRET SSA</option>
+    <option value="Technical Staff">Technical Staff</option>
+  </select>
+</div>
+
+ {/* Qualification (B.Ed) */}
+<div>
+  <label className="font-semibold text-gray-600 block mb-1">
+    Qualification (B.Ed)
+  </label>
+  <select
+    value={newEmployeeData.qualification || ""}
+    onChange={(e) =>
+      setNewEmployeeData({
+        ...newEmployeeData,
+        qualification: e.target.value,
+      })
+    }
+    className="border border-gray-300 rounded w-full p-2"
+  >
+    <option value="">Select</option>
+    <option value="Yes">Yes</option>
+    <option value="No">No</option>
+  </select>
+</div>
+
+{/* Subject in PG */}
+<div>
+  <label className="font-semibold text-gray-600 block mb-1">
+    Subject in PG
+  </label>
+  <input
+    type="text"
+    value={newEmployeeData.subject_in_pg || ""}
+    onChange={(e) =>
+      setNewEmployeeData({
+        ...newEmployeeData,
+        subject_in_pg: e.target.value,
+      })
+    }
+    className="border border-gray-300 rounded w-full p-2"
+    disabled={newEmployeeData.qualification !== "Yes"}
+  />
+</div>
+
+{/* Present Designation */}
+<div>
+  <label className="font-semibold text-gray-600 block mb-1">
+    Present Designation
+  </label>
+  <select
+    value={newEmployeeData.present_designation || ""}
+    onChange={(e) =>
+      setNewEmployeeData({
+        ...newEmployeeData,
+        present_designation: e.target.value,
+      })
+    }
+    className="border border-gray-300 rounded w-full p-2"
+  >
+    <option value="">Select Designation</option>
+
+    {/* All Designations Sorted Alphabetically */}
+    <option value="Accountant">Accountant</option>
+    <option value="Accounts Assistant">Accounts Assistant</option>
+    <option value="Assistant Director (P & S)">Assistant Director (P & S)</option>
+    <option value="Assistant Engineer">Assistant Engineer</option>
+    <option value="Assistant Programmer">Assistant Programmer</option>
+    <option value="CEO">CEO</option>
+    <option value="Clerk">Clerk</option>
+    <option value="Computer Assistant">Computer Assistant</option>
+    <option value="Driver">Driver</option>
+    <option value="Head Assistant">Head Assistant</option>
+    <option value="Junior Assistant">Junior Assistant</option>
+    <option value="Laboratory Assistant">Laboratory Assistant</option>
+    <option value="Lecturer">Lecturer</option>
+    <option value="Lecturer Physical Education">Lecturer Physical Education</option>
+    <option value="Library Assistant">Library Assistant</option>
+    <option value="Physical Education Master">Physical Education Master</option>
+    <option value="Physical Education Teacher">Physical Education Teacher</option>
+    <option value="Principal GHSS">Principal GHSS</option>
+    <option value="Principal HSS">Principal HSS</option>
+    <option value="Registrar">Registrar</option>
+    <option value="Senior Assistant">Senior Assistant</option>
+    <option value="Special Education Teacher">Special Education Teacher</option>
+    <option value="Statistical Assistant">Statistical Assistant</option>
+    <option value="Teacher">Teacher</option>
+    <option value="Teacher 3rd RRET NP">Teacher 3rd RRET NP</option>
+    <option value="Teacher Grade II">Teacher Grade II</option>
+    <option value="Teacher Grade III">Teacher Grade III</option>
+    <option value="Teacher RET SSA">Teacher RET SSA</option>
+    <option value="Teacher RRET NP">Teacher RRET NP</option>
+    <option value="Teacher RRET SSA">Teacher RRET SSA</option>
+    <option value="Technical Staff">Technical Staff</option>
+  </select>
+</div>
+
               {/* Date of Latest Promotion */}
               <div>
                 <label className="font-semibold text-gray-600 block mb-1">Date of Latest Promotion</label>
