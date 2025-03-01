@@ -54,52 +54,62 @@ export default function SchoolDetailsCard({ schoolInfo }) {
     return matchesSearch && matchesCategory && matchesDesignation;
   });
 
-  // Mutation to create an employee.
-  const createEmployeeMutation = useMutation({
-    mutationFn: async (newEmployee) => {
-      const response = await fetch("/api/employees", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(newEmployee),
-      });
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || "Error creating employee");
-      }
-      return response.json();
-    },
-    onSuccess: (data) => {
-      const createdEmployee = data.employee;
-      setEmployees((prev) => [...prev, createdEmployee]);
-      queryClient.invalidateQueries({ queryKey: ["employees"] });
-    },
-  });
+
+  
 
   const handleSaveNewEmployee = async () => {
-    if (!newEmployeeData.emp_id || !newEmployeeData.emp_name) {
-      alert("Please provide at least Employee ID and Name.");
+    if (!newEmployeeData.employeeId || !newEmployeeData.employeeName || !newEmployeeData.sanctionedPost || !newEmployeeData.staffType) {
+      alert("Please provide all required fields: Employee ID, Name, Designation, and Staff Type.");
       return;
     }
   
     try {
-      const response = await fetch("/api/employees", {
+      const token = localStorage.getItem("token"); // Retrieve auth token
+  
+      if (!token) {
+        throw new Error("User not authenticated. Please log in again.");
+      }
+  
+      const response = await fetch("http://localhost:5000/api/employees", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`, // Include auth token
+        },
         body: JSON.stringify({
-          ...newEmployeeData,
-          school: schoolInfo.id, // Attach the school ID
+          employeeId: newEmployeeData.employeeId,
+          employeeName: newEmployeeData.employeeName,
+          sanctionedPost: newEmployeeData.sanctionedPost, // Ensure this field matches the API
+          staffType: newEmployeeData.staffType.toLowerCase(), // Convert category to lowercase ("teaching" or "non-teaching")
+          school: schoolInfo._id, // Attach the selected school ID
+          udise_code: schoolInfo.udiseId, // Attach UDISE Code if needed
+          dateOfBirth: newEmployeeData.dateOfBirth || null,
+          dateOfFirstAppointment: newEmployeeData.dateOfFirstAppointment || null,
+          designationAtFirstAppointment: newEmployeeData.designationAtFirstAppointment || "",
+          qualification: newEmployeeData.qualification || "",
+          subjectInPG: newEmployeeData.subjectInPG || "",
+          presentDesignation: newEmployeeData.presentDesignation || "",
+          dateOfLatestPromotion: newEmployeeData.dateOfLatestPromotion || null,
+          dateOfRetirement: newEmployeeData.dateOfRetirement || null,
+          dateOfCurrentPosting: newEmployeeData.dateOfCurrentPosting || null,
+          currentPayScale: newEmployeeData.currentPayScale || "",
+          payLevel: newEmployeeData.payLevel || "",
+          grossSalary: newEmployeeData.grossSalary || "",
+          pensionScheme: newEmployeeData.pensionScheme || "NPS", // Default to NPS
         }),
       });
   
+      const text = await response.text();
+      console.log("Raw API response:", text);
+  
       if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || "Error creating employee");
+        throw new Error(`Server Error: ${response.status} - ${text}`);
       }
   
-      const { employee } = await response.json();
+      const data = JSON.parse(text);
   
-      // Add the new employee to the list
-      setEmployees((prevEmployees) => [...prevEmployees, employee]);
+      // Add new employee to the list
+      setEmployees((prevEmployees) => [...prevEmployees, data.employee]);
   
       // Refetch school data to update employees
       queryClient.invalidateQueries({ queryKey: ["school", schoolInfo.id] });
@@ -113,14 +123,8 @@ export default function SchoolDetailsCard({ schoolInfo }) {
     }
   };
   
+  
 
-
-
-  const getSanctionedPosts = () => {
-    if (newEmployeeData.staffType === "Teaching") return teachingPosts;
-    if (newEmployeeData.staffType === "Non-Teaching") return nonTeachingPosts;
-    return [];
-  };
   const { data: schoolData, refetch } = useQuery({
     queryKey: ["school", schoolInfo.id], // Assuming school has an id
     queryFn: async () => {
@@ -130,38 +134,6 @@ export default function SchoolDetailsCard({ schoolInfo }) {
     initialData: schoolInfo, // Ensures data is available initially
   });
 
-  const nonTeachingPosts = [
-    "Accountant",
-    "Accounts Assistant",
-    "Assistant Director (P & S)",
-    "CEO",
-    "Driver",
-    "Head Assistant",
-    "Junior Assistant",
-    "Laboratory Assistant",
-    "Library Assistant",
-    "Senior Assistant",
-    "Statistical Assistant",
-    "Assistant Programmer",
-    "Assistant Engineer",
-    "Computer Assistant",
-  ];
-  const teachingPosts = [
-    "Lecturer",
-    "Lecturer Physical Education",
-    "Physical Education Master",
-    "Physical Education Teacher",
-    "Principal GHSS",
-    "Principal HSS",
-    "Teacher",
-    "Teacher 3rd RRET NP",
-    "Teacher RRET NP",
-    "Teacher Grade II",
-    "Teacher Grade III",
-    "Teacher RET SSA",
-    "Teacher RRET SSA",
-    "Special Education Teacher",
-  ];
   console.log("Filtered employees:", filteredEmployees);
   
 
@@ -337,17 +309,19 @@ export default function SchoolDetailsCard({ schoolInfo }) {
 
       {/* Add New Employee Modal */}
       {isAddModalOpen && (
-        <AddEmployeeModal
-          newEmployeeData={newEmployeeData}
-          setNewEmployeeData={setNewEmployeeData}
-          isOpen={isAddModalOpen}
-          onClose={() => setIsAddModalOpen(false)}
-          handleSaveNewEmployee={handleSaveNewEmployee}
-          uniqueCategory={uniqueCategory}
-          getSanctionedPosts={getSanctionedPosts}
-          showError={showError}
-          setShowError={setShowError}
-        />
+         <AddEmployeeModal
+         newEmployeeData={newEmployeeData}
+         setNewEmployeeData={setNewEmployeeData}
+         isOpen={isAddModalOpen}
+         onClose={() => setIsAddModalOpen(false)}
+         handleSaveNewEmployee={handleSaveNewEmployee}
+         showError={showError}
+         setShowError={setShowError}
+         schoolInfo={schoolInfo}               // Pass schoolInfo here
+         setEmployees={setEmployees}           // Pass employees updater
+         setIsAddModalOpen={setIsAddModalOpen}   // Pass modal control function
+         queryClient={queryClient}             // Pass react-query client if needed
+       />
       )}
     </div>
   );

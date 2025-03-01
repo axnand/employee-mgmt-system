@@ -1,109 +1,200 @@
 "use client";
 
 import React from "react";
-import {
-  // You can import additional icons here if needed in the modal
-} from "lucide-react";
 
 export default function AddEmployeeModal({
   newEmployeeData,
   setNewEmployeeData,
   isOpen,
   onClose,
-  handleSaveNewEmployee,
-  uniqueCategory,
-  getSanctionedPosts,
   showError,
   setShowError,
+  schoolInfo, // Selected school information
+  setEmployees, // Function to update the employees list
+  setIsAddModalOpen, // Function to control modal open state
+  queryClient, // react-query client for refetching data
 }) {
   if (!isOpen) return null;
+
+  const nonTeachingPosts = [
+    "Accountant", "Accounts Assistant", "Assistant Director (P & S)", "CEO", "Driver",
+    "Head Assistant", "Junior Assistant", "Laboratory Assistant", "Library Assistant",
+    "Senior Assistant", "Statistical Assistant", "Assistant Programmer",
+    "Assistant Engineer", "Computer Assistant"
+  ];
+
+  const teachingPosts = [
+    "Lecturer", "Lecturer Physical Education", "Physical Education Master",
+    "Physical Education Teacher", "Principal GHSS", "Principal HSS", "Teacher",
+    "Teacher 3rd RRET NP", "Teacher RRET NP", "Teacher Grade II",
+    "Teacher Grade III", "Teacher RET SSA", "Teacher RRET SSA",
+    "Special Education Teacher"
+  ];
+
+  // Define available staff types
+  const staffTypes = ["Teaching", "Non-Teaching"];
+
+  // Function to get sanctioned posts based on staffType
+  const getSanctionedPosts = () => {
+    if (newEmployeeData.staffType === "Teaching") return teachingPosts;
+    if (newEmployeeData.staffType === "Non-Teaching") return nonTeachingPosts;
+    return [];
+  };
+
+  const handleSaveNewEmployee = async () => {
+    // Validate required fields: Employee ID, Name, sanctionedPost, and staffType
+    if (
+      !newEmployeeData.employeeId ||
+      !newEmployeeData.employeeName ||
+      !newEmployeeData.sanctionedPost ||
+      !newEmployeeData.staffType
+    ) {
+      alert("Please provide all required fields: Employee ID, Name, Designation, and Staff Type.");
+      return;
+    }
+    
+    // Check if schoolInfo is available
+    if (!schoolInfo || !schoolInfo._id) {
+      alert("School information is missing. Please select a valid school.");
+      return;
+    }
+
+    try {
+      const token = localStorage.getItem("token"); // Retrieve auth token
+
+      if (!token) {
+        throw new Error("User not authenticated. Please log in again.");
+      }
+
+      const response = await fetch("http://localhost:5000/api/employees", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`, // Include auth token
+        },
+        body: JSON.stringify({
+          employeeId: newEmployeeData.employeeId,
+          employeeName: newEmployeeData.employeeName,
+          sanctionedPost: newEmployeeData.sanctionedPost,
+          staffType: newEmployeeData.staffType.toLowerCase(), // "teaching" or "non-teaching"
+          school: schoolInfo._id, // Attach the selected school ID
+          udise_code: schoolInfo.udiseId, // Attach UDISE Code if needed
+          dateOfBirth: newEmployeeData.dateOfBirth || null,
+          dateOfFirstAppointment: newEmployeeData.dateOfFirstAppointment || null,
+          designationAtFirstAppointment: newEmployeeData.designationAtFirstAppointment || "",
+          qualification: newEmployeeData.qualification || "",
+          subjectInPG: newEmployeeData.subjectInPG || "",
+          presentDesignation: newEmployeeData.presentDesignation || "",
+          dateOfLatestPromotion: newEmployeeData.dateOfLatestPromotion || null,
+          dateOfRetirement: newEmployeeData.dateOfRetirement || null,
+          dateOfCurrentPosting: newEmployeeData.dateOfCurrentPosting || null,
+          currentPayScale: newEmployeeData.currentPayScale || "",
+          payLevel: newEmployeeData.payLevel || "",
+          grossSalary: newEmployeeData.grossSalary || "",
+          pensionScheme: newEmployeeData.pensionScheme || "NPS", // Default to NPS
+        }),
+      });
+
+      const text = await response.text();
+      console.log("Raw API response:", text);
+
+      if (!response.ok) {
+        throw new Error(`Server Error: ${response.status} - ${text}`);
+      }
+
+      const data = JSON.parse(text);
+
+      // Add new employee to the list
+      setEmployees((prevEmployees) => [...prevEmployees, data.employee]);
+
+      // Refetch school data to update employees
+      queryClient.invalidateQueries({ queryKey: ["school", schoolInfo.id] });
+
+      // Close modal and reset form
+      setIsAddModalOpen(false);
+      setNewEmployeeData({});
+    } catch (error) {
+      console.error("Error adding employee:", error);
+      alert(error.message);
+    }
+  };
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 py-10">
       <div className="bg-white p-6 max-h-full overflow-y-auto w-full max-w-3xl">
         <h2 className="text-xl font-bold mb-4 text-gray-800">Add New Employee</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-sm">
-          {/* UDISE Code */}
+          {/* Staff Type */}
           <div>
-            <label className="font-semibold text-gray-600 block mb-1">UDISE Code</label>
-            <input
-              type="text"
-              value={newEmployeeData.udise_code || ""}
-              onChange={(e) =>
-                setNewEmployeeData({ ...newEmployeeData, udise_code: e.target.value })
-              }
-              className="border border-gray-300 rounded w-full p-2"
-            />
-          </div>
-          {/* Employee Category */}
-          <div>
-            <label htmlFor="employeeCategory" className="block text-sm font-medium text-gray-700 mb-1">
-              Select Employee Category
+            <label htmlFor="staffType" className="block text-sm font-medium text-gray-700 mb-1">
+              Select Staff Type
             </label>
             <select
-              id="employeeCategory"
-              value={newEmployeeData.category || ""}
+              id="staffType"
+              value={newEmployeeData.staffType || ""}
               onChange={(e) => {
                 setNewEmployeeData({
                   ...newEmployeeData,
-                  category: e.target.value,
-                  name_of_sanctioned_posts: ""
+                  staffType: e.target.value,
+                  sanctionedPost: "" // Reset post selection when type changes
                 });
-                setShowError(false); // Reset error when a category is selected
+                setShowError(false);
               }}
               className="block w-full border-gray-300 rounded-md py-2 px-2 text-sm border"
             >
-              <option value="">Select Category</option>
-              {uniqueCategory.map((category, index) => (
-                <option key={index} value={category}>
-                  {category}
+              <option value="">Select Staff Type</option>
+              {staffTypes.map((type, index) => (
+                <option key={index} value={type}>
+                  {type}
                 </option>
               ))}
             </select>
           </div>
+
           {/* Name of Sanctioned Posts */}
           <div>
             <label className="font-semibold text-gray-600 block mb-1">Name of Sanctioned Posts</label>
             <select
-              value={newEmployeeData.name_of_sanctioned_posts || ""}
+              value={newEmployeeData.sanctionedPost || ""}
               onChange={(e) => {
-                if (!newEmployeeData.category) {
+                if (!newEmployeeData.staffType) {
                   setShowError(true);
                   return;
                 }
-                setNewEmployeeData({ ...newEmployeeData, name_of_sanctioned_posts: e.target.value });
+                setNewEmployeeData({ ...newEmployeeData, sanctionedPost: e.target.value });
               }}
               onFocus={() => {
-                if (!newEmployeeData.category) {
+                if (!newEmployeeData.staffType) {
                   setShowError(true);
                 }
               }}
               className={`border rounded w-full p-2 ${
-                showError && !newEmployeeData.category ? "border-red-500" : "border-gray-300"
+                showError && !newEmployeeData.staffType ? "border-red-500" : "border-gray-300"
               }`}
             >
               <option value="">
-                {newEmployeeData.category ? "Select Post" : "Please select a category first"}
+                {newEmployeeData.staffType ? "Select Post" : "Please select a staff type first"}
               </option>
-              {newEmployeeData.category &&
+              {newEmployeeData.staffType &&
                 getSanctionedPosts().map((post, index) => (
                   <option key={index} value={post}>
                     {post}
                   </option>
                 ))}
             </select>
-            {showError && !newEmployeeData.category && (
-              <p className="text-red-500 text-sm mt-1">Please select a category first.</p>
+            {showError && !newEmployeeData.staffType && (
+              <p className="text-red-500 text-sm mt-1">Please select a staff type first.</p>
             )}
           </div>
+
           {/* Employee Name */}
           <div>
             <label className="font-semibold text-gray-600 block mb-1">Employee Name</label>
             <input
               type="text"
-              value={newEmployeeData.emp_name || ""}
+              value={newEmployeeData.employeeName || ""}
               onChange={(e) =>
-                setNewEmployeeData({ ...newEmployeeData, emp_name: e.target.value })
+                setNewEmployeeData({ ...newEmployeeData, employeeName: e.target.value })
               }
               className="border border-gray-300 rounded w-full p-2"
             />
@@ -113,9 +204,9 @@ export default function AddEmployeeModal({
             <label className="font-semibold text-gray-600 block mb-1">Employee ID</label>
             <input
               type="number"
-              value={newEmployeeData.emp_id || ""}
+              value={newEmployeeData.employeeId || ""}
               onChange={(e) =>
-                setNewEmployeeData({ ...newEmployeeData, emp_id: Number(e.target.value) })
+                setNewEmployeeData({ ...newEmployeeData, employeeId: Number(e.target.value) })
               }
               className="border border-gray-300 rounded w-full p-2"
             />
@@ -125,9 +216,9 @@ export default function AddEmployeeModal({
             <label className="font-semibold text-gray-600 block mb-1">Date of Birth</label>
             <input
               type="date"
-              value={newEmployeeData.date_of_birth || ""}
+              value={newEmployeeData.dateOfBirth || ""}
               onChange={(e) =>
-                setNewEmployeeData({ ...newEmployeeData, date_of_birth: e.target.value })
+                setNewEmployeeData({ ...newEmployeeData, dateOfBirth: e.target.value })
               }
               className="border border-gray-300 rounded w-full p-2"
             />
@@ -137,9 +228,9 @@ export default function AddEmployeeModal({
             <label className="font-semibold text-gray-600 block mb-1">Date of First Appointment</label>
             <input
               type="date"
-              value={newEmployeeData.date_of_first_appointment || ""}
+              value={newEmployeeData.dateOfFirstAppointment || ""}
               onChange={(e) =>
-                setNewEmployeeData({ ...newEmployeeData, date_of_first_appointment: e.target.value })
+                setNewEmployeeData({ ...newEmployeeData, dateOfFirstAppointment: e.target.value })
               }
               className="border border-gray-300 rounded w-full p-2"
             />
@@ -150,11 +241,11 @@ export default function AddEmployeeModal({
               Designation at First Appointment
             </label>
             <select
-              value={newEmployeeData.designation_at_first_appointment || ""}
+              value={newEmployeeData.designationAtFirstAppointment || ""}
               onChange={(e) =>
                 setNewEmployeeData({
                   ...newEmployeeData,
-                  designation_at_first_appointment: e.target.value,
+                  designationAtFirstAppointment: e.target.value,
                 })
               }
               className="border border-gray-300 rounded w-full p-2"
@@ -196,9 +287,7 @@ export default function AddEmployeeModal({
           </div>
           {/* Qualification (B.Ed) */}
           <div>
-            <label className="font-semibold text-gray-600 block mb-1">
-              Qualification (B.Ed)
-            </label>
+            <label className="font-semibold text-gray-600 block mb-1">Qualification (B.Ed)</label>
             <select
               value={newEmployeeData.qualification || ""}
               onChange={(e) =>
@@ -216,16 +305,14 @@ export default function AddEmployeeModal({
           </div>
           {/* Subject in PG */}
           <div>
-            <label className="font-semibold text-gray-600 block mb-1">
-              Subject in PG
-            </label>
+            <label className="font-semibold text-gray-600 block mb-1">Subject in PG</label>
             <input
               type="text"
-              value={newEmployeeData.subject_in_pg || ""}
+              value={newEmployeeData.subjectInPG || ""}
               onChange={(e) =>
                 setNewEmployeeData({
                   ...newEmployeeData,
-                  subject_in_pg: e.target.value,
+                  subjectInPG: e.target.value,
                 })
               }
               className="border border-gray-300 rounded w-full p-2"
@@ -234,15 +321,13 @@ export default function AddEmployeeModal({
           </div>
           {/* Present Designation */}
           <div>
-            <label className="font-semibold text-gray-600 block mb-1">
-              Present Designation
-            </label>
+            <label className="font-semibold text-gray-600 block mb-1">Present Designation</label>
             <select
-              value={newEmployeeData.present_designation || ""}
+              value={newEmployeeData.presentDesignation || ""}
               onChange={(e) =>
                 setNewEmployeeData({
                   ...newEmployeeData,
-                  present_designation: e.target.value,
+                  presentDesignation: e.target.value,
                 })
               }
               className="border border-gray-300 rounded w-full p-2"
@@ -287,9 +372,9 @@ export default function AddEmployeeModal({
             <label className="font-semibold text-gray-600 block mb-1">Date of Latest Promotion</label>
             <input
               type="date"
-              value={newEmployeeData.date_of_latest_promotion || ""}
+              value={newEmployeeData.dateOfLatestPromotion || ""}
               onChange={(e) =>
-                setNewEmployeeData({ ...newEmployeeData, date_of_latest_promotion: e.target.value })
+                setNewEmployeeData({ ...newEmployeeData, dateOfLatestPromotion: e.target.value })
               }
               className="border border-gray-300 rounded w-full p-2"
             />
@@ -299,23 +384,23 @@ export default function AddEmployeeModal({
             <label className="font-semibold text-gray-600 block mb-1">Date of Retirement</label>
             <input
               type="date"
-              value={newEmployeeData.date_of_retirement || ""}
+              value={newEmployeeData.dateOfRetirement || ""}
               onChange={(e) =>
-                setNewEmployeeData({ ...newEmployeeData, date_of_retirement: e.target.value })
+                setNewEmployeeData({ ...newEmployeeData, dateOfRetirement: e.target.value })
               }
               className="border border-gray-300 rounded w-full p-2"
             />
           </div>
-          {/* Working Since (Current Office) */}
+          {/* Date of Current Posting */}
           <div>
             <label className="font-semibold text-gray-600 block mb-1">Working Since (Current Office)</label>
             <input
               type="date"
-              value={newEmployeeData.date_from_which_working_in_this_current_office || ""}
+              value={newEmployeeData.dateOfCurrentPosting || ""}
               onChange={(e) =>
                 setNewEmployeeData({
                   ...newEmployeeData,
-                  date_from_which_working_in_this_current_office: e.target.value,
+                  dateOfCurrentPosting: e.target.value,
                 })
               }
               className="border border-gray-300 rounded w-full p-2"
@@ -326,9 +411,9 @@ export default function AddEmployeeModal({
             <label className="font-semibold text-gray-600 block mb-1">Current Payscale</label>
             <input
               type="text"
-              value={newEmployeeData.current_payscale || ""}
+              value={newEmployeeData.currentPayScale || ""}
               onChange={(e) =>
-                setNewEmployeeData({ ...newEmployeeData, current_payscale: e.target.value })
+                setNewEmployeeData({ ...newEmployeeData, currentPayScale: e.target.value })
               }
               className="border border-gray-300 rounded w-full p-2"
             />
@@ -338,9 +423,9 @@ export default function AddEmployeeModal({
             <label className="font-semibold text-gray-600 block mb-1">Pay Level</label>
             <input
               type="text"
-              value={newEmployeeData.pay_level || ""}
+              value={newEmployeeData.payLevel || ""}
               onChange={(e) =>
-                setNewEmployeeData({ ...newEmployeeData, pay_level: e.target.value })
+                setNewEmployeeData({ ...newEmployeeData, payLevel: e.target.value })
               }
               className="border border-gray-300 rounded w-full p-2"
             />
@@ -350,21 +435,21 @@ export default function AddEmployeeModal({
             <label className="font-semibold text-gray-600 block mb-1">Gross Salary</label>
             <input
               type="text"
-              value={newEmployeeData.gross_salary || ""}
+              value={newEmployeeData.grossSalary || ""}
               onChange={(e) =>
-                setNewEmployeeData({ ...newEmployeeData, gross_salary: e.target.value })
+                setNewEmployeeData({ ...newEmployeeData, grossSalary: e.target.value })
               }
               className="border border-gray-300 rounded w-full p-2"
             />
           </div>
-          {/* NPS/OPS */}
+          {/* Pension Scheme */}
           <div>
             <label className="font-semibold text-gray-600 block mb-1">NPS/OPS</label>
             <input
               type="text"
-              value={newEmployeeData.whether_nps_or_ops || ""}
+              value={newEmployeeData.pensionScheme || ""}
               onChange={(e) =>
-                setNewEmployeeData({ ...newEmployeeData, whether_nps_or_ops: e.target.value })
+                setNewEmployeeData({ ...newEmployeeData, pensionScheme: e.target.value })
               }
               className="border border-gray-300 rounded w-full p-2"
             />

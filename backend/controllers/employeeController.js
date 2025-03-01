@@ -66,41 +66,35 @@ export const getEmployeeById = async (req, res) => {
  */
 export const createEmployee = async (req, res) => {
   try {
-    // Force school admin's employees to belong to their school.
     const schoolId = req.user.role === "schoolAdmin" ? req.user.schoolId : req.body.school;
-    
+
     if (!schoolId) {
       return res.status(400).json({ message: "School ID is required" });
     }
-    const school = await School.findById(schoolId);
 
+    const school = await School.findById(schoolId);
     if (!school) {
       return res.status(404).json({ message: "School not found" });
     }
+
     const newEmployee = await Employee.create({
       ...req.body,
       school: schoolId,
     });
 
-
     school.employees.push(newEmployee._id);
     await school.save();
 
-    // Log the creation action.
-    await createLog({
-      admin: req.user.userId,
-      role: req.user.role,
-      action: "Create Employee",
-      school: school.name,
-      description: `Created new employee ${newEmployee.employeeName} in school ${school.name}`,
-      ip: req.ip,
-    });
-
     res.status(201).json({ message: "Employee created", employee: newEmployee });
+
   } catch (error) {
-    res.status(500).json({ message: "Error creating employee", error });
+    console.error("Error creating employee:", error);
+
+    // Ensure error response is always JSON
+    res.status(500).json({ message: "Internal Server Error", error: error.toString() });
   }
 };
+
 
 /**
  * PUT /api/employees/:id
