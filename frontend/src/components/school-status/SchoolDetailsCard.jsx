@@ -75,15 +75,46 @@ export default function SchoolDetailsCard({ schoolInfo }) {
     },
   });
 
-  const handleSaveNewEmployee = () => {
-    if (!newEmployeeData.employeeId || !newEmployeeData.employeeName) {
+  const handleSaveNewEmployee = async () => {
+    if (!newEmployeeData.emp_id || !newEmployeeData.emp_name) {
       alert("Please provide at least Employee ID and Name.");
       return;
     }
-    createEmployeeMutation.mutate(newEmployeeData);
-    setIsAddModalOpen(false);
-    setNewEmployeeData({});
+  
+    try {
+      const response = await fetch("/api/employees", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          ...newEmployeeData,
+          school: schoolInfo.id, // Attach the school ID
+        }),
+      });
+  
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || "Error creating employee");
+      }
+  
+      const { employee } = await response.json();
+  
+      // Add the new employee to the list
+      setEmployees((prevEmployees) => [...prevEmployees, employee]);
+  
+      // Refetch school data to update employees
+      queryClient.invalidateQueries({ queryKey: ["school", schoolInfo.id] });
+  
+      // Close modal and reset form
+      setIsAddModalOpen(false);
+      setNewEmployeeData({});
+    } catch (error) {
+      console.error("Error adding employee:", error);
+      alert(error.message);
+    }
   };
+  
+
+
 
   const getSanctionedPosts = () => {
     if (newEmployeeData.staffType === "Teaching") return teachingPosts;
@@ -132,6 +163,7 @@ export default function SchoolDetailsCard({ schoolInfo }) {
     "Special Education Teacher",
   ];
   console.log("Filtered employees:", filteredEmployees);
+  
 
   if (!schoolInfo) {
     return (
