@@ -10,10 +10,12 @@ import Zone from "../models/Zone.js";
 export const getAllSchools = async (req, res) => {
   try {
     if (req.user.role === "admin") {
-      const schools = await School.find({}).populate("employees");
+      const schools = await School.find({}).populate("employees").populate("zone");
       return res.json(schools);
     } else if (req.user.role === "schoolAdmin") {
-      const school = await School.findById(req.user.schoolId).populate("employees");
+      const school = await School.findById(req.user.schoolId)
+        .populate("employees")
+        .populate("zone");
       if (!school) {
         return res.status(404).json({ message: "School not found" });
       }
@@ -25,6 +27,9 @@ export const getAllSchools = async (req, res) => {
     res.status(500).json({ message: "Error fetching schools", error });
   }
 };
+
+
+
 
 /**
  * GET /api/schools/mine

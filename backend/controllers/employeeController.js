@@ -69,17 +69,20 @@ export const createEmployee = async (req, res) => {
     // Force school admin's employees to belong to their school.
     const schoolId = req.user.role === "schoolAdmin" ? req.user.schoolId : req.body.school;
     
-    // Create employee record using fields from req.body.
+    if (!schoolId) {
+      return res.status(400).json({ message: "School ID is required" });
+    }
+    const school = await School.findById(schoolId);
+
+    if (!school) {
+      return res.status(404).json({ message: "School not found" });
+    }
     const newEmployee = await Employee.create({
       ...req.body,
       school: schoolId,
     });
 
-    // Add the employee to the school's employee array.
-    const school = await School.findById(schoolId);
-    if (!school) {
-      return res.status(404).json({ message: "School not found" });
-    }
+
     school.employees.push(newEmployee._id);
     await school.save();
 
