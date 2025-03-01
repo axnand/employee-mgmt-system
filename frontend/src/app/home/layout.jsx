@@ -154,6 +154,7 @@ export default function DashboardLayout({ children }) {
   const handleLogout = () => {
     localStorage.removeItem("user");
     localStorage.removeItem("userRole");
+    localStorage.removeItem("token");
     router.push("/login");
   };
 

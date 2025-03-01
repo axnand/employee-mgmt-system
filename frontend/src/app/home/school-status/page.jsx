@@ -1,26 +1,40 @@
 "use client";
 
-import { useState } from "react";
+import React, { useState } from "react";
 import { School } from "lucide-react";
 import { useUser } from "@/context/UserContext";
-import districtData from "@/data/data.json";
 import SchoolFilter from "@/components/school-status/SchoolFilter";
 import SchoolDetailsCard from "@/components/school-status/SchoolDetailsCard";
+import { useQuery } from "@tanstack/react-query";
+import axiosClient from "@/api/axiosClient";
 
-// Flatten schools from all zones, attach zone info, and generate a unique id if needed.
-const allSchools = districtData.zones.flatMap((zone, zoneIndex) =>
-  zone.schools.map((school, schoolIndex) => ({
-    ...school,
-    zone: zone.zone,
-    id: school.id || `${zoneIndex}-${schoolIndex}`,
-  }))
-);
+// Fetch school status data from the backend.
+const fetchSchoolStatus = async () => {
+  const res = await axiosClient.get("/schools/status");
+  return res.data; // expected structure: { zones: [ { zone, schools: [ ... ] }, ... ] }
+};
 
 export default function SchoolStatusPage() {
   const { userRole } = useUser();
   const [selectedZone, setSelectedZone] = useState("");
   const [selectedScheme, setSelectedScheme] = useState("");
   const [selectedSchoolId, setSelectedSchoolId] = useState("");
+
+  // Fetch data using react-query
+  const { data: schoolStatusData, isLoading, error } = useQuery({
+    queryKey: ["schoolStatus"],
+    queryFn: fetchSchoolStatus,
+  });
+
+  // Flatten schools from all zones, attaching zone info, and generate a unique id if needed.
+  const allSchools =
+    schoolStatusData?.zones.flatMap((zone, zoneIndex) =>
+      zone.schools.map((school, schoolIndex) => ({
+        ...school,
+        zone: zone.zone,
+        id: school.id || `${zoneIndex}-${schoolIndex}`,
+      }))
+    ) || [];
 
   // Build options for the filters
   const zoneOptions = [...new Set(allSchools.map((s) => s.zone))];
@@ -64,6 +78,9 @@ export default function SchoolStatusPage() {
       </div>
     );
   }
+
+  if (isLoading) return <div>Loading...</div>;
+  if (error) return <div>Error loading school data</div>;
 
   return (
     <div className="min-h-screen capitalize">

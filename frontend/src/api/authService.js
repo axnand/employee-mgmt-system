@@ -1,9 +1,6 @@
-import axios from "axios";
+import axiosClient from "./axiosClient";
 
 export const loginUser = async (credentials) => {
-  const response = await axios.post(
-    `${process.env.NEXT_PUBLIC_API_BASE_URL}/auth/login`,
-    credentials
-  );
+  const response = await axiosClient.post("/auth/login", credentials);
   return response.data;
 };

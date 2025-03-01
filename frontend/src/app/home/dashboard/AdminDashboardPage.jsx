@@ -35,7 +35,7 @@ const fetchSchools = async () => {
 // Fetch all employees (for total staff and staff distribution)
 const fetchEmployees = async () => {
   const res = await axiosClient.get("/employees");
-  return res.data; // expects an array of employee objects with staffType field
+  return res.data; 
 };
 
 // Fetch all transfers (to compute pending transfers)
@@ -238,21 +238,45 @@ export default function AdminDashboardPage() {
 
       {/* Recent Activities */}
       <div className="bg-white shadow-sm rounded-lg p-4 border-l-2 border-primary">
-        <h3 className="text-xl font-bold mb-4 text-gray-800">Recent Activities</h3>
-        <div className="divide-y divide-gray-200 mt-2">
-          {recentActivities.map((activity, index) => (
-            <div key={index} className="py-2 flex items-center justify-between text-sm font-medium text-gray-600">
-              <span>{activity.action}</span>
-              <span className="text-gray-400 text-[13px]">{activity.time}</span>
-            </div>
-          ))}
+  <h3 className="text-xl font-bold mb-4 text-gray-800">
+    Recent Activities
+  </h3>
+  <div className="divide-y divide-gray-200 mt-2">
+    {recentActivities.map((activity, index) => (
+      <div key={index} className="py-2">
+        {/* Main row: action and time */}
+        <div className="flex items-center justify-between text-sm font-medium text-gray-600">
+          <span>{activity.action}</span>
+          <span className="text-gray-400 text-[13px]">{activity.time}</span>
         </div>
-        <div className="mt-4 text-right">
-          <Link href="/home/logs" className="text-blue-600 font-semibold hover:underline text-sm">
-            View All Logs
-          </Link>
-        </div>
+        {/* Secondary row: additional details (if any) */}
+        {(activity.description || activity.admin || activity.ip) && (
+          <div className="mt-1 text-xs text-gray-500">
+            {activity.description && <span>{activity.description}</span>}
+            {activity.admin && (
+              <span className="ml-2">
+                {activity.admin}
+                {activity.role && ` (${activity.role})`}
+              </span>
+            )}
+            {activity.ip && <span className="ml-2">IP: {activity.ip}</span>}
+          </div>
+        )}
       </div>
+    ))}
+  </div>
+  <div className="mt-4 text-right">
+    <Link
+      href="/home/logs"
+      className="text-blue-600 font-semibold hover:underline text-sm"
+    >
+      View All Logs
+    </Link>
+  </div>
+</div>
+
+
+
 
       {/* Retirement Announcements - Employee Retirement Table with Filter */}
       <div className="bg-white shadow-sm rounded-lg p-4 border-l-2 border-primary">

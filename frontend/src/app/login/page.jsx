@@ -8,7 +8,7 @@ import { useUser } from "@/context/UserContext";
 import { loginUser as loginUserService } from "@/api/authService";
 
 export default function LoginPage() {
-  const [userType, setUserType] = useState("admin"); // Role selection (admin, schoolAdmin, staff)
+  const [userType, setUserType] = useState("admin"); 
   const [userId, setUserId] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -18,12 +18,17 @@ export default function LoginPage() {
   const mutation = useMutation({
     mutationFn: (credentials) => loginUserService(credentials),
     onSuccess: (data) => {
-      // Always store token even if password hasn't been changed so that update endpoint can be called.
+      // Store the token
       localStorage.setItem("token", data.token);
-      // Update user context with the details from the response.
-      setUser({ userId: data.userId, role: data.role });
+      // Persist user details in localStorage
+      const userDetails = { userId: data.userId, role: data.role, schoolId: data.schoolId };
+      localStorage.setItem("user", JSON.stringify(userDetails));
+      
+      // Update the user context
+      setUser(userDetails);
       setUserRole(data.role);
-      // Redirect based on forced password change flag.
+      
+      // Redirect based on whether the user needs to update their password
       if (data.forcePasswordChange) {
         router.push("/update-password");
       } else {
@@ -31,17 +36,13 @@ export default function LoginPage() {
       }
     },
     onError: (err) => {
-      const message =
-        err.response?.data?.message || "An error occurred. Please try again later.";
-      setError(message);
-      console.error("Login error:", err);
+      setError(err.message);
     },
   });
 
   const handleLogin = (e) => {
     e.preventDefault();
     setError("");
-    // Pass along userType as loginAs to the backend.
     mutation.mutate({ userId, password, loginAs: userType });
   };
 
@@ -55,12 +56,8 @@ export default function LoginPage() {
         {error && <p className="text-red-500 mb-4">{error}</p>}
         <form onSubmit={handleLogin}>
           <div className="space-y-4 text-sm">
-            {/* User Type Dropdown */}
             <div>
-              <label
-                htmlFor="userType"
-                className="block text-sm font-medium text-gray-700"
-              >
+              <label htmlFor="userType" className="block text-sm font-medium text-gray-700">
                 User Type
               </label>
               <select
@@ -74,12 +71,8 @@ export default function LoginPage() {
                 <option value="staff">Staff</option>
               </select>
             </div>
-            {/* User ID Input */}
             <div>
-              <label
-                htmlFor="userId"
-                className="block text-sm font-medium text-gray-700"
-              >
+              <label htmlFor="userId" className="block text-sm font-medium text-gray-700">
                 User ID
               </label>
               <input
@@ -90,12 +83,8 @@ export default function LoginPage() {
                 className="w-full border-gray-300 border rounded-md p-2 mt-1"
               />
             </div>
-            {/* Password Input */}
             <div>
-              <label
-                htmlFor="password"
-                className="block text-sm font-medium text-gray-700"
-              >
+              <label htmlFor="password" className="block text-sm font-medium text-gray-700">
                 Password
               </label>
               <input
