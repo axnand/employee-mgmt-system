@@ -1,91 +1,137 @@
 "use client";
 
-import { useState } from "react";
+import { useState,useEffect } from "react";
 import Link from "next/link";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   Users,
   ChevronLeft,
-  Check,
-  X,
-  AlertTriangle,
+  // Check,
+  // X,
+  // AlertTriangle,
   Briefcase,
-  UserX,
-  UserCheck,
-  UserMinus,
-  UserRoundPenIcon
+  // UserX,
+  // UserCheck,
+  // UserMinus,
+  // UserRoundPenIcon
 } from "lucide-react";
 import { School, MapPin, User, Phone } from "lucide-react";
 import { useUser } from "@/context/UserContext";
-
+import AddEmployeeModal from "./AddEmployeeModal";
 
 export default function SchoolDetailsCard({ schoolInfo }) {
   const { userRole } = useUser();
+  console.log("SchoolInfo",schoolInfo);
+  const queryClient = useQueryClient();
 
-  // Initialize local state with new data structure
+
+  // Use the employees array from the fresh schoolInfo data.
   const [employees, setEmployees] = useState(schoolInfo.employees || []);
+
+  useEffect(() => {
+    setEmployees(schoolInfo.employees || []);
+  }, [schoolInfo]);
 
   // Employee filter states
   const [searchTerm, setSearchTerm] = useState("");
   const [designationFilter, setDesignationFilter] = useState("");
-  const [retirementFilter, setRetirementFilter] = useState("");
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [newEmployeeData, setNewEmployeeData] = useState({});
   const [categoryFilter, setCategoryFilter] = useState("");
-  
-  // Build unique category from the employees list
-  const uniqueCategory = Array.from(new Set(employees.map((emp) => emp.category)));
+  const [showError, setShowError] = useState(false);
 
-  // Build unique designations from the employees list
-  const uniqueDesignations = Array.from(
-    new Set(employees.map((emp) => emp.present_designation))
-  );
-  
-  
+  // Build unique staff types (using staffType field)
+  const uniqueCategory = Array.from(new Set(employees.map((emp) => emp.staffType)));
+  // Build unique designations (using presentDesignation field)
+  const uniqueDesignations = Array.from(new Set(employees.map((emp) => emp.presentDesignation)));
 
-  // Filter employees based on search criteria using the new structure's fields
+  // Filter employees using the proper field names
   const filteredEmployees = employees.filter((emp) => {
-    const matchesSearch = emp.emp_name
-      .toLowerCase()
-      .includes(searchTerm.toLowerCase());
-      const matchesCategory = categoryFilter === "" ||
-      emp.category === categoryFilter;
+    const matchesSearch = emp.employeeName.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesCategory = categoryFilter === "" || emp.staffType === categoryFilter;
     const matchesDesignation =
-      designationFilter === "" ||
-      emp.present_designation === designationFilter;
+      designationFilter === "" || emp.presentDesignation === designationFilter;
+    return matchesSearch && matchesCategory && matchesDesignation;
+  });
 
-    // const matchesRetirement =
-    //   retirementFilter === "" || emp.date_of_retirement === retirementFilter;
-    return matchesSearch && matchesCategory && matchesDesignation ;
+  // Mutation to create an employee.
+  const createEmployeeMutation = useMutation({
+    mutationFn: async (newEmployee) => {
+      const response = await fetch("/api/employees", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(newEmployee),
+      });
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || "Error creating employee");
+      }
+      return response.json();
+    },
+    onSuccess: (data) => {
+      const createdEmployee = data.employee;
+      setEmployees((prev) => [...prev, createdEmployee]);
+      queryClient.invalidateQueries({ queryKey: ["employees"] });
+    },
   });
 
   const handleSaveNewEmployee = () => {
-    if (!newEmployeeData.emp_id || !newEmployeeData.emp_name) {
+    if (!newEmployeeData.employeeId || !newEmployeeData.employeeName) {
       alert("Please provide at least Employee ID and Name.");
       return;
     }
-    // Append the new employee using the new data structure
-    const updatedEmployees = [...employees, newEmployeeData];
-    setEmployees(updatedEmployees);
+    createEmployeeMutation.mutate(newEmployeeData);
     setIsAddModalOpen(false);
     setNewEmployeeData({});
-    console.log("Updated Employees Data:", updatedEmployees);
   };
 
-  // Map attendance values to icons using the new 'attendance' field
-  // const statusIcon = (attendance) => {
-  //   switch (attendance) {
-  //     case "Present":
-  //       return <Check className="w-5 h-5 text-green-500" />;
-  //     case "Absent":
-  //       return <X className="w-5 h-5 text-red-500" />;
-  //     case "Leave":
-  //       return <AlertTriangle className="w-5 h-5 text-yellow-500" />;
-  //     case "On Duty":
-  //       return <Briefcase className="w-5 h-5 text-blue-500" />;
-  //     default:
-  //       return null;
-  //   }
-  // };
+  const getSanctionedPosts = () => {
+    if (newEmployeeData.staffType === "Teaching") return teachingPosts;
+    if (newEmployeeData.staffType === "Non-Teaching") return nonTeachingPosts;
+    return [];
+  };
+  const { data: schoolData, refetch } = useQuery({
+    queryKey: ["school", schoolInfo.id], // Assuming school has an id
+    queryFn: async () => {
+      const response = await fetch(`/api/schools/${schoolInfo.id}`);
+      return response.json();
+    },
+    initialData: schoolInfo, // Ensures data is available initially
+  });
+
+  const nonTeachingPosts = [
+    "Accountant",
+    "Accounts Assistant",
+    "Assistant Director (P & S)",
+    "CEO",
+    "Driver",
+    "Head Assistant",
+    "Junior Assistant",
+    "Laboratory Assistant",
+    "Library Assistant",
+    "Senior Assistant",
+    "Statistical Assistant",
+    "Assistant Programmer",
+    "Assistant Engineer",
+    "Computer Assistant",
+  ];
+  const teachingPosts = [
+    "Lecturer",
+    "Lecturer Physical Education",
+    "Physical Education Master",
+    "Physical Education Teacher",
+    "Principal GHSS",
+    "Principal HSS",
+    "Teacher",
+    "Teacher 3rd RRET NP",
+    "Teacher RRET NP",
+    "Teacher Grade II",
+    "Teacher Grade III",
+    "Teacher RET SSA",
+    "Teacher RRET SSA",
+    "Special Education Teacher",
+  ];
+  console.log("Filtered employees:", filteredEmployees);
 
   if (!schoolInfo) {
     return (
@@ -94,38 +140,11 @@ export default function SchoolDetailsCard({ schoolInfo }) {
       </div>
     );
   }
-  const [showError, setShowError] = useState(false); // Track user interaction
-  const getSanctionedPosts = () => {
-    if (newEmployeeData.category === "Teaching") return teachingPosts;
-    if (newEmployeeData.category === "Non-Teaching") return nonTeachingPosts;
-    return [];
-  };
-  const nonTeachingPosts = [
-    "Accountant", "Accounts Assistant", "Assistant Director (P & S)", "CEO", "Driver",
-    "Head Assistant", "Junior Assistant", "Laboratory Assistant", "Library Assistant",
-    "Senior Assistant", "Statistical Assistant", "Assistant Programmer",
-    "Assistant Engineer", "Computer Assistant"
-  ];
-  const teachingPosts = [
-    "Lecturer", "Lecturer Physical Education", "Physical Education Master",
-    "Physical Education Teacher", "Principal GHSS", "Principal HSS", "Teacher",
-    "Teacher 3rd RRET NP", "Teacher RRET NP", "Teacher Grade II",
-    "Teacher Grade III", "Teacher RET SSA", "Teacher RRET SSA",
-    "Special Education Teacher"
-  ];
 
   return (
     <div className="min-h-screen capitalize">
       <div className="max-w-7xl mx-auto">
-        {/* {userRole === "admin" && (
-          <Link href="/home/school-status">
-            <button className="mb-6 text-[15px] font-semibold rounded-md text-secondary hover:text-primary transition flex items-center">
-              <ChevronLeft className="w-4 h-4 mr-1" /> <span>Back</span>
-            </button>
-          </Link>
-        )} */}
-
-        {/* School Information Card */}
+        {/* School Information */}
         <div className="bg-white border-l-2 border-primary p-6 rounded-lg shadow-sm transition duration-300 mb-8 font-medium text-sm">
           <div className="flex items-center gap-3">
             <School className="w-7 h-7 text-primary" />
@@ -151,13 +170,10 @@ export default function SchoolDetailsCard({ schoolInfo }) {
           </div>
         </div>
 
-        {/* Employee Filter Component */}
+        {/* Employee Filter */}
         <div className="bg-white p-6 rounded-lg shadow-sm mb-8 border-l-2 border-primary">
-          <h2 className="text-xl font-semibold text-gray-800 mb-4">
-            Filter Employees
-          </h2>
+          <h2 className="text-xl font-semibold text-gray-800 mb-4">Filter Employees</h2>
           <div className="flex flex-col md:flex-row md:items-end md:space-x-4">
-            {/* Name Search */}
             <div className="flex-1 mb-4 md:mb-0">
               <label htmlFor="employeeSearch" className="block text-sm font-medium text-gray-700 mb-1">
                 Search by Name
@@ -171,26 +187,24 @@ export default function SchoolDetailsCard({ schoolInfo }) {
                 className="block w-full border-gray-300 rounded-md py-2 px-2 text-sm border"
               />
             </div>
-             {/* Category Filter */}
-     <div className="flex-1 mb-4 md:mb-0">
-      <label htmlFor="designationFilter" className="block text-sm font-medium text-gray-700 mb-1">
-        Filter by Category
-      </label>
-      <select
-        id="categoryFilter"
-        value={categoryFilter}
-        onChange={(e) => setCategoryFilter(e.target.value)}
-        className="block w-full border-gray-300 rounded-md py-2 border px-2 text-sm"
-      >
-        <option value="">All Categories</option>
-        {uniqueCategory.map((ctg, idx) => (
-          <option key={idx} value={ctg}>
-            {ctg}
-          </option>
-        ))}
-      </select>
-    </div>
-            {/* Designation Filter */}
+            <div className="flex-1 mb-4 md:mb-0">
+              <label htmlFor="categoryFilter" className="block text-sm font-medium text-gray-700 mb-1">
+                Filter by Staff Type
+              </label>
+              <select
+                id="categoryFilter"
+                value={categoryFilter}
+                onChange={(e) => setCategoryFilter(e.target.value)}
+                className="block w-full border-gray-300 rounded-md py-2 border px-2 text-sm"
+              >
+                <option value="">All Staff Types</option>
+                {uniqueCategory.map((ctg, idx) => (
+                  <option key={idx} value={ctg}>
+                    {ctg}
+                  </option>
+                ))}
+              </select>
+            </div>
             <div className="flex-1 mb-4 md:mb-0">
               <label htmlFor="designationFilter" className="block text-sm font-medium text-gray-700 mb-1">
                 Filter by Designation
@@ -209,25 +223,11 @@ export default function SchoolDetailsCard({ schoolInfo }) {
                 ))}
               </select>
             </div>
-            {/* Retirement Date Filter
-    <div className="flex-1 mb-4 md:mb-0">
-      <label htmlFor="retirementFilter" className="block text-sm font-medium text-gray-700 mb-1">
-        Filter by Retirement Date
-      </label>
-      <input
-        id="retirementFilter"
-        type="date"
-        value={retirementFilter}
-        onChange={(e) => setRetirementFilter(e.target.value)}
-        className="block w-full border-gray-300 rounded-md py-2 border px-2 text-sm"
-      />
-    </div>  */}
           </div>
         </div>
 
         {/* Summary Cards */}
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-          {/* Total Employees */}
           <div className="bg-white shadow-sm rounded-lg p-4 flex flex-col border-l-2 border-primary">
             <div className="flex items-center space-x-2">
               <Users className="h-5 w-5 text-purple-700" />
@@ -236,57 +236,9 @@ export default function SchoolDetailsCard({ schoolInfo }) {
             <p className="text-[13px] pt-1 text-gray-600">Teaching & Non-Teaching staff</p>
             <div className="text-2xl font-bold">{employees.length}</div>
           </div>
-
-          {/* Present Today
-          <div className="bg-white shadow-sm rounded-lg p-4 flex flex-col border-l-2 border-primary">
-            <div className="flex items-center space-x-2">
-              <UserCheck className="h-5 w-5 text-green-500" />
-              <h3 className="text-[15px] font-semibold">Present Today</h3>
-            </div>
-            <p className="text-[13px] pt-1 text-gray-600">Employees currently present</p>
-            <div className="text-2xl font-bold">
-              {employees.filter((emp) => emp.attendance === "Present").length}
-            </div>
-          </div> */}
-
-          {/* Absent Today */}
-          {/* <div className="bg-white shadow-sm rounded-lg p-4 flex flex-col border-l-2 border-primary">
-            <div className="flex items-center space-x-2">
-              <UserX className="h-5 w-5 text-red-500" />
-              <h3 className="text-[15px] font-semibold">Absent Today</h3>
-            </div>
-            <p className="text-[13px] pt-1 text-gray-600">Employees who are absent</p>
-            <div className="text-2xl font-bold">
-              {employees.filter((emp) => emp.attendance === "Absent").length}
-            </div>
-          </div> */}
-
-          {/* On Leave */}
-          {/* <div className="bg-white shadow-sm rounded-lg p-4 flex flex-col border-l-2 border-primary">
-            <div className="flex items-center space-x-2">
-              <UserMinus className="h-5 w-5 text-yellow-500" />
-              <h3 className="text-[15px] font-semibold">On Leave</h3>
-            </div>
-            <p className="text-[13px] pt-1 text-gray-600">Employees on leave today</p>
-            <div className="text-2xl font-bold">
-              {employees.filter((emp) => emp.attendance === "Leave").length}
-            </div>
-          </div> */}
-
-          {/* On Duty */}
-          {/* <div className="bg-white shadow-sm rounded-lg p-4 flex flex-col border-l-2 border-primary">
-            <div className="flex items-center space-x-2">
-              <UserRoundPenIcon className="h-5 w-5 text-blue-500" />
-              <h3 className="text-[15px] font-semibold">On Duty</h3>
-            </div>
-            <p className="text-[13px] pt-1 text-gray-600">Employees on office duty</p>
-            <div className="text-2xl font-bold">
-              {employees.filter((emp) => emp.attendance === "On Duty").length}
-            </div>
-          </div> */}
         </div>
 
-        {/* Employee Search & Table */}
+        {/* Employee Table */}
         <div className="bg-white p-6 rounded-lg shadow mb-8">
           <div className="flex justify-between items-center">
             <h2 className="text-2xl font-semibold text-gray-800 mb-6 flex items-center gap-2">
@@ -312,9 +264,6 @@ export default function SchoolDetailsCard({ schoolInfo }) {
                   <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
                     Designation
                   </th>
-                  {/* <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
-                    Status
-                  </th> */}
                   <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
                     Actions
                   </th>
@@ -322,21 +271,18 @@ export default function SchoolDetailsCard({ schoolInfo }) {
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
                 {filteredEmployees.map((emp) => (
-                  <tr key={emp.emp_id}>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{emp.emp_id}</td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{emp.emp_name}</td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{emp.present_designation}</td>
-                    {/* <td className="px-6 py-4 whitespace-nowrap flex items-center text-sm text-gray-900">
-                        {emp.attendance ? (
-                            <>
-                            {statusIcon(emp.attendance)}
-                            <span className="ml-2">{emp.attendance}</span>
-                            </>
-                        ): "No Status"}
-                        </td> */}
-
+                  <tr key={emp._id}>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                      {emp.employeeId}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                      {emp.employeeName}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                      {emp.presentDesignation}
+                    </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm">
-                      <Link href={`/home/school-status/${encodeURIComponent(schoolInfo.id)}/${emp.emp_id}`}>
+                      <Link href={`/home/school-status/${encodeURIComponent(schoolInfo.id)}/${emp._id}`}>
                         <button className="py-1 px-3 bg-primary text-white rounded-full font-medium text-xs hover:bg-blue-600 transition">
                           View
                         </button>
@@ -346,7 +292,7 @@ export default function SchoolDetailsCard({ schoolInfo }) {
                 ))}
                 {filteredEmployees.length === 0 && (
                   <tr>
-                    <td colSpan="5" className="px-6 py-4 text-center text-sm text-gray-500">
+                    <td colSpan="4" className="px-6 py-4 text-center text-sm text-gray-500">
                       No employees found.
                     </td>
                   </tr>
@@ -359,386 +305,18 @@ export default function SchoolDetailsCard({ schoolInfo }) {
 
       {/* Add New Employee Modal */}
       {isAddModalOpen && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 py-10">
-          <div className="bg-white p-6 max-h-full overflow-y-auto w-full max-w-3xl">
-            <h2 className="text-xl font-bold mb-4 text-gray-800">Add New Employee</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-sm">
-              {/* UDISE Code */}
-              <div>
-                <label className="font-semibold text-gray-600 block mb-1">UDISE Code</label>
-                <input
-                  type="text"
-                  value={newEmployeeData.udise_code || ""}
-                  onChange={(e) =>
-                    setNewEmployeeData({ ...newEmployeeData, udise_code: e.target.value })
-                  }
-                  className="border border-gray-300 rounded w-full p-2"
-                />
-              </div>
-{/* Employee Category */}
-<div>
-  <label htmlFor="employeeCategory" className="block text-sm font-medium text-gray-700 mb-1">
-    Select Employee Category
-  </label>
-  <select
-    id="employeeCategory"
-    value={newEmployeeData.category || ""}
-    onChange={(e) => {
-      setNewEmployeeData({
-        ...newEmployeeData,
-        category: e.target.value,
-        name_of_sanctioned_posts: ""
-      });
-      setShowError(false); // Reset error when a category is selected
-    }}
-    className="block w-full border-gray-300 rounded-md py-2 px-2 text-sm border"
-  >
-    <option value="">Select Category</option>
-    {uniqueCategory.map((category, index) => (
-      <option key={index} value={category}>
-        {category}
-      </option>
-    ))}
-  </select>
-</div>
-
-{/* Name of Sanctioned Posts */}
-<div>
-  <label className="font-semibold text-gray-600 block mb-1">Name of Sanctioned Posts</label>
-  <select
-    value={newEmployeeData.name_of_sanctioned_posts || ""}
-    onChange={(e) => {
-      if (!newEmployeeData.category) {
-        setShowError(true);
-        return;
-      }
-      setNewEmployeeData({ ...newEmployeeData, name_of_sanctioned_posts: e.target.value });
-    }}
-    onFocus={() => {
-      if (!newEmployeeData.category) {
-        setShowError(true);
-      }
-    }}
-    className={`border rounded w-full p-2 ${
-      showError && !newEmployeeData.category ? "border-red-500" : "border-gray-300"
-    }`}
-  >
-    <option value="">
-      {newEmployeeData.category ? "Select Post" : "Please select a category first"}
-    </option>
-    {newEmployeeData.category &&
-      getSanctionedPosts().map((post, index) => (
-        <option key={index} value={post}>
-          {post}
-        </option>
-      ))}
-  </select>
-  {showError && !newEmployeeData.category && (
-    <p className="text-red-500 text-sm mt-1">Please select a category first.</p>
-  )}
-</div>
-
-
-              {/* Employee Name */}
-              <div>
-                <label className="font-semibold text-gray-600 block mb-1">Employee Name</label>
-                <input
-                  type="text"
-                  value={newEmployeeData.emp_name || ""}
-                  onChange={(e) =>
-                    setNewEmployeeData({ ...newEmployeeData, emp_name: e.target.value })
-                  }
-                  className="border border-gray-300 rounded w-full p-2"
-                />
-              </div>
-              {/* Employee ID */}
-              <div>
-                <label className="font-semibold text-gray-600 block mb-1">Employee ID</label>
-                <input
-                  type="number"
-                  value={newEmployeeData.emp_id || ""}
-                  onChange={(e) =>
-                    setNewEmployeeData({ ...newEmployeeData, emp_id: Number(e.target.value) })
-                  }
-                  className="border border-gray-300 rounded w-full p-2"
-                />
-              </div>
-              
-              {/* Date of Birth */}
-              <div>
-                <label className="font-semibold text-gray-600 block mb-1">Date of Birth</label>
-                <input
-                  type="date"
-                  value={newEmployeeData.date_of_birth || ""}
-                  onChange={(e) =>
-                    setNewEmployeeData({ ...newEmployeeData, date_of_birth: e.target.value })
-                  }
-                  className="border border-gray-300 rounded w-full p-2"
-                />
-              </div>
-              {/* Date of First Appointment */}
-              <div>
-                <label className="font-semibold text-gray-600 block mb-1">Date of First Appointment</label>
-                <input
-                  type="date"
-                  value={newEmployeeData.date_of_first_appointment || ""}
-                  onChange={(e) =>
-                    setNewEmployeeData({ ...newEmployeeData, date_of_first_appointment: e.target.value })
-                  }
-                  className="border border-gray-300 rounded w-full p-2"
-                />
-              </div>
-            
-             {/* Designation at First Appointment */}
-<div>
-  <label className="font-semibold text-gray-600 block mb-1">
-    Designation at First Appointment
-  </label>
-  <select
-    value={newEmployeeData.designation_at_first_appointment || ""}
-    onChange={(e) =>
-      setNewEmployeeData({
-        ...newEmployeeData,
-        designation_at_first_appointment: e.target.value,
-      })
-    }
-    className="border border-gray-300 rounded w-full p-2"
-  >
-    <option value="">Select Designation</option>
-
-    {/* Designations Sorted Alphabetically */}
-    <option value="Accountant">Accountant</option>
-    <option value="Accounts Assistant">Accounts Assistant</option>
-    <option value="Assistant Director (P & S)">Assistant Director (P & S)</option>
-    <option value="Assistant Engineer">Assistant Engineer</option>
-    <option value="Assistant Programmer">Assistant Programmer</option>
-    <option value="CEO">CEO</option>
-    <option value="Clerk">Clerk</option>
-    <option value="Computer Assistant">Computer Assistant</option>
-    <option value="Driver">Driver</option>
-    <option value="Head Assistant">Head Assistant</option>
-    <option value="Junior Assistant">Junior Assistant</option>
-    <option value="Laboratory Assistant">Laboratory Assistant</option>
-    <option value="Lecturer">Lecturer</option>
-    <option value="Lecturer Physical Education">Lecturer Physical Education</option>
-    <option value="Library Assistant">Library Assistant</option>
-    <option value="Physical Education Master">Physical Education Master</option>
-    <option value="Physical Education Teacher">Physical Education Teacher</option>
-    <option value="Principal GHSS">Principal GHSS</option>
-    <option value="Principal HSS">Principal HSS</option>
-    <option value="Registrar">Registrar</option>
-    <option value="Senior Assistant">Senior Assistant</option>
-    <option value="Special Education Teacher">Special Education Teacher</option>
-    <option value="Statistical Assistant">Statistical Assistant</option>
-    <option value="Teacher">Teacher</option>
-    <option value="Teacher 3rd RRET NP">Teacher 3rd RRET NP</option>
-    <option value="Teacher Grade II">Teacher Grade II</option>
-    <option value="Teacher Grade III">Teacher Grade III</option>
-    <option value="Teacher RET SSA">Teacher RET SSA</option>
-    <option value="Teacher RRET NP">Teacher RRET NP</option>
-    <option value="Teacher RRET SSA">Teacher RRET SSA</option>
-    <option value="Technical Staff">Technical Staff</option>
-  </select>
-</div>
-
- {/* Qualification (B.Ed) */}
-<div>
-  <label className="font-semibold text-gray-600 block mb-1">
-    Qualification (B.Ed)
-  </label>
-  <select
-    value={newEmployeeData.qualification || ""}
-    onChange={(e) =>
-      setNewEmployeeData({
-        ...newEmployeeData,
-        qualification: e.target.value,
-      })
-    }
-    className="border border-gray-300 rounded w-full p-2"
-  >
-    <option value="">Select</option>
-    <option value="Yes">Yes</option>
-    <option value="No">No</option>
-  </select>
-</div>
-
-{/* Subject in PG */}
-<div>
-  <label className="font-semibold text-gray-600 block mb-1">
-    Subject in PG
-  </label>
-  <input
-    type="text"
-    value={newEmployeeData.subject_in_pg || ""}
-    onChange={(e) =>
-      setNewEmployeeData({
-        ...newEmployeeData,
-        subject_in_pg: e.target.value,
-      })
-    }
-    className="border border-gray-300 rounded w-full p-2"
-    disabled={newEmployeeData.qualification !== "Yes"}
-  />
-</div>
-
-{/* Present Designation */}
-<div>
-  <label className="font-semibold text-gray-600 block mb-1">
-    Present Designation
-  </label>
-  <select
-    value={newEmployeeData.present_designation || ""}
-    onChange={(e) =>
-      setNewEmployeeData({
-        ...newEmployeeData,
-        present_designation: e.target.value,
-      })
-    }
-    className="border border-gray-300 rounded w-full p-2"
-  >
-    <option value="">Select Designation</option>
-
-    {/* All Designations Sorted Alphabetically */}
-    <option value="Accountant">Accountant</option>
-    <option value="Accounts Assistant">Accounts Assistant</option>
-    <option value="Assistant Director (P & S)">Assistant Director (P & S)</option>
-    <option value="Assistant Engineer">Assistant Engineer</option>
-    <option value="Assistant Programmer">Assistant Programmer</option>
-    <option value="CEO">CEO</option>
-    <option value="Clerk">Clerk</option>
-    <option value="Computer Assistant">Computer Assistant</option>
-    <option value="Driver">Driver</option>
-    <option value="Head Assistant">Head Assistant</option>
-    <option value="Junior Assistant">Junior Assistant</option>
-    <option value="Laboratory Assistant">Laboratory Assistant</option>
-    <option value="Lecturer">Lecturer</option>
-    <option value="Lecturer Physical Education">Lecturer Physical Education</option>
-    <option value="Library Assistant">Library Assistant</option>
-    <option value="Physical Education Master">Physical Education Master</option>
-    <option value="Physical Education Teacher">Physical Education Teacher</option>
-    <option value="Principal GHSS">Principal GHSS</option>
-    <option value="Principal HSS">Principal HSS</option>
-    <option value="Registrar">Registrar</option>
-    <option value="Senior Assistant">Senior Assistant</option>
-    <option value="Special Education Teacher">Special Education Teacher</option>
-    <option value="Statistical Assistant">Statistical Assistant</option>
-    <option value="Teacher">Teacher</option>
-    <option value="Teacher 3rd RRET NP">Teacher 3rd RRET NP</option>
-    <option value="Teacher Grade II">Teacher Grade II</option>
-    <option value="Teacher Grade III">Teacher Grade III</option>
-    <option value="Teacher RET SSA">Teacher RET SSA</option>
-    <option value="Teacher RRET NP">Teacher RRET NP</option>
-    <option value="Teacher RRET SSA">Teacher RRET SSA</option>
-    <option value="Technical Staff">Technical Staff</option>
-  </select>
-</div>
-
-              {/* Date of Latest Promotion */}
-              <div>
-                <label className="font-semibold text-gray-600 block mb-1">Date of Latest Promotion</label>
-                <input
-                  type="date"
-                  value={newEmployeeData.date_of_latest_promotion || ""}
-                  onChange={(e) =>
-                    setNewEmployeeData({ ...newEmployeeData, date_of_latest_promotion: e.target.value })
-                  }
-                  className="border border-gray-300 rounded w-full p-2"
-                />
-              </div>
-              {/* Date of Retirement */}
-              <div>
-                <label className="font-semibold text-gray-600 block mb-1">Date of Retirement</label>
-                <input
-                  type="date"
-                  value={newEmployeeData.date_of_retirement || ""}
-                  onChange={(e) =>
-                    setNewEmployeeData({ ...newEmployeeData, date_of_retirement: e.target.value })
-                  }
-                  className="border border-gray-300 rounded w-full p-2"
-                />
-              </div>
-              {/* Working Since (Current Office) */}
-              <div>
-                <label className="font-semibold text-gray-600 block mb-1">Working Since (Current Office)</label>
-                <input
-                  type="date"
-                  value={newEmployeeData.date_from_which_working_in_this_current_office || ""}
-                  onChange={(e) =>
-                    setNewEmployeeData({
-                      ...newEmployeeData,
-                      date_from_which_working_in_this_current_office: e.target.value,
-                    })
-                  }
-                  className="border border-gray-300 rounded w-full p-2"
-                />
-              </div>
-              {/* Current Payscale */}
-              <div>
-                <label className="font-semibold text-gray-600 block mb-1">Current Payscale</label>
-                <input
-                  type="text"
-                  value={newEmployeeData.current_payscale || ""}
-                  onChange={(e) =>
-                    setNewEmployeeData({ ...newEmployeeData, current_payscale: e.target.value })
-                  }
-                  className="border border-gray-300 rounded w-full p-2"
-                />
-              </div>
-              {/* Pay Level */}
-              <div>
-                <label className="font-semibold text-gray-600 block mb-1">Pay Level</label>
-                <input
-                  type="text"
-                  value={newEmployeeData.pay_level || ""}
-                  onChange={(e) =>
-                    setNewEmployeeData({ ...newEmployeeData, pay_level: e.target.value })
-                  }
-                  className="border border-gray-300 rounded w-full p-2"
-                />
-              </div>
-              {/* Gross Salary */}
-              <div>
-                <label className="font-semibold text-gray-600 block mb-1">Gross Salary</label>
-                <input
-                  type="text"
-                  value={newEmployeeData.gross_salary || ""}
-                  onChange={(e) =>
-                    setNewEmployeeData({ ...newEmployeeData, gross_salary: e.target.value })
-                  }
-                  className="border border-gray-300 rounded w-full p-2"
-                />
-              </div>
-              {/* NPS/OPS */}
-              <div>
-                <label className="font-semibold text-gray-600 block mb-1">NPS/OPS</label>
-                <input
-                  type="text"
-                  value={newEmployeeData.whether_nps_or_ops || ""}
-                  onChange={(e) =>
-                    setNewEmployeeData({ ...newEmployeeData, whether_nps_or_ops: e.target.value })
-                  }
-                  className="border border-gray-300 rounded w-full p-2"
-                />
-              </div>
-            </div>
-            <div className="mt-4 flex gap-4">
-              <button
-                onClick={handleSaveNewEmployee}
-                className="font-semibold text-[13px] px-4 py-2 bg-primary text-white rounded transition hover:bg-blue-600"
-              >
-                Save
-              </button>
-              <button
-                onClick={() => setIsAddModalOpen(false)}
-                className="font-semibold text-[13px] px-4 py-2 transition bg-gray-300 text-gray-700 rounded hover:bg-gray-400"
-              >
-                Cancel
-              </button>
-            </div>
-          </div>
-        </div>
-        )
-        }
+        <AddEmployeeModal
+          newEmployeeData={newEmployeeData}
+          setNewEmployeeData={setNewEmployeeData}
+          isOpen={isAddModalOpen}
+          onClose={() => setIsAddModalOpen(false)}
+          handleSaveNewEmployee={handleSaveNewEmployee}
+          uniqueCategory={uniqueCategory}
+          getSanctionedPosts={getSanctionedPosts}
+          showError={showError}
+          setShowError={setShowError}
+        />
+      )}
     </div>
   );
 }
