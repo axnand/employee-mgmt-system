@@ -53,7 +53,7 @@ export const loginUser = async (req, res) => {
         description: `${userId} logged in successfully as ${user.role}`,
         ip: req.ip,
       });
-  
+      res.setHeader('Set-Cookie', `token=${token}; HttpOnly; Path=/; Max-Age=86400;`);
       return res.status(200).json({
         message: "Login successful",
         token,

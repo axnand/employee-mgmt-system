@@ -1,5 +1,6 @@
 // controllers/schoolController.js
 import School from "../models/School.js";
+import Zone from "../models/Zone.js";
 
 /**
  * GET /api/schools

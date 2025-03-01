@@ -17,7 +17,18 @@ export const getLogs = async (req, res) => {
       filter = { school: schoolId };
     }
     const logs = await Log.find(filter).sort({ createdAt: -1 }).exec();
-    res.json({ logs });
+
+    // Format each log to include a formatted time string
+    const formattedLogs = logs.map((log) => ({
+      action: log.action,
+      description: log.description,
+      admin: log.admin,
+      role: log.role,
+      ip: log.ip,
+      time: new Date(log.createdAt).toLocaleString(), // format as needed
+    }));
+
+    res.json({ logs: formattedLogs });
   } catch (error) {
     res.status(500).json({ message: "Error fetching logs", error });
   }
