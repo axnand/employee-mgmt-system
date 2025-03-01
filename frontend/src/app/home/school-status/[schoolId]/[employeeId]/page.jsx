@@ -1,49 +1,131 @@
 "use client";
+
 import { useParams, useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { ChevronLeft, User } from "lucide-react";
-import districtData from "@/data/data.json";
+import EmployeeEditForm from "@/components/school-status/EmployeeEditForm";
+import EmployeeTransferForm from "@/components/school-status/EmployeeTransferForm";
+import districtData from "@/data/data.json"; // Used only for schools list in transfer form
+import { useUser } from "@/context/UserContext";
 
+// --- Backend fetch functions ---
+
+// Fetch school details (expected to include an employees array)
+const fetchSchoolDetails = async (schoolId) => {
+  const token = localStorage.getItem("token");
+  const res = await fetch(`http://localhost:5000/api/schools/${schoolId}`, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  if (!res.ok) {
+    throw new Error("Failed to fetch school details");
+  }
+  return res.json();
+};
+
+// Fetch employee details using your getEmployeeById endpoint
+const fetchEmployeeDetails = async (employeeId) => {
+  const token = localStorage.getItem("token");
+  const res = await fetch(`http://localhost:5000/api/employees/${employeeId}`, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  if (!res.ok) {
+    throw new Error("Failed to fetch employee details");
+  }
+  return res.json();
+};
+
+// Update employee details via backend (PUT endpoint)
+const updateEmployeeDetails = async ({ employeeId, updatedData }) => {
+  const token = localStorage.getItem("token");
+  const res = await fetch(`http://localhost:5000/api/employees/${employeeId}`, {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify(updatedData),
+  });
+  if (!res.ok) {
+    const errorText = await res.text();
+    throw new Error("Failed to update employee: " + errorText);
+  }
+  return res.json();
+};
+
+// --- Main Component ---
 export default function EmployeeDetailPage() {
   const router = useRouter();
   const { schoolId, employeeId } = useParams();
+  const queryClient = useQueryClient();
+  const { user } = useUser();
 
-  // Flatten all schools
-  const allSchools = districtData.zones.flatMap((zone) =>
-    zone.schools.map((school) => ({ ...school, zone: zone.zone }))
-  );
+  // Fetch school details from the backend
+  const {
+    data: schoolData,
+    isLoading: schoolLoading,
+    error: schoolError,
+  } = useQuery({
+    queryKey: ["school", schoolId],
+    queryFn: () => fetchSchoolDetails(schoolId),
+    refetchOnWindowFocus: false,
+  });
 
-  // Find the current school
-  const schoolInfo = allSchools.find(
-    (school) => school.id === parseInt(schoolId, 10)
-  );
+  // Fetch employee details from the backend
+  const {
+    data: employeeData,
+    isLoading: employeeLoading,
+    error: employeeError,
+  } = useQuery({
+    queryKey: ["employee", employeeId],
+    queryFn: () => fetchEmployeeDetails(employeeId),
+    refetchOnWindowFocus: false,
+  });
 
-  // Local state for the employee
+  // Local state for employee details (populated from backend)
   const [employee, setEmployee] = useState(null);
 
-  // Edit mode & form data
-  const [isEditMode, setIsEditMode] = useState(false);
-  const [editFormData, setEditFormData] = useState({});
-
-  // Transfer mode & form data
-  const [isTransferMode, setIsTransferMode] = useState(false);
-  const [searchSchool, setSearchSchool] = useState("");
-  const [transferSchoolId, setTransferSchoolId] = useState("");
-
-
-
-  // Initialize employee from the current school
   useEffect(() => {
-    if (schoolInfo && employeeId) {
-      const emp = schoolInfo.employees.find(
-        (emp) => emp.emp_id === parseInt(employeeId, 10)
-      );
-      setEmployee(emp);
+    if (employeeData) {
+      setEmployee(employeeData);
     }
-  }, [schoolInfo, employeeId]);
+  }, [employeeData]);
 
-  // If school not found
-  if (!schoolInfo) {
+  // Local state to control edit and transfer modes
+  const [isEditMode, setIsEditMode] = useState(false);
+  const [isTransferMode, setIsTransferMode] = useState(false);
+
+  // Mutation for updating employee details
+  const updateMutation = useMutation({
+    mutationFn: ({ employeeId, updatedData }) =>
+      updateEmployeeDetails({ employeeId, updatedData }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["employee", employeeId] });
+      setIsEditMode(false);
+    },
+  });
+
+  const handleSaveEdit = (updatedData) => {
+    updateMutation.mutate({ employeeId, updatedData });
+  };
+
+  const handleSubmitTransfer = (selectedSchoolId) => {
+    // Replace this console.log with an API call to perform the transfer.
+    console.log(
+      `Transfer requested for employee ${employeeId} from school ${schoolId} to school ${selectedSchoolId}`
+    );
+    setIsTransferMode(false);
+  };
+
+  // If school details are still loading or an error occurred
+  if (schoolLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <p className="text-gray-600">Loading school details...</p>
+      </div>
+    );
+  }
+  if (schoolError || !schoolData) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <p className="text-gray-600">School not found.</p>
@@ -51,54 +133,29 @@ export default function EmployeeDetailPage() {
     );
   }
 
-  // If we haven't loaded the employee yet
-  if (!employee) {
+  // If employee details are still loading or an error occurred
+  if (employeeLoading || !employee) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <p className="text-gray-600">Loading employee details...</p>
       </div>
     );
   }
-
-  // Handle toggling edit mode
-  const handleEditClick = () => {
-    setIsEditMode(true);
-    // Copy current employee data into the form state
-    setEditFormData({ ...employee });
-  };
-
-  // Handle saving edited data
-  const handleSaveEdit = () => {
-    // In a real app, you'd call an API here.
-    setEmployee(editFormData);
-    setIsEditMode(false);
-  };
-
-  // Handle transfer button click
-  const handleTransferClick = () => {
-    setIsTransferMode(true);
-    setSearchSchool("");
-    setTransferSchoolId("");
-  };
-
-  // Filter all schools for the dropdown (excluding the current one)
-  const filteredSchools = allSchools.filter((sch) => {
-    if (sch.id === parseInt(schoolId, 10)) return false;
-    return sch.name.toLowerCase().includes(searchSchool.toLowerCase());
-  });
-
-  // Submit transfer request
-  const handleSubmitTransfer = () => {
-    console.log(
-      `Transfer requested for employee ${employeeId} from school ${schoolId} to school ${transferSchoolId}`
+  if (employeeError || !employee) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <p className="text-gray-600">Employee not found.</p>
+      </div>
     );
-    setIsTransferMode(false);
-    setSearchSchool("");
-    setTransferSchoolId("");
-  };
+  }
 
-  // Handle saving new employee data
-  
+  // For the transfer form, if no backend list is available, use local district data.
+  const allSchools = districtData.zones.flatMap((zone) =>
+    zone.schools.map((school) => ({ ...school, zone: zone.zone }))
+  );
+  const filteredSchools = allSchools.filter(
+    (sch) => sch.id !== parseInt(schoolId, 10)
+  );
 
   return (
     <div className="min-h-screen p-4 capitalize">
@@ -108,686 +165,161 @@ export default function EmployeeDetailPage() {
           onClick={() => router.back()}
           className="mb-6 flex items-center text-[15px] font-semibold rounded-md text-secondary hover:text-primary transition"
         >
-          <ChevronLeft className="w-4 h-4 mr-1" /> <span>Back</span>
+          <ChevronLeft className="w-4 h-4 mr-1" /> Back
         </button>
 
         {/* Page Header: Employee Name + Action Buttons */}
-        <div className="bg-white shadow-sm border-l-4 border-primary rounded-lg p-6 mb-6">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <User className="w-10 h-10 text-primary" />
-              <h1 className="text-2xl font-bold text-gray-800">
-                {employee.emp_name}
-              </h1>
-            </div>
-            <div className="flex gap-4">
-              {!isEditMode && !isTransferMode && (
-                <>
-                  <button
-                    onClick={handleEditClick}
-                    className="font-semibold text-[13px] px-4 py-2 bg-primary transition text-white rounded hover:bg-blue-600"
-                  >
-                    Edit
-                  </button>
-                  <button
-                    onClick={handleTransferClick}
-                    className="font-semibold text-[13px] px-4 py-2 bg-red-500 transition text-white rounded hover:bg-red-600"
-                  >
-                    Transfer
-                  </button>
-                  
-                </>
-              )}
-            </div>
+        <div className="bg-white shadow-sm border-l-4 border-primary rounded-lg p-6 mb-6 flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <User className="w-10 h-10 text-primary" />
+            <h1 className="text-2xl font-bold text-gray-800">
+              {employee.employeeName || employee.emp_name}
+            </h1>
+          </div>
+          <div className="flex gap-4">
+            {!isEditMode && !isTransferMode && (
+              <>
+                <button
+                  onClick={() => setIsEditMode(true)}
+                  className="font-semibold text-[13px] px-4 py-2 bg-primary transition text-white rounded hover:bg-blue-600"
+                >
+                  Edit
+                </button>
+                <button
+                  onClick={() => setIsTransferMode(true)}
+                  className="font-semibold text-[13px] px-4 py-2 bg-red-500 transition text-white rounded hover:bg-red-600"
+                >
+                  Transfer
+                </button>
+              </>
+            )}
           </div>
         </div>
 
-        {/* EDIT MODE FORM */}
+        {/* Edit Mode */}
         {isEditMode && (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-sm">
-            {/* UDISE Code */}
-            <div>
-              <label className="font-semibold text-gray-600 block mb-1">
-                UDISE Code
-              </label>
-              <input
-                type="text"
-                value={editFormData.udise_code || ""}
-                onChange={(e) =>
-                  setEditFormData({
-                    ...editFormData,
-                    udise_code: e.target.value,
-                  })
-                }
-                className="border border-gray-300 rounded w-full p-2"
-              />
-            </div>
-            {/* Name of Sanctioned Posts */}
-            <div>
-              <label className="font-semibold text-gray-600 block mb-1">
-                Name of Sanctioned Posts
-              </label>
-              <input
-                type="text"
-                value={editFormData.name_of_sanctioned_posts || ""}
-                onChange={(e) =>
-                  setEditFormData({
-                    ...editFormData,
-                    name_of_sanctioned_posts: e.target.value,
-                  })
-                }
-                className="border border-gray-300 rounded w-full p-2"
-              />
-            </div>
-            {/* Employee Name */}
-            <div>
-              <label className="font-semibold text-gray-600 block mb-1">
-                Employee Name
-              </label>
-              <input
-                type="text"
-                value={editFormData.emp_name || ""}
-                onChange={(e) =>
-                  setEditFormData({
-                    ...editFormData,
-                    emp_name: e.target.value,
-                  })
-                }
-                className="border border-gray-300 rounded w-full p-2"
-              />
-            </div>
-            {/* Employee ID */}
-            <div>
-              <label className="font-semibold text-gray-600 block mb-1">
-                Employee ID
-              </label>
-              <input
-                type="number"
-                value={editFormData.emp_id || ""}
-                onChange={(e) =>
-                  setEditFormData({
-                    ...editFormData,
-                    emp_id: Number(e.target.value),
-                  })
-                }
-                className="border border-gray-300 rounded w-full p-2"
-              />
-            </div>
-            {/* Date of Birth */}
-            <div>
-              <label className="font-semibold text-gray-600 block mb-1">
-                Date of Birth
-              </label>
-              <input
-                type="date"
-                value={editFormData.date_of_birth || ""}
-                onChange={(e) =>
-                  setEditFormData({
-                    ...editFormData,
-                    date_of_birth: e.target.value,
-                  })
-                }
-                className="border border-gray-300 rounded w-full p-2"
-              />
-            </div>
-            {/* Date of First Appointment */}
-            <div>
-              <label className="font-semibold text-gray-600 block mb-1">
-                Date of First Appointment
-              </label>
-              <input
-                type="date"
-                value={editFormData.date_of_first_appointment || ""}
-                onChange={(e) =>
-                  setEditFormData({
-                    ...editFormData,
-                    date_of_first_appointment: e.target.value,
-                  })
-                }
-                className="border border-gray-300 rounded w-full p-2"
-              />
-            </div>
-            {/* Designation at First Appointment */}
-            <div>
-              <label className="font-semibold text-gray-600 block mb-1">
-                Designation at First Appointment
-              </label>
-              <input
-                type="text"
-                value={editFormData.designation_at_first_appointment || ""}
-                onChange={(e) =>
-                  setEditFormData({
-                    ...editFormData,
-                    designation_at_first_appointment: e.target.value,
-                  })
-                }
-                className="border border-gray-300 rounded w-full p-2"
-              />
-            </div>
-            {/* Qualification */}
-            <div>
-              <label className="font-semibold text-gray-600 block mb-1">
-                Qualification
-              </label>
-              <input
-                type="text"
-                value={editFormData.qualification || ""}
-                onChange={(e) =>
-                  setEditFormData({
-                    ...editFormData,
-                    qualification: e.target.value,
-                  })
-                }
-                className="border border-gray-300 rounded w-full p-2"
-              />
-            </div>
-            {/* Subject in PG */}
-            <div>
-              <label className="font-semibold text-gray-600 block mb-1">
-                Subject in PG
-              </label>
-              <input
-                type="text"
-                value={editFormData.subject_in_pg || ""}
-                onChange={(e) =>
-                  setEditFormData({
-                    ...editFormData,
-                    subject_in_pg: e.target.value,
-                  })
-                }
-                className="border border-gray-300 rounded w-full p-2"
-              />
-            </div>
-            {/* Present Designation */}
-            <div>
-              <label className="font-semibold text-gray-600 block mb-1">
-                Present Designation
-              </label>
-              <input
-                type="text"
-                value={editFormData.present_designation || ""}
-                onChange={(e) =>
-                  setEditFormData({
-                    ...editFormData,
-                    present_designation: e.target.value,
-                  })
-                }
-                className="border border-gray-300 rounded w-full p-2"
-              />
-            </div>
-            {/* Date of Latest Promotion */}
-            <div>
-              <label className="font-semibold text-gray-600 block mb-1">
-                Date of Latest Promotion
-              </label>
-              <input
-                type="date"
-                value={editFormData.date_of_latest_promotion || ""}
-                onChange={(e) =>
-                  setEditFormData({
-                    ...editFormData,
-                    date_of_latest_promotion: e.target.value,
-                  })
-                }
-                className="border border-gray-300 rounded w-full p-2"
-              />
-            </div>
-            {/* Date of Retirement */}
-            <div>
-              <label className="font-semibold text-gray-600 block mb-1">
-                Date of Retirement
-              </label>
-              <input
-                type="date"
-                value={editFormData.date_of_retirement || ""}
-                onChange={(e) =>
-                  setEditFormData({
-                    ...editFormData,
-                    date_of_retirement: e.target.value,
-                  })
-                }
-                className="border border-gray-300 rounded w-full p-2"
-              />
-            </div>
-            {/* Working Since (Current Office) */}
-            <div>
-              <label className="font-semibold text-gray-600 block mb-1">
-                Working Since (Current Office)
-              </label>
-              <input
-                type="date"
-                value={
-                  editFormData.date_from_which_working_in_this_current_office ||
-                  ""
-                }
-                onChange={(e) =>
-                  setEditFormData({
-                    ...editFormData,
-                    date_from_which_working_in_this_current_office:
-                      e.target.value,
-                  })
-                }
-                className="border border-gray-300 rounded w-full p-2"
-              />
-            </div>
-            {/* Last Three Postings (Example for First Posting) */}
-            <div className="col-span-2">
-              <h3 className="font-semibold text-gray-600 mb-1">
-                Last Three Postings
-              </h3>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                {/* First Posting */}
-                <div>
-                  <label className="font-semibold text-gray-600 block mb-1">
-                    First Posting School
-                  </label>
-                  <input
-                    type="text"
-                    value={
-                      editFormData.last_three_postings?.first_posting?.school || ""
-                    }
-                    onChange={(e) =>
-                      setEditFormData({
-                        ...editFormData,
-                        last_three_postings: {
-                          ...editFormData.last_three_postings,
-                          first_posting: {
-                            ...editFormData.last_three_postings?.first_posting,
-                            school: e.target.value,
-                          },
-                        },
-                      })
-                    }
-                    className="border border-gray-300 rounded w-full p-2"
-                  />
-                </div>
-                {/* Second Posting */}
-                <div>
-                  <label className="font-semibold text-gray-600 block mb-1">
-                    Second Posting School
-                  </label>
-                  <input
-                    type="text"
-                    value={
-                      editFormData.last_three_postings?.second_posting?.school ||
-                      ""
-                    }
-                    onChange={(e) =>
-                      setEditFormData({
-                        ...editFormData,
-                        last_three_postings: {
-                          ...editFormData.last_three_postings,
-                          second_posting: {
-                            ...editFormData.last_three_postings?.second_posting,
-                            school: e.target.value,
-                          },
-                        },
-                      })
-                    }
-                    className="border border-gray-300 rounded w-full p-2"
-                  />
-                </div>
-                {/* Third Posting */}
-                <div>
-                  <label className="font-semibold text-gray-600 block mb-1">
-                    Third Posting School
-                  </label>
-                  <input
-                    type="text"
-                    value={
-                      editFormData.last_three_postings?.third_posting?.school || ""
-                    }
-                    onChange={(e) =>
-                      setEditFormData({
-                        ...editFormData,
-                        last_three_postings: {
-                          ...editFormData.last_three_postings,
-                          third_posting: {
-                            ...editFormData.last_three_postings?.third_posting,
-                            school: e.target.value,
-                          },
-                        },
-                      })
-                    }
-                    className="border border-gray-300 rounded w-full p-2"
-                  />
-                </div>
-              </div>
-            </div>
-            {/* Current Payscale */}
-            <div>
-              <label className="font-semibold text-gray-600 block mb-1">
-                Current Payscale
-              </label>
-              <input
-                type="text"
-                value={editFormData.current_payscale || ""}
-                onChange={(e) =>
-                  setEditFormData({
-                    ...editFormData,
-                    current_payscale: e.target.value,
-                  })
-                }
-                className="border border-gray-300 rounded w-full p-2"
-              />
-            </div>
-            {/* Pay Level */}
-            <div>
-              <label className="font-semibold text-gray-600 block mb-1">
-                Pay Level
-              </label>
-              <input
-                type="text"
-                value={editFormData.pay_level || ""}
-                onChange={(e) =>
-                  setEditFormData({
-                    ...editFormData,
-                    pay_level: e.target.value,
-                  })
-                }
-                className="border border-gray-300 rounded w-full p-2"
-              />
-            </div>
-            {/* Gross Salary */}
-            <div>
-              <label className="font-semibold text-gray-600 block mb-1">
-                Gross Salary
-              </label>
-              <input
-                type="text"
-                value={editFormData.gross_salary || ""}
-                onChange={(e) =>
-                  setEditFormData({
-                    ...editFormData,
-                    gross_salary: e.target.value,
-                  })
-                }
-                className="border border-gray-300 rounded w-full p-2"
-              />
-            </div>
-            {/* NPS/OPS */}
-            <div>
-              <label className="font-semibold text-gray-600 block mb-1">
-                NPS/OPS
-              </label>
-              <input
-                type="text"
-                value={editFormData.whether_nps_or_ops || ""}
-                onChange={(e) =>
-                  setEditFormData({
-                    ...editFormData,
-                    whether_nps_or_ops: e.target.value,
-                  })
-                }
-                className="border border-gray-300 rounded w-full p-2"
-              />
-            </div>
-            <div className="mt-4 flex gap-4">
-              <button
-                onClick={handleSaveEdit}
-                className="font-semibold text-[13px] px-4 py-2 bg-primary transition text-white rounded hover:bg-blue-600"
-              >
-                Save
-              </button>
-              <button
-                onClick={() => setIsEditMode(false)}
-                className="font-semibold text-[13px] px-4 py-2 transition bg-gray-300 text-gray-700 rounded hover:bg-gray-400"
-              >
-                Cancel
-              </button>
-            </div>
-          </div>
+          <EmployeeEditForm
+            initialData={employee}
+            onSave={handleSaveEdit}
+            onCancel={() => setIsEditMode(false)}
+          />
         )}
 
-        {/* TRANSFER MODE FORM */}
+        {/* Transfer Mode */}
         {isTransferMode && (
-          <div className="bg-white shadow rounded-lg p-6 mb-6">
-            <h2 className="text-xl font-semibold mb-4 text-gray-800">
-              Transfer Request
-            </h2>
-            <div className="mb-4">
-              <label className="font-semibold text-gray-600 block mb-1">
-                Search School
-              </label>
-              <input
-                type="text"
-                placeholder="Type to filter schools..."
-                value={searchSchool}
-                onChange={(e) => setSearchSchool(e.target.value)}
-                className="border border-gray-300 rounded w-full p-2 text-sm"
-              />
-            </div>
-            <div className="mb-4">
-              <label className="font-semibold text-gray-600 block mb-1">
-                Select School
-              </label>
-              <select
-                value={transferSchoolId}
-                onChange={(e) => setTransferSchoolId(e.target.value)}
-                className="border border-gray-300 rounded w-full p-2 text-sm"
-              >
-                <option value="">-- Choose a school --</option>
-                {filteredSchools.map((sch) => (
-                  <option key={sch.id} value={sch.id}>
-                    {sch.name}
-                  </option>
-                ))}
-              </select>
-            </div>
-            <div className="flex gap-2">
-              <button
-                onClick={handleSubmitTransfer}
-                disabled={!transferSchoolId}
-                className="font-semibold text-[13px] px-4 py-2 bg-red-500 text-white rounded transition hover:bg-red-600 disabled:opacity-50"
-              >
-                Submit Transfer
-              </button>
-              <button
-                onClick={() => setIsTransferMode(false)}
-                className="font-semibold text-[13px] px-4 py-2 bg-gray-300 text-gray-700 rounded hover:bg-gray-400"
-              >
-                Cancel
-              </button>
-            </div>
-          </div>
+          <EmployeeTransferForm
+            schools={filteredSchools}
+            onSubmit={handleSubmitTransfer}
+            onCancel={() => setIsTransferMode(false)}
+          />
         )}
 
-        {/* Display employee info if not editing or transferring */}
+        {/* View Mode */}
         {!isEditMode && !isTransferMode && (
           <div className="bg-white shadow rounded-lg p-6">
-            {/* Basic Employee Information */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-sm">
               <div className="space-y-3">
                 <p>
-                  <span className="font-semibold text-gray-600 mr-1">
-                    Employee ID:
-                  </span>
-                  <span className="text-gray-600 font-medium">
-                    {employee.emp_id}
-                  </span>
+                  <span className="font-semibold text-gray-600 mr-1">Employee ID:</span>
+                  <span className="text-gray-600 font-medium">{employee.employeeId}</span>
                 </p>
                 <p>
-                  <span className="font-semibold text-gray-600 mr-1">
-                    Username:
-                  </span>
+                  <span className="font-semibold text-gray-600 mr-1">Username:</span>
                   <span className="text-gray-600 font-medium">User</span>
                 </p>
                 <p>
-                  <span className="font-semibold text-gray-600 mr-1">
-                    Password:
-                  </span>
-                  <span className="text-gray-600 font-medium normal-case">
-                    user123
-                  </span>
+                  <span className="font-semibold text-gray-600 mr-1">Password:</span>
+                  <span className="text-gray-600 font-medium normal-case">user123</span>
                 </p>
                 <p>
-                  <span className="font-semibold text-gray-600 mr-1">
-                    Date of Birth:
-                  </span>
-                  <span className="text-gray-600 font-medium">
-                    {employee.date_of_birth}
-                  </span>
+                  <span className="font-semibold text-gray-600 mr-1">Date of Birth:</span>
+                  <span className="text-gray-600 font-medium">{new Date(employee.dateOfBirth).toLocaleDateString()}</span>
                 </p>
                 <p>
-                  <span className="font-semibold text-gray-600 mr-1">
-                    First Appointment:
-                  </span>
-                  <span className="text-gray-600 font-medium">
-                    {employee.date_of_first_appointment}
-                  </span>
+                  <span className="font-semibold text-gray-600 mr-1">First Appointment:</span>
+                  <span className="text-gray-600 font-medium">{new Date(employee.dateOfFirstAppointment).toLocaleDateString()}</span>
                 </p>
                 <p>
-                  <span className="font-semibold text-gray-600 mr-1">
-                    Designation at First Appointment:
-                  </span>
-                  <span className="text-gray-600 font-medium">
-                    {employee.designation_at_first_appointment}
-                  </span>
+                  <span className="font-semibold text-gray-600 mr-1">Designation at First Appointment:</span>
+                  <span className="text-gray-600 font-medium">{employee.designationAtFirstAppointment}</span>
                 </p>
                 <p>
-                  <span className="font-semibold text-gray-600 mr-1">
-                    Qualification:
-                  </span>
-                  <span className="text-gray-600 font-medium">
-                    {employee.qualification}
-                  </span>
+                  <span className="font-semibold text-gray-600 mr-1">Qualification:</span>
+                  <span className="text-gray-600 font-medium">{employee.qualification}</span>
                 </p>
                 <p>
-                  <span className="font-semibold text-gray-600 mr-1">
-                    Subject in PG:
-                  </span>
-                  <span className="text-gray-600 font-medium">
-                    {employee.subject_in_pg}
-                  </span>
+                  <span className="font-semibold text-gray-600 mr-1">Subject in PG:</span>
+                  <span className="text-gray-600 font-medium">{employee.subjectInPG}</span>
                 </p>
                 <p>
-                  <span className="font-semibold text-gray-600 mr-1">
-                    Present Designation:
-                  </span>
-                  <span className="text-gray-600 font-medium">
-                    {employee.present_designation}
-                  </span>
+                  <span className="font-semibold text-gray-600 mr-1">Present Designation:</span>
+                  <span className="text-gray-600 font-medium">{employee.presentDesignation}</span>
                 </p>
               </div>
               <div className="space-y-3">
                 <p>
-                  <span className="font-semibold text-gray-600 mr-1">
-                    Latest Promotion:
-                  </span>
-                  <span className="text-gray-600 font-medium">
-                    {employee.date_of_latest_promotion}
-                  </span>
+                  <span className="font-semibold text-gray-600 mr-1">Latest Promotion:</span>
+                  <span className="text-gray-600 font-medium">{new Date(employee.dateOfLatestPromotion).toLocaleDateString()}</span>
                 </p>
                 <p>
-                  <span className="font-semibold text-gray-600 mr-1">
-                    Retirement Date:
-                  </span>
-                  <span className="text-gray-600 font-medium">
-                    {employee.date_of_retirement}
-                  </span>
+                  <span className="font-semibold text-gray-600 mr-1">Retirement Date:</span>
+                  <span className="text-gray-600 font-medium">{new Date(employee.dateOfRetirement).toLocaleDateString()}</span>
                 </p>
                 <p>
-                  <span className="font-semibold text-gray-600 mr-1">
-                    Working Since:
-                  </span>
-                  <span className="text-gray-600 font-medium">
-                    {employee.date_from_which_working_in_this_current_office}
-                  </span>
+                  <span className="font-semibold text-gray-600 mr-1">Working Since:</span>
+                  <span className="text-gray-600 font-medium">{new Date(employee.dateOfCurrentPosting).toLocaleDateString()}</span>
                 </p>
                 <p>
-                  <span className="font-semibold text-gray-600 mr-1">
-                    Current Payscale:
-                  </span>
-                  <span className="text-gray-600 font-medium">
-                    {employee.current_payscale}
-                  </span>
+                  <span className="font-semibold text-gray-600 mr-1">Current Payscale:</span>
+                  <span className="text-gray-600 font-medium">{employee.currentPayScale}</span>
                 </p>
                 <p>
-                  <span className="font-semibold text-gray-600 mr-1">
-                    Pay Level:
-                  </span>
-                  <span className="text-gray-600 font-medium">
-                    {employee.pay_level}
-                  </span>
+                  <span className="font-semibold text-gray-600 mr-1">Pay Level:</span>
+                  <span className="text-gray-600 font-medium">{employee.payLevel}</span>
                 </p>
                 <p>
-                  <span className="font-semibold text-gray-600 mr-1">
-                    Gross Salary:
-                  </span>
-                  <span className="text-gray-600 font-medium">
-                    {employee.gross_salary}
-                  </span>
+                  <span className="font-semibold text-gray-600 mr-1">Gross Salary:</span>
+                  <span className="text-gray-600 font-medium">{employee.grossSalary}</span>
                 </p>
                 <p>
-                  <span className="font-semibold text-gray-600 mr-1">
-                    NPS/OPS:
-                  </span>
-                  <span className="text-gray-600 font-medium">
-                    {employee.whether_nps_or_ops}
-                  </span>
+                  <span className="font-semibold text-gray-600 mr-1">NPS/OPS:</span>
+                  <span className="text-gray-600 font-medium">{employee.pensionScheme}</span>
                 </p>
               </div>
             </div>
 
             {/* Last Three Postings */}
             <div className="mt-8">
-              <h2 className="text-xl font-bold text-primary mb-4">
-                Last Three Postings
-              </h2>
+              <h2 className="text-xl font-bold text-primary mb-4">Last Three Postings</h2>
               <div className="space-y-4 text-sm">
-                {["first_posting", "second_posting", "third_posting"].map(
-                  (key, index) => {
-                    const posting = employee.last_three_postings[key];
-                    const postingTitle =
-                      index === 0
-                        ? "First Posting"
-                        : index === 1
-                        ? "Second Posting"
-                        : "Third Posting";
-                    return (
-                      <div
-                        key={index}
-                        className="bg-gray-50 p-4 border border-gray-200 rounded-md"
-                      >
-                        <p className="font-semibold text-secondary mb-2 text-[15px]">
-                          {postingTitle}:
-                        </p>
-                        <p>
-                          <span className="font-semibold text-gray-600 mr-1">
-                            School:
-                          </span>
-                          <span className="text-gray-600 font-medium">
-                            {posting.school}
-                          </span>
-                        </p>
-                        <p>
-                          <span className="font-semibold text-gray-600 mr-1">
-                            Start Date:
-                          </span>
-                          <span className="text-gray-600 font-medium">
-                            {posting.start_date}
-                          </span>
-                        </p>
-                        <p>
-                          <span className="font-semibold text-gray-600 mr-1">
-                            End Date:
-                          </span>
-                          <span className="text-gray-600 font-medium">
-                            {posting.end_date}
-                          </span>
-                        </p>
-                      </div>
-                    );
-                  }
+                {employee.previousPostings && employee.previousPostings.length > 0 ? (
+                  employee.previousPostings.map((posting, index) => (
+                    <div key={posting._id || index} className="bg-gray-50 p-4 border border-gray-200 rounded-md">
+                      <p className="font-semibold text-secondary mb-2 text-[15px]">
+                        Posting {index + 1}:
+                      </p>
+                      <p>
+                        <span className="font-semibold text-gray-600 mr-1">School:</span>
+                        <span className="text-gray-600 font-medium">{posting.school}</span>
+                      </p>
+                      <p>
+                        <span className="font-semibold text-gray-600 mr-1">Start Date:</span>
+                        <span className="text-gray-600 font-medium">{new Date(posting.start_date).toLocaleDateString()}</span>
+                      </p>
+                      <p>
+                        <span className="font-semibold text-gray-600 mr-1">End Date:</span>
+                        <span className="text-gray-600 font-medium">{new Date(posting.end_date).toLocaleDateString()}</span>
+                      </p>
+                    </div>
+                  ))
+                ) : (
+                  <p className="text-gray-600">No postings found.</p>
                 )}
               </div>
             </div>
           </div>
         )}
       </div>
-
-      
-      
     </div>
   );
 }

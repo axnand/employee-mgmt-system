@@ -1,69 +1,71 @@
 "use client";
 
 import { useState } from "react";
-import {
-  FileText,
-  Search,
-  Eye,
-  X,
-} from "lucide-react";
-import { ToastContainer, toast } from "react-toastify";
+import { FileText, Search, Eye, X, ChevronLeft, ChevronRight } from "lucide-react";
+import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 
-// Mock Logs Data
-const mockLogs = [
-  {
-    id: 1,
-    admin: "John Doe",
-    role: "Super Admin",
-    action: "Login",
-    school: "-",
-    description: "Admin logged in",
-    ip: "192.168.1.1",
-    timestamp: "2024-02-16 08:30 AM",
-  },
-  {
-    id: 2,
-    admin: "Jane Smith",
-    role: "Admin",
-    action: "Employee Transfer",
-    school: "School A",
-    description: "Approved transfer request for Employee X",
-    timestamp: "2024-02-15 03:45 PM",
-  },
-  {
-    id: 3,
-    admin: "Alice Brown",
-    role: "Super Admin",
-    action: "Profile Update",
-    school: "School C",
-    description: "Changed designation for Employee Y",
-    timestamp: "2024-02-15 10:15 AM",
-  },
-  {
-    id: 4,
-    admin: "Michael Johnson",
-    role: "Admin",
-    action: "Failed Login",
-    school: "-",
-    description: "Unsuccessful login attempt",
-    ip: "203.0.113.5",
-    timestamp: "2024-02-14 07:50 PM",
-  },
-];
+// Fetch logs from backend endpoint
+const fetchLogs = async () => {
+  const token = localStorage.getItem("token");
+  const res = await fetch("http://localhost:5000/api/logs", {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+  if (!res.ok) {
+    throw new Error("Failed to fetch logs");
+  }
+  return res.json(); // Expected shape: { logs: [...] }
+};
 
-// Sample System Activity Statistics
-const systemStats = [
-  { title: "Total Actions (24h)", value: 120 },
-  { title: "Admin Logins", value: 45 },
-  { title: "Transfers Processed", value: 20 },
-  { title: "Modifications", value: 30 },
-];
+// Fetch system statistics from backend endpoint
+const fetchStats = async () => {
+  const token = localStorage.getItem("token");
+  const res = await fetch("http://localhost:5000/api/logs/stats", {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+  if (!res.ok) {
+    throw new Error("Failed to fetch statistics");
+  }
+  return res.json(); // Expected shape: { stats: [...] }
+};
 
 export default function AdminLogs() {
-  const [logs, setLogs] = useState(mockLogs);
+  const queryClient = useQueryClient();
   const [searchTerm, setSearchTerm] = useState("");
   const [modalData, setModalData] = useState(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const logsPerPage = 10;
+
+  // Use React Query to fetch logs
+  const {
+    data: logsData,
+    error: logsError,
+    isLoading: logsLoading,
+  } = useQuery({
+    queryKey: ["logs"],
+    queryFn: fetchLogs,
+    refetchOnWindowFocus: false,
+  });
+
+  // Use React Query to fetch system statistics
+  const {
+    data: statsData,
+    error: statsError,
+    isLoading: statsLoading,
+  } = useQuery({
+    queryKey: ["logs", "stats"],
+    queryFn: fetchStats,
+    refetchOnWindowFocus: false,
+  });
+
+  // Use empty arrays if data is not yet available
+  const logs = logsData?.logs || [];
+  const systemStats = statsData?.stats || [];
 
   // Filter logs based on admin, action, or school
   const filteredLogs = logs.filter(
@@ -73,8 +75,32 @@ export default function AdminLogs() {
       log.school.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
+  // Pagination logic
+  const indexOfLastLog = currentPage * logsPerPage;
+  const indexOfFirstLog = indexOfLastLog - logsPerPage;
+  const currentLogs = filteredLogs.slice(indexOfFirstLog, indexOfLastLog);
+  const totalPages = Math.ceil(filteredLogs.length / logsPerPage);
+
+  // Reset page when search term changes
+  const handleSearchChange = (e) => {
+    setSearchTerm(e.target.value);
+    setCurrentPage(1);
+  };
+
+  if (logsLoading || statsLoading) {
+    return <p className="text-center mt-8">Loading...</p>;
+  }
+
+  if (logsError || statsError) {
+    return (
+      <p className="text-center mt-8 text-red-500">
+        Error: {logsError?.message || statsError?.message}
+      </p>
+    );
+  }
+
   return (
-    <div className="min-h-screen ">
+    <div className="min-h-screen capitalize">
       <ToastContainer
         position="top-right"
         autoClose={3000}
@@ -83,7 +109,7 @@ export default function AdminLogs() {
         pauseOnHover
         draggable
       />
-      <div className="max-w-7xl mx-auto ">
+      <div className="max-w-7xl mx-auto">
         {/* Page Header */}
         <header className="mb-8">
           <h1 className="text-2xl font-bold text-secondary flex items-center gap-2">
@@ -102,7 +128,7 @@ export default function AdminLogs() {
               key={idx}
               className="bg-white p-3 rounded-lg shadow border-l-[3px] border-primary"
             >
-              <h3 className="text font-semibold text-gray-700">
+              <h3 className="text-sm font-semibold text-gray-700">
                 {stat.title}
               </h3>
               <p className="text-lg font-bold text-gray-900 mt-2">
@@ -121,7 +147,7 @@ export default function AdminLogs() {
               className="border border-gray-300 pl-10 pr-4 py-2 rounded-md w-full focus:outline-none focus:ring-2 focus:ring-primary"
               placeholder="Search logs..."
               value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
+              onChange={handleSearchChange}
             />
           </div>
         </div>
@@ -152,15 +178,21 @@ export default function AdminLogs() {
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-200">
-              {filteredLogs.map((log) => (
-                <tr key={log.id}>
-                  <td className="p-3 text-xs text-gray-700">{log.timestamp}</td>
+              {currentLogs.map((log, index) => (
+                <tr key={log.id || index}>
+                  <td className="p-3 text-xs text-gray-700">{log.time}</td>
                   <td className="p-3 text-[13px] text-gray-700">
-                    {log.admin} <span className="text-xs text-gray-500">({log.role})</span>
+                    {log.admin}{" "}
                   </td>
-                  <td className="p-3 text-[13px] text-gray-700">{log.action}</td>
-                  <td className="p-3 text-[13px] text-gray-700">{log.school}</td>
-                  <td className="p-3 text-[13px] text-gray-700 line-clamp-1">{log.description}</td>
+                  <td className="p-3 text-[13px] text-gray-700">
+                    {log.action}
+                  </td>
+                  <td className="p-3 text-[13px] text-gray-700 text-center">
+                    {log.school ? log.school : "-" }
+                  </td>
+                  <td className="p-3 text-[13px] text-gray-700 line-clamp-1">
+                    {log.description}
+                  </td>
                   <td className="p-3">
                     <button
                       className="flex items-center gap-1 bg-primary text-white px-3 py-1 rounded-full font-medium text-xs hover:bg-blue-600 transition"
@@ -172,7 +204,7 @@ export default function AdminLogs() {
                   </td>
                 </tr>
               ))}
-              {filteredLogs.length === 0 && (
+              {currentLogs.length === 0 && (
                 <tr>
                   <td
                     colSpan="6"
@@ -185,6 +217,33 @@ export default function AdminLogs() {
             </tbody>
           </table>
         </div>
+
+        {/* Pagination Controls */}
+        {filteredLogs.length > logsPerPage && (
+          <div className="flex justify-center items-center mt-4 gap-2">
+            <button
+              onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+              className="p-1 border-gray-500 cursor-pointer bg-white hover:bg-gray-100 transition border rounded-full disabled:opacity-50"
+              disabled={currentPage === 1}
+            >
+              <ChevronLeft className="w-5 h-5"/>
+            </button>
+            <span className="px-3 text-sm font-semibold text-gray-800 py-1">
+              {currentPage} of {totalPages}
+            </span>
+            <button
+              onClick={() =>
+                setCurrentPage((prev) =>
+                  Math.min(prev + 1, totalPages)
+                )
+              }
+              className="p-1 border-gray-500 cursor-pointer bg-white hover:bg-gray-100 transition border rounded-full disabled:opacity-50"
+              disabled={currentPage === totalPages}
+            >
+              <ChevronRight className="w-5 h-5"/>
+            </button>
+          </div>
+        )}
 
         {/* Log Details Modal */}
         {modalData && (
@@ -203,7 +262,9 @@ export default function AdminLogs() {
               <div className="space-y-2 text-gray-700">
                 <p>
                   <strong>Admin:</strong> {modalData.admin}{" "}
-                  <span className="text-sm text-gray-500">({modalData.role})</span>
+                  <span className="text-sm text-gray-500">
+                    ({modalData.role})
+                  </span>
                 </p>
                 <p>
                   <strong>Action:</strong> {modalData.action}
@@ -215,7 +276,7 @@ export default function AdminLogs() {
                   <strong>Description:</strong> {modalData.description}
                 </p>
                 <p>
-                  <strong>Timestamp:</strong> {modalData.timestamp}
+                  <strong>Timestamp:</strong> {modalData.time}
                 </p>
                 {modalData.ip && (
                   <p>
