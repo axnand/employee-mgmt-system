@@ -19,10 +19,12 @@ export default function LoginPage() {
     mutationFn: (credentials) => loginUserService(credentials),
     onSuccess: (data) => {
       // Store the token
+      console.log("Login Success",data);
       localStorage.setItem("token", data.token);
       // Persist user details in localStorage
       const userDetails = { userId: data.userId, role: data.role, schoolId: data.schoolId };
       localStorage.setItem("user", JSON.stringify(userDetails));
+      
       
       // Update the user context
       setUser(userDetails);

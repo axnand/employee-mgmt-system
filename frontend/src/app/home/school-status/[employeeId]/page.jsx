@@ -11,18 +11,6 @@ import { useUser } from "@/context/UserContext";
 
 // --- Backend fetch functions ---
 
-// Fetch school details (expected to include an employees array)
-const fetchSchoolDetails = async (schoolId) => {
-  const token = localStorage.getItem("token");
-  const res = await fetch(`http://localhost:5000/api/schools/${schoolId}`, {
-    headers: { Authorization: `Bearer ${token}` },
-  });
-  if (!res.ok) {
-    throw new Error("Failed to fetch school details");
-  }
-  return res.json();
-};
-
 // Fetch employee details using your getEmployeeById endpoint
 const fetchEmployeeDetails = async (employeeId) => {
   const token = localStorage.getItem("token");
@@ -56,20 +44,9 @@ const updateEmployeeDetails = async ({ employeeId, updatedData }) => {
 // --- Main Component ---
 export default function EmployeeDetailPage() {
   const router = useRouter();
-  const { schoolId, employeeId } = useParams();
+  const { schoolId, employeeId } = useParams(); // Get schoolId from URL params
   const queryClient = useQueryClient();
   const { user } = useUser();
-
-  // Fetch school details from the backend
-  const {
-    data: schoolData,
-    isLoading: schoolLoading,
-    error: schoolError,
-  } = useQuery({
-    queryKey: ["school", schoolId],
-    queryFn: () => fetchSchoolDetails(schoolId),
-    refetchOnWindowFocus: false,
-  });
 
   // Fetch employee details from the backend
   const {
@@ -82,7 +59,7 @@ export default function EmployeeDetailPage() {
     refetchOnWindowFocus: false,
   });
 
-  // Local state for employee details (populated from backend)
+  // Local state for employee details
   const [employee, setEmployee] = useState(null);
 
   useEffect(() => {
@@ -110,30 +87,14 @@ export default function EmployeeDetailPage() {
   };
 
   const handleSubmitTransfer = (selectedSchoolId) => {
-    // Replace this console.log with an API call to perform the transfer.
+    // Use the schoolId from URL params in your transfer logic
     console.log(
       `Transfer requested for employee ${employeeId} from school ${schoolId} to school ${selectedSchoolId}`
     );
     setIsTransferMode(false);
   };
 
-  // If school details are still loading or an error occurred
-  if (schoolLoading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <p className="text-gray-600">Loading school details...</p>
-      </div>
-    );
-  }
-  if (schoolError || !schoolData) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <p className="text-gray-600">School not found.</p>
-      </div>
-    );
-  }
-
-  // If employee details are still loading or an error occurred
+  // Loading and error states for employee details
   if (employeeLoading || !employee) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -153,6 +114,7 @@ export default function EmployeeDetailPage() {
   const allSchools = districtData.zones.flatMap((zone) =>
     zone.schools.map((school) => ({ ...school, zone: zone.zone }))
   );
+  // Remove the current school from the transfer options using schoolId from params
   const filteredSchools = allSchools.filter(
     (sch) => sch.id !== parseInt(schoolId, 10)
   );
@@ -220,95 +182,174 @@ export default function EmployeeDetailPage() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-sm">
               <div className="space-y-3">
                 <p>
-                  <span className="font-semibold text-gray-600 mr-1">Employee ID:</span>
-                  <span className="text-gray-600 font-medium">{employee.employeeId}</span>
+                  <span className="font-semibold text-gray-600 mr-1">
+                    Employee ID:
+                  </span>
+                  <span className="text-gray-600 font-medium">
+                    {employee.employeeId}
+                  </span>
                 </p>
                 <p>
-                  <span className="font-semibold text-gray-600 mr-1">Username:</span>
+                  <span className="font-semibold text-gray-600 mr-1">
+                    Username:
+                  </span>
                   <span className="text-gray-600 font-medium">User</span>
                 </p>
                 <p>
-                  <span className="font-semibold text-gray-600 mr-1">Password:</span>
-                  <span className="text-gray-600 font-medium normal-case">user123</span>
+                  <span className="font-semibold text-gray-600 mr-1">
+                    Password:
+                  </span>
+                  <span className="text-gray-600 font-medium normal-case">
+                    user123
+                  </span>
                 </p>
                 <p>
-                  <span className="font-semibold text-gray-600 mr-1">Date of Birth:</span>
-                  <span className="text-gray-600 font-medium">{new Date(employee.dateOfBirth).toLocaleDateString()}</span>
+                  <span className="font-semibold text-gray-600 mr-1">
+                    Date of Birth:
+                  </span>
+                  <span className="text-gray-600 font-medium">
+                    {new Date(employee.dateOfBirth).toLocaleDateString()}
+                  </span>
                 </p>
                 <p>
-                  <span className="font-semibold text-gray-600 mr-1">First Appointment:</span>
-                  <span className="text-gray-600 font-medium">{new Date(employee.dateOfFirstAppointment).toLocaleDateString()}</span>
+                  <span className="font-semibold text-gray-600 mr-1">
+                    First Appointment:
+                  </span>
+                  <span className="text-gray-600 font-medium">
+                    {new Date(employee.dateOfFirstAppointment).toLocaleDateString()}
+                  </span>
                 </p>
                 <p>
-                  <span className="font-semibold text-gray-600 mr-1">Designation at First Appointment:</span>
-                  <span className="text-gray-600 font-medium">{employee.designationAtFirstAppointment}</span>
+                  <span className="font-semibold text-gray-600 mr-1">
+                    Designation at First Appointment:
+                  </span>
+                  <span className="text-gray-600 font-medium">
+                    {employee.designationAtFirstAppointment}
+                  </span>
                 </p>
                 <p>
-                  <span className="font-semibold text-gray-600 mr-1">Qualification:</span>
-                  <span className="text-gray-600 font-medium">{employee.qualification}</span>
+                  <span className="font-semibold text-gray-600 mr-1">
+                    Qualification:
+                  </span>
+                  <span className="text-gray-600 font-medium">
+                    {employee.qualification}
+                  </span>
                 </p>
                 <p>
-                  <span className="font-semibold text-gray-600 mr-1">Subject in PG:</span>
-                  <span className="text-gray-600 font-medium">{employee.subjectInPG}</span>
+                  <span className="font-semibold text-gray-600 mr-1">
+                    Subject in PG:
+                  </span>
+                  <span className="text-gray-600 font-medium">
+                    {employee.subjectInPG}
+                  </span>
                 </p>
                 <p>
-                  <span className="font-semibold text-gray-600 mr-1">Present Designation:</span>
-                  <span className="text-gray-600 font-medium">{employee.presentDesignation}</span>
+                  <span className="font-semibold text-gray-600 mr-1">
+                    Present Designation:
+                  </span>
+                  <span className="text-gray-600 font-medium">
+                    {employee.presentDesignation}
+                  </span>
                 </p>
               </div>
               <div className="space-y-3">
                 <p>
-                  <span className="font-semibold text-gray-600 mr-1">Latest Promotion:</span>
-                  <span className="text-gray-600 font-medium">{new Date(employee.dateOfLatestPromotion).toLocaleDateString()}</span>
+                  <span className="font-semibold text-gray-600 mr-1">
+                    Latest Promotion:
+                  </span>
+                  <span className="text-gray-600 font-medium">
+                    {new Date(employee.dateOfLatestPromotion).toLocaleDateString()}
+                  </span>
                 </p>
                 <p>
-                  <span className="font-semibold text-gray-600 mr-1">Retirement Date:</span>
-                  <span className="text-gray-600 font-medium">{new Date(employee.dateOfRetirement).toLocaleDateString()}</span>
+                  <span className="font-semibold text-gray-600 mr-1">
+                    Retirement Date:
+                  </span>
+                  <span className="text-gray-600 font-medium">
+                    {new Date(employee.dateOfRetirement).toLocaleDateString()}
+                  </span>
                 </p>
                 <p>
-                  <span className="font-semibold text-gray-600 mr-1">Working Since:</span>
-                  <span className="text-gray-600 font-medium">{new Date(employee.dateOfCurrentPosting).toLocaleDateString()}</span>
+                  <span className="font-semibold text-gray-600 mr-1">
+                    Working Since:
+                  </span>
+                  <span className="text-gray-600 font-medium">
+                    {new Date(employee.dateOfCurrentPosting).toLocaleDateString()}
+                  </span>
                 </p>
                 <p>
-                  <span className="font-semibold text-gray-600 mr-1">Current Payscale:</span>
-                  <span className="text-gray-600 font-medium">{employee.currentPayScale}</span>
+                  <span className="font-semibold text-gray-600 mr-1">
+                    Current Payscale:
+                  </span>
+                  <span className="text-gray-600 font-medium">
+                    {employee.currentPayScale}
+                  </span>
                 </p>
                 <p>
-                  <span className="font-semibold text-gray-600 mr-1">Pay Level:</span>
-                  <span className="text-gray-600 font-medium">{employee.payLevel}</span>
+                  <span className="font-semibold text-gray-600 mr-1">
+                    Pay Level:
+                  </span>
+                  <span className="text-gray-600 font-medium">
+                    {employee.payLevel}
+                  </span>
                 </p>
                 <p>
-                  <span className="font-semibold text-gray-600 mr-1">Gross Salary:</span>
-                  <span className="text-gray-600 font-medium">{employee.grossSalary}</span>
+                  <span className="font-semibold text-gray-600 mr-1">
+                    Gross Salary:
+                  </span>
+                  <span className="text-gray-600 font-medium">
+                    {employee.grossSalary}
+                  </span>
                 </p>
                 <p>
-                  <span className="font-semibold text-gray-600 mr-1">NPS/OPS:</span>
-                  <span className="text-gray-600 font-medium">{employee.pensionScheme}</span>
+                  <span className="font-semibold text-gray-600 mr-1">
+                    NPS/OPS:
+                  </span>
+                  <span className="text-gray-600 font-medium">
+                    {employee.pensionScheme}
+                  </span>
                 </p>
               </div>
             </div>
 
             {/* Last Three Postings */}
             <div className="mt-8">
-              <h2 className="text-xl font-bold text-primary mb-4">Last Three Postings</h2>
+              <h2 className="text-xl font-bold text-primary mb-4">
+                Last Three Postings
+              </h2>
               <div className="space-y-4 text-sm">
                 {employee.previousPostings && employee.previousPostings.length > 0 ? (
                   employee.previousPostings.map((posting, index) => (
-                    <div key={posting._id || index} className="bg-gray-50 p-4 border border-gray-200 rounded-md">
+                    <div
+                      key={posting._id || index}
+                      className="bg-gray-50 p-4 border border-gray-200 rounded-md"
+                    >
                       <p className="font-semibold text-secondary mb-2 text-[15px]">
                         Posting {index + 1}:
                       </p>
                       <p>
-                        <span className="font-semibold text-gray-600 mr-1">School:</span>
-                        <span className="text-gray-600 font-medium">{posting.school}</span>
+                        <span className="font-semibold text-gray-600 mr-1">
+                          School:
+                        </span>
+                        <span className="text-gray-600 font-medium">
+                          {posting.school}
+                        </span>
                       </p>
                       <p>
-                        <span className="font-semibold text-gray-600 mr-1">Start Date:</span>
-                        <span className="text-gray-600 font-medium">{new Date(posting.start_date).toLocaleDateString()}</span>
+                        <span className="font-semibold text-gray-600 mr-1">
+                          Start Date:
+                        </span>
+                        <span className="text-gray-600 font-medium">
+                          {new Date(posting.start_date).toLocaleDateString()}
+                        </span>
                       </p>
                       <p>
-                        <span className="font-semibold text-gray-600 mr-1">End Date:</span>
-                        <span className="text-gray-600 font-medium">{new Date(posting.end_date).toLocaleDateString()}</span>
+                        <span className="font-semibold text-gray-600 mr-1">
+                          End Date:
+                        </span>
+                        <span className="text-gray-600 font-medium">
+                          {new Date(posting.end_date).toLocaleDateString()}
+                        </span>
                       </p>
                     </div>
                   ))

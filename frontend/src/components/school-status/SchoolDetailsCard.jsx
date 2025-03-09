@@ -286,8 +286,8 @@ export default function SchoolDetailsCard({ schoolInfo }) {
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                       {emp.presentDesignation}
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm">
-                      <Link href={`/home/school-status/${encodeURIComponent(schoolInfo._id)}/${encodeURIComponent(emp._id)}`}>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm flex items-center gap-x-2">
+                      <Link href={`/home/school-status/${encodeURIComponent(emp._id)}`}>
                         <button className="py-1 px-3 bg-primary text-white rounded-full font-medium text-xs hover:bg-blue-600 transition">
                           View
                         </button>

@@ -10,7 +10,9 @@ import Zone from "../models/Zone.js";
 export const getAllSchools = async (req, res) => {
   try {
     if (req.user.role === "admin") {
-      const schools = await School.find({}).populate("employees").populate("zone");
+      const schools = await School.find({})
+        .populate("employees")
+        .populate("zone");
       return res.json(schools);
     } else if (req.user.role === "schoolAdmin") {
       const school = await School.findById(req.user.schoolId)
@@ -28,8 +30,28 @@ export const getAllSchools = async (req, res) => {
   }
 };
 
-
-
+/**
+ * GET /api/schools/:id
+ * - Main admin: view details of any school by ID.
+ * - School admin: view only their own school.
+ */
+export const getSchoolById = async (req, res) => {
+  try {
+    const school = await School.findById(req.params.id)
+      .populate("employees")
+      .populate("zone");
+    if (!school) {
+      return res.status(404).json({ message: "School not found" });
+    }
+    // Ensure that a school admin can only access their own school
+    if (req.user.role === "schoolAdmin" && req.user.schoolId.toString() !== school._id.toString()) {
+      return res.status(403).json({ message: "Not authorized to view this school" });
+    }
+    res.json(school);
+  } catch (error) {
+    res.status(500).json({ message: "Error fetching school by ID", error });
+  }
+};
 
 /**
  * GET /api/schools/mine
@@ -37,7 +59,9 @@ export const getAllSchools = async (req, res) => {
  */
 export const getMySchool = async (req, res) => {
   try {
-    const school = await School.findById(req.user.schoolId).populate("employees");
+    const school = await School.findById(req.user.schoolId)
+      .populate("employees")
+      .populate("zone");
     if (!school) {
       return res.status(404).json({ message: "School not found" });
     }
@@ -48,33 +72,17 @@ export const getMySchool = async (req, res) => {
 };
 
 /**
- * GET /api/schools/:id
- * - Main admin: view details of any school by ID.
- */
-export const getSchoolById = async (req, res) => {
-  try {
-    const school = await School.findById(req.params.id).populate("employees");
-    if (!school) {
-      return res.status(404).json({ message: "School not found" });
-    }
-    res.json(school);
-  } catch (error) {
-    res.status(500).json({ message: "Error fetching school by ID", error });
-  }
-};
-
-
-/**
  * GET /api/schools/status
  * - Returns zones with their schools grouped together.
  * - Accessible to the main admin.
  */
 export const getSchoolStatus = async (req, res) => {
-    try {
-      // Find all zones and populate the associated schools.
-      const zones = await Zone.find({}).populate("schools");
-      res.status(200).json({ zones });
-    } catch (error) {
-      res.status(500).json({ message: "Error fetching school status", error: error.message });
-    }
-  };
+  try {
+    // Find all zones and populate the associated schools.
+    const zones = await Zone.find({}).populate("schools");
+    res.status(200).json({ zones });
+  } catch (error) {
+    res.status(500).json({ message: "Error fetching school status", error: error.message });
+  }
+};
+  

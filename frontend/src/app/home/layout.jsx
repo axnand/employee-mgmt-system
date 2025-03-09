@@ -73,7 +73,7 @@ export default function DashboardLayout({ children }) {
       },
       {
         title: "Employees",
-        href: `/home/school-status/${schoolId}`,
+        href: `/home/school-status`,
         icon: <Users className="mr-2 h-5 w-5" />,
       },
       // {

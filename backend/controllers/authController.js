@@ -15,55 +15,73 @@ import {
  * Expected req.body: { userId, password, loginAs }
  */
 export const loginUser = async (req, res) => {
-    try {
-      const { userId, password, loginAs } = req.body;
-      const user = await User.findOne({ userId });
-  
-      if (!user) {
-        return res.status(401).json({ message: "Invalid credentials" });
-      }
-  
-      if (loginAs && user.role !== loginAs) {
-        return res.status(403).json({ message: `You are not authorized to login as ${loginAs}` });
-      }
-  
-      const isMatch = await user.comparePassword(password);
-      if (!isMatch) {
-        await createLog({
-          admin: userId,
-          role: user.role,
-          action: "Failed Login",
-          description: "Unsuccessful login attempt",
-          ip: req.ip,
-        });
-        return res.status(401).json({ message: "Invalid credentials" });
-      }
-  
-      // Generate token regardless, including a flag if password hasn't been changed.
-      const token = jwt.sign(
-        { userId: user._id, role: user.role, schoolId: user.schoolId, forcePasswordChange: !user.passwordChanged },
-        process.env.JWT_SECRET,
-        { expiresIn: "1d" }
-      );
-  
+  try {
+    const { userId, password, loginAs } = req.body;
+    const user = await User.findOne({ userId });
+
+    if (!user) {
+      return res.status(401).json({ message: "Invalid credentials" });
+    }
+
+    if (loginAs && user.role !== loginAs) {
+      return res.status(403).json({ message: `You are not authorized to login as ${loginAs}` });
+    }
+
+    const isMatch = await user.comparePassword(password);
+    if (!isMatch) {
       await createLog({
         admin: userId,
-        role: user.role === "admin" ? "Super Admin" : user.role,
-        action: "Login",
-        description: `${userId} logged in successfully as ${user.role}`,
+        role: user.role,
+        action: "Failed Login",
+        description: "Unsuccessful login attempt",
         ip: req.ip,
       });
-      res.setHeader('Set-Cookie', `token=${token}; HttpOnly; Path=/; Max-Age=86400;`);
-      return res.status(200).json({
-        message: "Login successful",
-        token,
-        role: user.role,
-        forcePasswordChange: !user.passwordChanged
-      });
-    } catch (error) {
-      return res.status(500).json({ message: "Error logging in", error: error.message });
+      return res.status(401).json({ message: "Invalid credentials" });
     }
-  };
+
+    // Build the payload and include additional fields based on role.
+    const payload = {
+      userId: user._id,
+      role: user.role,
+      forcePasswordChange: !user.passwordChanged,
+    };
+
+    // For schoolAdmin, include schoolId
+    if (user.role === "schoolAdmin") {
+      payload.schoolId = user.schoolId;
+    }
+
+    // For staff, include employeeId (and optionally schoolId if needed)
+    if (user.role === "staff") {
+      payload.employeeId = user.employeeId;
+      payload.schoolId = user.schoolId;
+    }
+
+    const token = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: "1d" });
+
+    await createLog({
+      admin: userId,
+      role: user.role === "admin" ? "Super Admin" : user.role,
+      action: "Login",
+      description: `${userId} logged in successfully as ${user.role}`,
+      ip: req.ip,
+    });
+
+    // Return additional fields in the response so the frontend can store them.
+    return res.status(200).json({
+      message: "Login successful",
+      token,
+      role: user.role,
+      userId: user._id,
+      forcePasswordChange: !user.passwordChanged,
+      ...(user.role === "schoolAdmin" && { schoolId: user.schoolId }),
+      ...(user.role === "staff" && { employeeId: user.employeeId, schoolId: user.schoolId }),
+    });
+  } catch (error) {
+    return res.status(500).json({ message: "Error logging in", error: error.message });
+  }
+};
+
 
 /**
  * PUT /api/auth/update-password
