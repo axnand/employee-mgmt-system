@@ -21,7 +21,7 @@ export function TopBar() {
         <div className="flex justify-between items-center gap-6 h-16">
           <div className="font-bold text-xl text-secondary">Welcome, Sahil..</div>
           <div className="flex justify-end items-center gap-6 h-16">
-          <div className="flex mr-8 w-72">
+          {/* <div className="flex mr-8 w-72">
             <div className="flex items-center w-full">
             <div className="flex items-center p-1 rounded-full bg-white   text-[13px] border relative w-full">
           <input
@@ -35,9 +35,9 @@ export function TopBar() {
           </button>
         </div>
             </div>
-          </div>
-          <div className="flex items-center justify-center p-2 border hover:bg-[#377DFF] group cursor-pointer transition rounded-full"><BellRingIcon className="w-4 h-4 group-hover:text-white"/></div>
-          
+          </div> */}
+          {/* <div className="flex items-center justify-center p-2 border hover:bg-[#377DFF] group cursor-pointer transition rounded-full"><BellRingIcon className="w-4 h-4 group-hover:text-white"/></div>
+           */}
           <div className="flex items-center">
             {/* Dropdown Button */}
             <div className="relative ">
