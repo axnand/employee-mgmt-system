@@ -48,7 +48,7 @@ export default function MainAdminTransfersPage() {
   };
 
   // Filter transfers by search term
-  const filteredTransfers = pendingTransfers.filter((transfer) => {
+  const filteredTransfers = pendingTransfers?.filter((transfer) => {
     const employeeName = transfer.employee?.employeeName || "";
     const fromSchoolName = transfer.fromSchool?.name || "";
     const toSchoolName = transfer.toSchool?.name || "";

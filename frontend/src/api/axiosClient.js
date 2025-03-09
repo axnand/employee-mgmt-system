@@ -23,20 +23,24 @@ axiosClient.interceptors.request.use(
 axiosClient.interceptors.response.use(
   (response) => response,
   (error) => {
-    if (error.response) {
-      // For a 401 response, throw a friendly error message
-      if (error.response.status === 401) {
-        return Promise.reject(
-          new Error(
-            error.response.data?.message ||
-              "Invalid credentials. Please try again."
-          )
-        );
-      }
-      // Additional status checks can be added here if needed.
+    // If the response contains a custom error message, use it
+    if (
+      error.response &&
+      error.response.data &&
+      error.response.data.message
+    ) {
+      return Promise.reject(new Error(error.response.data.message));
     }
-    // Default generic error message for any other error
-    return Promise.reject(new Error("Something went wrong. Please try again later."));
+    // Handle 401 errors specifically if needed
+    if (error.response && error.response.status === 401) {
+      return Promise.reject(
+        new Error("Invalid credentials. Please try again.")
+      );
+    }
+    // Otherwise, return a generic error message
+    return Promise.reject(
+      new Error("Something went wrong. Please try again later.")
+    );
   }
 );
 

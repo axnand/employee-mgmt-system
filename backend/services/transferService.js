@@ -1,4 +1,3 @@
-// services/transferService.js
 import TransferRequest from "../models/TransferRequest.js";
 import School from "../models/School.js";
 import { createLog } from "./logService.js";
@@ -14,6 +13,16 @@ export const createTransferRequest = async (
   currentUser,
   ip
 ) => {
+  // Check if a pending transfer already exists for this employee
+  const existingRequest = await TransferRequest.findOne({
+    employee: employeeId,
+    status: "pending",
+  });
+  if (existingRequest) {
+    throw new Error("A pending transfer request for this employee already exists");
+  }
+
+  // Proceed to create the transfer request if no pending request exists.
   const fromSchool = await School.findById(fromSchoolId);
   if (!fromSchool) {
     throw new Error("Source school not found");
