@@ -8,6 +8,8 @@ import EmployeeEditForm from "@/components/school-status/EmployeeEditForm";
 import EmployeeTransferForm from "@/components/school-status/EmployeeTransferForm";
 import districtData from "@/data/data.json"; // Used only for schools list in transfer form
 import { useUser } from "@/context/UserContext";
+import { createTransferRequest } from "@/api/transferService";
+import { toast } from "react-toastify";
 
 // --- Backend fetch functions ---
 
@@ -41,14 +43,16 @@ const updateEmployeeDetails = async ({ employeeId, updatedData }) => {
   return res.json();
 };
 
+
+
 // --- Main Component ---
 export default function EmployeeDetailPage() {
   const router = useRouter();
-  const { schoolId, employeeId } = useParams(); // Get schoolId from URL params
+  const {employeeId } = useParams(); 
   const queryClient = useQueryClient();
   const { user } = useUser();
-
-  // Fetch employee details from the backend
+  
+  const schoolId = user?.schoolId;
   const {
     data: employeeData,
     isLoading: employeeLoading,
@@ -59,16 +63,15 @@ export default function EmployeeDetailPage() {
     refetchOnWindowFocus: false,
   });
 
-  // Local state for employee details
+  // Local state for employee details (populated from backend)
   const [employee, setEmployee] = useState(null);
-
   useEffect(() => {
     if (employeeData) {
       setEmployee(employeeData);
     }
   }, [employeeData]);
 
-  // Local state to control edit and transfer modes
+  // State to control edit and transfer modes
   const [isEditMode, setIsEditMode] = useState(false);
   const [isTransferMode, setIsTransferMode] = useState(false);
 
@@ -82,19 +85,36 @@ export default function EmployeeDetailPage() {
     },
   });
 
+  const transferMutation = useMutation({
+    mutationFn: (transferData) =>
+      createTransferRequest(transferData, user, window.location.hostname),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["employee", employeeId] });
+      toast.success("Transfer request submitted successfully");
+      setIsTransferMode(false);
+    },
+    onError: (error) => {
+      toast.error("Error submitting transfer request: " + error.message);
+    },
+  });
+  
+  const handleSubmitTransfer = ({ selectedSchool, comment }) => {
+    transferMutation.mutate({
+      employeeId,
+      fromSchoolId: schoolId, 
+      toSchoolId: selectedSchool,
+      requestedBy: user.userId,
+      comment,
+    });
+  };
+
   const handleSaveEdit = (updatedData) => {
     updateMutation.mutate({ employeeId, updatedData });
   };
 
-  const handleSubmitTransfer = (selectedSchoolId) => {
-    // Use the schoolId from URL params in your transfer logic
-    console.log(
-      `Transfer requested for employee ${employeeId} from school ${schoolId} to school ${selectedSchoolId}`
-    );
-    setIsTransferMode(false);
-  };
+  
 
-  // Loading and error states for employee details
+  // Loading & error states
   if (employeeLoading || !employee) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -114,7 +134,6 @@ export default function EmployeeDetailPage() {
   const allSchools = districtData.zones.flatMap((zone) =>
     zone.schools.map((school) => ({ ...school, zone: zone.zone }))
   );
-  // Remove the current school from the transfer options using schoolId from params
   const filteredSchools = allSchools.filter(
     (sch) => sch.id !== parseInt(schoolId, 10)
   );
@@ -158,7 +177,7 @@ export default function EmployeeDetailPage() {
           </div>
         </div>
 
-        {/* Edit Mode */}
+        {/* Edit Mode: EmployeeEditForm is integrated here */}
         {isEditMode && (
           <EmployeeEditForm
             initialData={employee}
@@ -171,6 +190,7 @@ export default function EmployeeDetailPage() {
         {isTransferMode && (
           <EmployeeTransferForm
             schools={filteredSchools}
+            currentSchoolId={schoolId}
             onSubmit={handleSubmitTransfer}
             onCancel={() => setIsTransferMode(false)}
           />

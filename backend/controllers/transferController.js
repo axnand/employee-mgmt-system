@@ -13,12 +13,8 @@ import {
  */
 export const getTransferRequests = async (req, res) => {
   try {
-    const { role, schoolId } = req.user;
-    let filter = {};
-    if (role === "schoolAdmin") {
-      filter = { $or: [{ fromSchool: schoolId }, { toSchool: schoolId }] };
-    }
-    const requests = await TransferRequest.find(filter)
+    // Remove any role-based filtering
+    const requests = await TransferRequest.find()
       .populate("employee")
       .populate("fromSchool")
       .populate("toSchool")
@@ -28,6 +24,7 @@ export const getTransferRequests = async (req, res) => {
     res.status(500).json({ message: "Error fetching transfer requests", error });
   }
 };
+
 
 /**
  * POST /api/transfers

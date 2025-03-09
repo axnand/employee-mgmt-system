@@ -5,31 +5,22 @@ import {
   getMySchool,
   getSchoolStatus,
 } from "../controllers/schoolController.js";
-import { protect, isAdmin, isSchoolAdmin } from "../middleware/authMiddleware.js";
+import { protect } from "../middleware/authMiddleware.js";
 
 const router = express.Router();
 
-/**
- * GET /api/schools
- * Protected route - 
- *  - Main admin can view all schools.
- */
-router.get("/", protect, isAdmin, getAllSchools);
+// These endpoints are now accessible by any authenticated user
 
-/**
- * GET /api/schools/mine
- * Protected route - 
- *  - School admin can view details of their own school.
- */
-router.get("/mine", protect, isSchoolAdmin, getMySchool);
+// GET /api/schools/status – returns zones with their schools
+router.get("/status", protect, getSchoolStatus);
 
-/**
- * GET /api/schools/:id
- * Protected route - 
- *  - Main admin can view details of any school by ID.
- */
-router.get("/:id", protect, isAdmin, getSchoolById);
+// GET /api/schools/mine – returns the authenticated user's school (if available)
+router.get("/mine", protect, getMySchool);
 
-router.get("/status", protect, isAdmin, getSchoolStatus);
+// GET /api/schools – returns all schools
+router.get("/", protect, getAllSchools);
+
+// GET /api/schools/:id – returns a specific school by id
+router.get("/:id", protect, getSchoolById);
 
 export default router;
