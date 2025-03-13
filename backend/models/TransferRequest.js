@@ -13,8 +13,10 @@ const TransferRequestSchema = new mongoose.Schema(
       default: "pending",
     },
     comment: { type: String },
+    rejectionReason: { type: String },
   },
   { timestamps: true }
 );
 
-export default mongoose.models.TransferRequest || mongoose.model("TransferRequest", TransferRequestSchema);
+export default mongoose.models.TransferRequest ||
+  mongoose.model("TransferRequest", TransferRequestSchema);

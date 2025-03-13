@@ -18,6 +18,7 @@ import {
 import { School, MapPin, User, Phone } from "lucide-react";
 import { useUser } from "@/context/UserContext";
 import AddEmployeeModal from "./AddEmployeeModal";
+import { ToastContainer, toast } from "react-toastify";
 
 export default function SchoolDetailsCard({ schoolInfo }) {
   const { userRole } = useUser();
@@ -31,6 +32,8 @@ export default function SchoolDetailsCard({ schoolInfo }) {
   useEffect(() => {
     setEmployees(schoolInfo.employees || []);
   }, [schoolInfo]);
+
+  console.log("employees:", employees);
 
   // Employee filter states
   const [searchTerm, setSearchTerm] = useState("");
@@ -47,7 +50,7 @@ export default function SchoolDetailsCard({ schoolInfo }) {
 
   // Filter employees using the proper field names
   const filteredEmployees = employees.filter((emp) => {
-    const matchesSearch = emp.employeeName.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesSearch = emp.fullName.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesCategory = categoryFilter === "" || emp.staffType === categoryFilter;
     const matchesDesignation =
       designationFilter === "" || emp.presentDesignation === designationFilter;
@@ -58,70 +61,45 @@ export default function SchoolDetailsCard({ schoolInfo }) {
   
 
   const handleSaveNewEmployee = async () => {
-    if (!newEmployeeData.employeeId || !newEmployeeData.employeeName || !newEmployeeData.sanctionedPost || !newEmployeeData.staffType) {
-      alert("Please provide all required fields: Employee ID, Name, Designation, and Staff Type.");
-      return;
+    console.log("🔹 Submitting Employee Data:", JSON.stringify(newEmployeeData, null, 2));
+
+    if (!newEmployeeData.staffType || !newEmployeeData.presentDesignation) {
+        alert("Error: Staff Type and Present Designation are required!");
+        return;
     }
-  
+
     try {
-      const token = localStorage.getItem("token"); // Retrieve auth token
-  
-      if (!token) {
-        throw new Error("User not authenticated. Please log in again.");
-      }
-  
-      const response = await fetch("http://localhost:5000/api/employees", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`, // Include auth token
-        },
-        body: JSON.stringify({
-          employeeId: newEmployeeData.employeeId,
-          employeeName: newEmployeeData.employeeName,
-          sanctionedPost: newEmployeeData.sanctionedPost, // Ensure this field matches the API
-          staffType: newEmployeeData.staffType.toLowerCase(), // Convert category to lowercase ("teaching" or "non-teaching")
-          school: schoolInfo._id, // Attach the selected school ID
-          udise_code: schoolInfo.udiseId, // Attach UDISE Code if needed
-          dateOfBirth: newEmployeeData.dateOfBirth || null,
-          dateOfFirstAppointment: newEmployeeData.dateOfFirstAppointment || null,
-          designationAtFirstAppointment: newEmployeeData.designationAtFirstAppointment || "",
-          qualification: newEmployeeData.qualification || "",
-          subjectInPG: newEmployeeData.subjectInPG || "",
-          presentDesignation: newEmployeeData.presentDesignation || "",
-          dateOfLatestPromotion: newEmployeeData.dateOfLatestPromotion || null,
-          dateOfRetirement: newEmployeeData.dateOfRetirement || null,
-          dateOfCurrentPosting: newEmployeeData.dateOfCurrentPosting || null,
-          currentPayScale: newEmployeeData.currentPayScale || "",
-          payLevel: newEmployeeData.payLevel || "",
-          grossSalary: newEmployeeData.grossSalary || "",
-          pensionScheme: newEmployeeData.pensionScheme || "NPS", // Default to NPS
-        }),
-      });
-  
-      const text = await response.text();
-      console.log("Raw API response:", text);
-  
-      if (!response.ok) {
-        throw new Error(`Server Error: ${response.status} - ${text}`);
-      }
-  
-      const data = JSON.parse(text);
-  
-      // Add new employee to the list
-      setEmployees((prevEmployees) => [...prevEmployees, data.employee]);
-  
-      // Refetch school data to update employees
-      queryClient.invalidateQueries({ queryKey: ["school", schoolInfo.id] });
-  
-      // Close modal and reset form
-      setIsAddModalOpen(false);
-      setNewEmployeeData({});
+        const token = localStorage.getItem("token");
+        const response = await fetch("http://localhost:5000/api/employees", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${token}`,
+            },
+            body: JSON.stringify({
+                ...newEmployeeData,
+                staffType: newEmployeeData.staffType ? newEmployeeData.staffType.toLowerCase() : "",
+                presentDesignation: newEmployeeData.presentDesignation || "Unknown",
+                bed: newEmployeeData.bed === "Yes" ? true : false,  // ✅ Convert to Boolean
+            }),
+        });
+
+        const text = await response.text();
+        console.log("🔹 Raw API response:", text);
+
+        if (!response.ok) {
+            throw new Error(`Server Error: ${response.status} - ${text}`);
+        }
+
+        const data = JSON.parse(text);
+        toast.success("Employee Added Successfully");
+        console.log("✅ Employee Added Successfully:", data);
     } catch (error) {
-      console.error("Error adding employee:", error);
-      alert(error.message);
+      toast.error("Error Adding Employee", error.message);
     }
-  };
+};
+
+
   
   
 
@@ -148,6 +126,7 @@ export default function SchoolDetailsCard({ schoolInfo }) {
 
   return (
     <div className="min-h-screen capitalize">
+      <ToastContainer/>
       <div className="max-w-7xl mx-auto">
         {/* School Information */}
         <div className="bg-white border-l-2 border-primary p-6 rounded-lg shadow-sm transition duration-300 mb-8 font-medium text-sm">
@@ -281,7 +260,7 @@ export default function SchoolDetailsCard({ schoolInfo }) {
                       {emp.employeeId}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                      {emp.employeeName}
+                      {emp.fullName}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                       {emp.presentDesignation}

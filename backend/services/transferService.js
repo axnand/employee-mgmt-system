@@ -88,8 +88,9 @@ export const approveTransferRequest = async (requestId, action, currentUser, ip)
  * @param {String} action - "accept" or "reject".
  * @param {Object} currentUser - The receiving school admin.
  * @param {String} ip - Request IP address.
+ * @param {String} [reason] - Reason for rejection (required when action is "reject").
  */
-export const respondToTransferRequest = async (requestId, action, currentUser, ip) => {
+export const respondToTransferRequest = async (requestId, action, currentUser, ip, reason) => {
   const transferRequest = await TransferRequest.findById(requestId);
   if (!transferRequest) {
     throw new Error("Transfer request not found");
@@ -115,7 +116,11 @@ export const respondToTransferRequest = async (requestId, action, currentUser, i
     }
     await toSchool.save();
   } else if (action === "reject") {
+    if (!reason || reason.trim() === "") {
+      throw new Error("Rejection reason is required");
+    }
     transferRequest.status = "rejected";
+    transferRequest.rejectionReason = reason;
   } else {
     throw new Error("Invalid action");
   }
@@ -124,7 +129,7 @@ export const respondToTransferRequest = async (requestId, action, currentUser, i
     admin: currentUser.userId,
     role: currentUser.role,
     action: "Incoming Transfer Response",
-    description: `${action} transfer request ${transferRequest._id}`,
+    description: `${action} transfer request ${transferRequest._id}` + (action === "reject" ? ` with reason: ${reason}` : ""),
     ip,
   });
   return transferRequest;

@@ -91,10 +91,10 @@ export default function StaffStatementDownloadPage() {
       <div>
         <header className="mb-8">
           <h1 className="text-2xl font-bold text-secondary flex items-center gap-2">
-            <File className="w-8 h-8 text-primary" /> Staff statement Download
+            <File className="w-8 h-8 text-primary" /> Reports Download
           </h1>
           <p className="mt-2 font-medium text-sm text-gray-600">
-            Download Excel Staff statement for Schools and their Staff Members
+            Download Excel Reports for Schools and their Staff Members
           </p>
         </header>
 
@@ -111,7 +111,7 @@ export default function StaffStatementDownloadPage() {
               className="block w-full border-gray-300 rounded-md py-2 border px-2 text-sm "
             >
               {userRole !== "schoolAdmin"&&<option value="zones-schools">Zones & Schools Report</option>}
-              <option value="school-employees">School Employees Report</option>
+              <option value="school-employees"> Staff Statement Report</option>
             </select>
           </div>
 

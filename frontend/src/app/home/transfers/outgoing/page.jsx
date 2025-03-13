@@ -143,7 +143,7 @@ export default function OutgoingTransfersPage() {
               </tbody>
             </table>
           </div>
-        )}
+        )} 
       </div>
     </div>
   );

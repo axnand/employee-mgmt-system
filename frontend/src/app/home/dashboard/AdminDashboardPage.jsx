@@ -35,15 +35,30 @@ const fetchSchools = async () => {
 // Fetch all employees (for total staff and staff distribution)
 const fetchEmployees = async () => {
   const res = await axiosClient.get("/employees");
-  return res.data; 
+  console.log("Employees response:", res.data);
+  // If res.data is an array, return it; if it’s an object with an "employees" key, return that.
+  return Array.isArray(res.data) ? res.data : res.data.employees || [];
 };
+
+
+
+
 
 // Fetch all transfers (to compute pending transfers)
 const fetchTransfers = async () => {
-  const res = await axiosClient.get("/transfers");
-  // Based on our routes, response has { transferRequests: [...] }
-  return res.data.transferRequests;
+  try {
+    const res = await axiosClient.get("/transfers");
+    console.log("Transfers response:", res.data);
+    return Array.isArray(res.data?.transferRequests)
+      ? res.data.transferRequests
+      : res.data?.transferRequests || [];
+  } catch (error) {
+    console.error("Error fetching transfers:", error);
+    return [];
+  }
 };
+
+
 
 // Fetch enrollment trends (if available; otherwise, use sample data)
 const fetchEnrollmentTrends = async () => {
@@ -62,14 +77,15 @@ const fetchEnrollmentTrends = async () => {
 const fetchRecentActivities = async () => {
   const res = await axiosClient.get("/logs");
   // Assume logs are sorted descending by createdAt; take top 3.
-  return res.data.logs.slice(0, 3);
+  return res?.data?.logs.slice(0, 3);
 };
 
 // Fetch retirement employees based on filterDays; expects endpoint with query param.
 const fetchRetirements = async (days) => {
   const res = await axiosClient.get(`/employees/retirements?days=${days}`);
-  return res.data.retirements; // expects an array of retirement employee objects
+  return res.data.retirements || []; // Ensure fallback to an empty array
 };
+
 
 // ---------- Dashboard Component ----------
 
@@ -111,11 +127,21 @@ export default function AdminDashboardPage() {
     0
   );
   const totalStaff = employees.length;
-  const pendingTransfers = transfers.filter((t) => t.status === "pending").length;
+
+  const safeTransfers = Array.isArray(transfers) ? transfers : [];
+  const pendingTransfers = safeTransfers.filter((t) => t.status === "pending").length;
+
 
   // Staff distribution: count based on staffType.
-  const teachingCount = employees.filter((emp) => emp.staffType === "teaching").length;
-  const nonTeachingCount = employees.filter((emp) => emp.staffType === "non-teaching").length;
+  const safeEmployees = Array.isArray(employees) ? employees : [];
+
+  const teachingCount = (Array.isArray(employees) ? employees : []).filter(
+    (emp) => emp.staffType === "teaching"
+  ).length;
+  const nonTeachingCount = safeEmployees.filter(
+    (emp) => emp.staffType === "non-teaching"
+  ).length;
+  
   const staffData = [
     { name: "Teaching", value: teachingCount },
     { name: "Non-Teaching", value: nonTeachingCount },

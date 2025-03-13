@@ -2,85 +2,118 @@
 
 import React, { useState, useEffect } from "react";
 import {
-  LayoutDashboard,
   Users,
-  Clipboard,
-  FileText,
   ArrowLeftRight,
-  UserPlus,
-  LogOut,
-  Calendar,
-  School,
+  School as SchoolIcon,
 } from "lucide-react";
 import Link from "next/link";
-import {
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  Legend,
-  ResponsiveContainer,
-} from "recharts";
+import { useQuery } from "@tanstack/react-query";
+import { getMySchool } from "@/api/schoolService";
+import { getTransferRequests } from "@/api/transferService";
+import { getRecentActivities } from "@/api/logService";
+import axiosClient from "@/api/axiosClient";
 
-
-// Mock Data
-const attendanceData = [
-  { date: "2024-02-01", present: 80, absent: 10, leave: 5 },
-  { date: "2024-02-02", present: 75, absent: 12, leave: 8 },
-  { date: "2024-02-03", present: 85, absent: 5, leave: 6 },
-];
-
-
-const retirementEmployees = [
+// --- (Optional) If you have a real API for retirements, use that; otherwise, use mock data ---
+const mockRetirementEmployees = [
   {
     emp_id: 4623,
     school_id: "89",
     emp_name: "Amit Sharma",
     present_designation: "Senior Assistant",
     date_of_retirement: "2025-03-15",
-    
-     // soon (within 30 days if today is 2025-02-23)
   },
   {
     emp_id: 4623,
     school_id: "89",
     emp_name: "Suman Verma",
     present_designation: "Principal",
-    date_of_retirement: "2050-05-15", // far in the future
+    date_of_retirement: "2050-05-15",
   },
   {
     emp_id: 4624,
     school_id: "89",
     emp_name: "Rahul Singh",
     present_designation: "Teacher",
-    date_of_retirement: "2025-03-05", 
+    date_of_retirement: "2025-03-05",
   },
   {
     emp_id: 4625,
     school_id: "89",
     emp_name: "Neha Gupta",
     present_designation: "Vice Principal",
-    date_of_retirement: "2049-03-25", 
+    date_of_retirement: "2049-03-25",
   },
   {
     emp_id: 4627,
     school_id: "89",
     emp_name: "Rohit Kumar",
     present_designation: "Clerk",
-    date_of_retirement: "2025-02-28", // very soon
+    date_of_retirement: "2025-02-28",
   },
 ];
 
-const totalEmployees = 120; // Example count
-const pendingTransfers = 3; // Example pending transfers
-// const attendanceRate = 92; // Example percentage
-
 export default function SchoolAdminDashboard() {
-  const [recentActivities, setRecentActivities] = useState([]);
-  const [filteredRetirements, setFilteredRetirements] = useState([]);
+  // Fetch school details for the logged-in admin
+  const {
+    data: mySchool,
+    isLoading: schoolLoading,
+    error: schoolError,
+  } = useQuery({
+    queryKey: ["mySchool"],
+    queryFn: getMySchool,
+    refetchOnWindowFocus: false,
+  });
+
+  // Fetch all transfer requests
+  const {
+    data: transfersData,
+    isLoading: transfersLoading,
+    error: transfersError,
+  } = useQuery({
+    queryKey: ["transfers"],
+    queryFn: getTransferRequests,
+    refetchOnWindowFocus: false,
+  });
+
+  // Fetch recent activities (logs)
+  const {
+    data: recentActivities,
+    isLoading: activitiesLoading,
+    error: activitiesError,
+  } = useQuery({
+    queryKey: ["recentActivities"],
+    queryFn: getRecentActivities,
+    refetchOnWindowFocus: false,
+  });
+  console.log("Recent Activities:", recentActivities);
+
+
+  // Total employees from mySchool.employees
+  const totalEmployees = mySchool ? mySchool.employees?.length || 0 : 0;
+
+  // Compute pending transfers for this school:
+  // - As source with status "pending"
+  // - As destination with status "approved_by_main"
+  const transferRequests = transfersData?.transferRequests || [];
+  const pendingTransfers = transferRequests.filter((t) => {
+    if (!mySchool) return false;
+    const schoolIdStr = mySchool._id.toString();
+    const isSource =
+      t.fromSchool &&
+      t.fromSchool._id &&
+      t.fromSchool._id.toString() === schoolIdStr &&
+      t.status === "pending";
+    const isReceiving =
+      t.toSchool &&
+      t.toSchool._id &&
+      t.toSchool._id.toString() === schoolIdStr &&
+      t.status === "approved_by_main";
+    return isSource || isReceiving;
+  });
+
+  // Retirement Announcements (using mock data)
   const [filterDays, setFilterDays] = useState(30);
+  const [filteredRetirements, setFilteredRetirements] = useState([]);
 
   const computeDaysLeft = (dateOfRetirement) => {
     const today = new Date();
@@ -90,20 +123,56 @@ export default function SchoolAdminDashboard() {
   };
 
   useEffect(() => {
-      const filtered = retirementEmployees.filter((emp) => {
+    if (mySchool) {
+      const filtered = mockRetirementEmployees.filter((emp) => {
         const daysLeft = computeDaysLeft(emp.date_of_retirement);
         return daysLeft <= filterDays;
       });
       setFilteredRetirements(filtered);
-    }, [filterDays]);
+    }
+  }, [filterDays, mySchool]);
 
-  useEffect(() => {
-    setRecentActivities([
-      { action: "Marked Attendance", time: "2024-02-16 09:00 AM" },
-      { action: "Requested Employee Transfer", time: "2024-02-15 03:30 PM" },
-      { action: "Generated Attendance Report", time: "2024-02-14 12:45 PM" },
-    ]);
-  }, []);
+  // Filter recent activities based on current school.
+  // If activity.school is an object, use activity.school.name; otherwise, use it directly.
+  const filteredActivities =
+    recentActivities?.filter((activity) => {
+      let logSchoolName = "";
+      if (activity.school && typeof activity.school === "object") {
+        logSchoolName = activity.school.name || "";
+      } else {
+        logSchoolName = activity.school || "";
+      }
+      // Compare case-insensitively; if no match, fallback to showing all logs.
+      return logSchoolName.toLowerCase() === (mySchool ? mySchool.name.toLowerCase() : "");
+    }) || [];
+
+  // If filtering yields no activities, we can fall back to all recent activities.
+  const activitiesToShow = filteredActivities.length > 0 ? filteredActivities : recentActivities || [];
+
+  if (schoolLoading || transfersLoading || activitiesLoading) {
+    return <p className="text-center">Loading dashboard data...</p>;
+  }
+  if (schoolError) {
+    return (
+      <p className="text-center text-red-500">
+        Error loading school data: {schoolError.message}
+      </p>
+    );
+  }
+  if (transfersError) {
+    return (
+      <p className="text-center text-red-500">
+        Error loading transfers: {transfersError.message}
+      </p>
+    );
+  }
+  if (activitiesError) {
+    return (
+      <p className="text-center text-red-500">
+        Error loading recent activities: {activitiesError.message}
+      </p>
+    );
+  }
 
   return (
     <div className="grid grid-cols-1 gap-4">
@@ -119,66 +188,47 @@ export default function SchoolAdminDashboard() {
           <div className="text-2xl font-bold">{totalEmployees}</div>
         </div>
 
-        {/* Attendance Rate
-        <div className="bg-white shadow-sm rounded-lg p-4 border-l-2 border-primary">
-          <div className="flex items-center space-x-2">
-            <Clipboard className="h-5 w-5 text-blue-500" />
-            <h3 className="text-[15px] font-semibold">Attendance Rate</h3>
-          </div>
-          <p className="text-[13px] pt-1 text-gray-600">Daily School Attendance</p>
-          <div className="text-2xl font-bold">{attendanceRate}%</div>
-        </div> */}
-
         {/* Pending Transfers */}
         <div className="bg-white shadow-sm rounded-lg p-4 border-l-2 border-primary">
           <div className="flex items-center space-x-2">
             <ArrowLeftRight className="h-5 w-5 text-orange-500" />
             <h3 className="text-[15px] font-semibold">Pending Transfers</h3>
           </div>
-          <p className="text-[13px] pt-1 text-gray-600">Awaiting Approval</p>
-          <div className="text-2xl font-bold">{pendingTransfers}</div>
+          <p className="text-[13px] pt-1 text-gray-600">Awaiting Response</p>
+          <div className="text-2xl font-bold">{pendingTransfers.length}</div>
         </div>
       </div>
 
-      {/* Attendance Chart
-      <div className="bg-white shadow-sm rounded-lg p-4">
-        <h3 className="text-xl font-bold mb-4 text-[#071e38]">Attendance Trends</h3>
-        <ResponsiveContainer width="100%" height={300}>
-          <BarChart data={attendanceData}>
-            <CartesianGrid strokeDasharray="3 3" />
-            <XAxis dataKey="date" tick={{ fontSize: 14, fill: "#0d2745" }} />
-            <YAxis tick={{ fontSize: 14, fill: "#0d2745" }} />
-            <Tooltip contentStyle={{ backgroundColor: "#0a0a0a", color: "#fff" }} />
-            <Legend wrapperStyle={{ fontSize: "14px" }} />
-            <Bar dataKey="present" fill="#377DFF" barSize={40} radius={[5, 5, 0, 0]} />
-            <Bar dataKey="absent" fill="#FF8042" barSize={40} radius={[5, 5, 0, 0]} />
-            <Bar dataKey="leave" fill="#FFBB28" barSize={40} radius={[5, 5, 0, 0]} />
-          </BarChart>
-        </ResponsiveContainer>
-      </div> */}
-
-      {/* Quick Actions */}
+      {/* Recent Activities */}
       <div className="bg-white shadow-sm rounded-lg p-4 border-l-2 border-primary">
-        <h3 className="text-xl font-bold mb-4 text-secondary">Quick Actions</h3>
-        <div className="mt-4 flex gap-x-3 items-center">
-          {/* <Link href="/home/mark-attendance">
-            <button className="w-full py-2 px-4 bg-[#377DFF] text-white rounded shadow-md text-sm font-semibold hover:bg-[#2d6ca3] flex items-center justify-center gap-2">
-              <Clipboard size={16} /> Mark Attendance
-            </button>
-          </Link> */}
-          <Link href="/home/request-transfer">
-            <button className="w-full py-2 px-4 bg-[#377DFF] text-white rounded shadow-md text-sm font-semibold hover:bg-[#2d6ca3] flex items-center justify-center gap-2">
-              <ArrowLeftRight size={16} /> Request Transfer
-            </button>
-          </Link>
-          <Link href="/home/generate-report">
-            <button className="w-full py-2 px-4 bg-[#377DFF] text-white rounded shadow-md text-sm font-semibold hover:bg-[#2d6ca3] flex items-center justify-center gap-2">
-              <FileText size={16} /> Generate Report
-            </button>
+        <h3 className="text-xl font-bold mb-4 text-secondary">Recent Activities</h3>
+        {activitiesToShow && activitiesToShow.length > 0 ? (
+          <div className="space-y-2">
+            {activitiesToShow.map((activity, index) => (
+              <div key={index} className="text-sm text-gray-700">
+                <span className="font-semibold">{activity.action}</span> at{" "}
+                {activity.createdAt
+                  ? new Date(activity.createdAt).toLocaleString()
+                  : "N/A"}
+              </div>
+            ))}
+          </div>
+        ) : (
+          <p className="text-sm text-gray-600">
+            No recent activities found for your school.
+          </p>
+        )}
+        <div className="mt-4 text-right">
+          <Link
+            href="/home/logs"
+            className="text-blue-600 font-semibold hover:underline text-sm"
+          >
+            View All Logs
           </Link>
         </div>
       </div>
 
+      {/* Retirement Announcements */}
       <div className="bg-white shadow-sm rounded-lg p-4 border-l-2 border-primary">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4">
           <h3 className="text-xl font-bold text-gray-800 mb-2 sm:mb-0">
@@ -219,35 +269,33 @@ export default function SchoolAdminDashboard() {
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-200">
-              {filteredRetirements.map((emp) => (
-                <tr key={emp.emp_id}>
-                  <td className="px-4 py-2 text-sm text-gray-800">
-                    {emp.emp_id}
-                  </td>
-                  <td className="px-4 py-2 text-sm text-gray-800">
-                    {emp.emp_name}
-                  </td>
-                  <td className="px-4 py-2 text-sm text-gray-800">
-                    {emp.present_designation}
-                  </td>
-                  <td className="px-4 py-2 text-sm text-gray-800">
-                    {emp.date_of_retirement}
-                  </td>
-                  <td>
-                  <Link href={`/home/school-status/${emp.school_id}/4623`}>
+              {filteredRetirements.length > 0 ? (
+                filteredRetirements.map((emp) => (
+                  <tr key={emp.emp_id}>
+                    <td className="px-4 py-2 text-sm text-gray-800">
+                      {emp.emp_id}
+                    </td>
+                    <td className="px-4 py-2 text-sm text-gray-800">
+                      {emp.emp_name}
+                    </td>
+                    <td className="px-4 py-2 text-sm text-gray-800">
+                      {emp.present_designation}
+                    </td>
+                    <td className="px-4 py-2 text-sm text-gray-800">
+                      {emp.date_of_retirement}
+                    </td>
+                    <td>
+                      <Link href={`/home/school-status/${emp.school_id}/retirement/${emp.emp_id}`}>
                         <button className="py-1 px-3 bg-primary text-white rounded-full font-medium text-xs hover:bg-blue-600 transition">
                           View
                         </button>
                       </Link>
-                  </td>
-                </tr>
-              ))}
-              {filteredRetirements.length === 0 && (
+                    </td>
+                  </tr>
+                ))
+              ) : (
                 <tr>
-                  <td
-                    colSpan="4"
-                    className="px-4 py-2 text-sm text-gray-700 text-center"
-                  >
+                  <td colSpan="5" className="px-4 py-2 text-sm text-gray-700 text-center">
                     No retirements within the next {filterDays} days.
                   </td>
                 </tr>

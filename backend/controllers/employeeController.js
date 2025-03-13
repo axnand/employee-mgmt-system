@@ -66,13 +66,15 @@ export const getEmployeeById = async (req, res) => {
  */
 export const createEmployee = async (req, res) => {
   try {
+    console.log("🔹 Received Employee Data:", JSON.stringify(req.body, null, 2)); // ✅ Debugging Log
+
     const schoolId = req.user.role === "schoolAdmin" ? req.user.schoolId : req.body.school;
 
     if (!schoolId) {
       return res.status(400).json({ message: "School ID is required" });
     }
 
-  const school = await School.findById(schoolId);
+    const school = await School.findById(schoolId);
     if (!school) {
       return res.status(404).json({ message: "School not found" });
     }
@@ -88,12 +90,11 @@ export const createEmployee = async (req, res) => {
     res.status(201).json({ message: "Employee created", employee: newEmployee });
 
   } catch (error) {
-    console.error("Error creating employee:", error);
-
-    // Ensure error response is always JSON
+    console.error("❌ Error creating employee:", error);
     res.status(500).json({ message: "Internal Server Error", error: error.toString() });
   }
 };
+
 
 
 /**

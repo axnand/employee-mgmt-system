@@ -68,12 +68,65 @@ export const approveTransferRequest = async (req, res) => {
  * - Receiving school admin responds to an approved transfer request.
  *   Expected req.body: { action } with "accept" or "reject".
  */
-export const respondToTransferRequest = async (req, res) => {
+export const respondToTransferRequest = async (requestId, action, currentUser, ip, reason) => {
   try {
-    const { action } = req.body; // "accept" or "reject"
-    const transferRequest = await respondTransferService(req.params.id, action, req.user, req.ip);
-    res.json({ message: `Transfer request ${action}ed successfully`, transferRequest });
+    console.log("🔍 Received Transfer Response Request:", { requestId, action, reason });
+
+    // Find the transfer request by ID
+    const transferRequest = await TransferRequest.findById(requestId);
+    if (!transferRequest) {
+      console.error("❌ Transfer request not found:", requestId);
+      throw new Error("Transfer request not found");
+    }
+
+    // Ensure the request has been approved before processing
+    if (transferRequest.status !== "approved_by_main") {
+      console.error("❌ Transfer request not approved yet:", requestId);
+      throw new Error("Transfer request has not been approved by the main admin yet");
+    }
+
+    if (action === "accept") {
+      console.log("✅ Transfer request accepted:", requestId);
+      transferRequest.status = "accepted_by_receiving";
+      // (update schools, etc.)
+
+    } else if (action === "reject") {
+      // Ensure reason is provided for rejection
+      if (!reason || reason.trim() === "") {
+        console.error("❌ Rejection reason is missing");
+        throw new Error("Rejection reason is required");
+      }
+
+      const trimmedReason = reason.trim();
+      transferRequest.status = "rejected";
+      transferRequest.rejectionReason = trimmedReason;
+
+      console.log("❌ Transfer request rejected with reason:", trimmedReason);
+    } else {
+      console.error("❌ Invalid action received:", action);
+      throw new Error("Invalid action");
+    }
+
+    // Save the updated transfer request
+    await transferRequest.save();
+
+    // Log the action
+    await createLog({
+      admin: currentUser.userId,
+      role: currentUser.role,
+      action: "Incoming Transfer Response",
+      description: `${action} transfer request ${transferRequest._id}` + 
+        (action === "reject" ? ` with reason: ${reason}` : ""),
+      ip,
+    });
+
+    console.log("✅ Transfer request updated successfully:", transferRequest);
+    return transferRequest;
+
   } catch (error) {
-    res.status(500).json({ message: "Error responding to transfer request", error: error.message });
+    console.error("🚨 Error processing transfer response:", error.message);
+    throw new Error(error.message);
   }
 };
+
+

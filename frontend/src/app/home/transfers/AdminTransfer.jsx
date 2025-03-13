@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { CheckCircle, XCircle, ArrowDownCircle, Search as SearchIcon } from "lucide-react";
+import { CheckCircle, XCircle, ArrowDownCircle, Search as SearchIcon, ArrowLeftRightIcon } from "lucide-react";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -66,7 +66,7 @@ export default function MainAdminTransfersPage() {
       <ToastContainer position="top-right" autoClose={3000} />
       <header className="mb-10 max-w-7xl mx-auto px-4">
         <h1 className="text-2xl font-bold text-secondary flex items-center gap-2">
-          <ArrowDownCircle className="w-8 h-8 text-primary" />
+          <ArrowLeftRightIcon className="w-8 h-8 text-primary" />
           Transfer Requests (Main Admin)
         </h1>
         <p className="mt-2 text-sm font-medium text-gray-600">
