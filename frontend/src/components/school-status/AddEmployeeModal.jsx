@@ -507,14 +507,21 @@ export default function AddEmployeeModal({
           {/* Basis of Work */}
           <div>
             <label className="font-semibold text-gray-600 block mb-1">Basis of Work</label>
-            <input
-              type="text"
+            <select
               name="basisOfWork"
               value={newEmployeeData.basisOfWork || ""}
               onChange={(e) => setNewEmployeeData({ ...newEmployeeData, basisOfWork: e.target.value })}
               className="border border-gray-300 rounded w-full p-2"
-            />
+            >
+              <option value="">Select Basis of Work</option>
+              <option value="DEPUTED">DEPUTED</option>
+              <option value="FILLED">FILLED</option>
+              <option value="SUPERNUMERARY">SUPERNUMERARY</option>
+              <option value="PAYORDER">PAYORDER</option>
+              <option value="OTHER">OTHER</option>
+            </select>
           </div>
+
           {/* Highest Qualification */}
           <div>
     <label className="font-semibold text-gray-600 block mb-1">Highest Qualification</label>
