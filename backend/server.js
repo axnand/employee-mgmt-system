@@ -5,6 +5,7 @@ import authRoutes from './routes/authRoutes.js';
 import employeeRoutes from './routes/employeeRoutes.js';
 import schoolRoutes from './routes/schoolRoutes.js';
 import transferRoutes from './routes/transferRoutes.js';
+import uploadRoutes from "./routes/uploadRoutes.js";
 import logRoutes from './routes/logRoutes.js';
 import { errorHandler } from "./middleware/errorMiddleware.js";
 import cors from 'cors';
@@ -24,6 +25,7 @@ app.use("/api/employees", employeeRoutes);
 app.use("/api/logs", logRoutes);
 app.use("/api/schools", schoolRoutes);
 app.use("/api/transfers", transferRoutes);
+app.use("/api/uploads", uploadRoutes);
 app.get("/", (req, res) => {
     res.send("Server is up and running!");
   });

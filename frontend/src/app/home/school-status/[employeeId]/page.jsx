@@ -1,7 +1,7 @@
 "use client";
 
 import { useParams, useRouter } from "next/navigation";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { ChevronLeft, User } from "lucide-react";
 import EmployeeEditForm from "@/components/school-status/EmployeeEditForm";
@@ -24,6 +24,26 @@ const fetchEmployeeDetails = async (employeeId) => {
   }
   return res.json();
 };
+
+async function handleImageUpload(file) {
+  const formData = new FormData();
+  formData.append("file", file);
+
+  const res = await fetch("http://localhost:5000/api/uploads", {  // ✅ Make sure this matches your backend
+    method: "POST",
+    body: formData,
+  });
+
+  if (!res.ok) {
+    const errorText = await res.text();
+    console.error("Upload failed:", errorText);
+    throw new Error("Failed to upload image: " + errorText);
+  }
+
+  const data = await res.json();
+  return data.url;
+}
+
 
 // Update employee details via backend (PUT endpoint)
 const updateEmployeeDetails = async ({ employeeId, updatedData }) => {
@@ -48,9 +68,19 @@ const updateEmployeeDetails = async ({ employeeId, updatedData }) => {
 // --- Main Component ---
 export default function EmployeeDetailPage() {
   const router = useRouter();
+  const [isUploading, setIsUploading] = useState(false);
   const {employeeId } = useParams(); 
   const queryClient = useQueryClient();
   const { user } = useUser();
+  const fileInputRef = useRef(null);
+
+  const handleUploadProfilePicture = () => {
+    if (fileInputRef.current) {
+      fileInputRef.current.click();
+    }
+  };
+
+  
   
   const schoolId = user?.schoolId;
   const {
@@ -112,6 +142,36 @@ export default function EmployeeDetailPage() {
     updateMutation.mutate({ employeeId, updatedData });
   };
 
+
+  
+  const handleFileChange = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    try {
+      setIsUploading(true);
+      const photoUrl = await handleImageUpload(file);
+      console.log("Uploaded photo URL:", photoUrl);
+      
+      // Call update mutation to update the employee's photograph field
+      updateMutation.mutate(
+        { employeeId: employee._id, updatedData: { photograph: photoUrl } },
+        {
+          onSuccess: () => {
+            setIsUploading(false);
+            toast.success("Profile picture updated successfully");
+          },
+          onError: (error) => {
+            setIsUploading(false);
+            console.error("Error updating profile picture:", error);
+            toast.error(error.message);
+          },
+        }
+      );
+    } catch (error) {
+      console.error("Error uploading profile picture:", error);
+      toast.error(error.message);
+    }
+  };
   
 
   // Loading & error states
@@ -154,12 +214,20 @@ export default function EmployeeDetailPage() {
         {/* Page Header: Employee Name + Action Buttons */}
         <div className="bg-white shadow-sm border-l-4 border-primary rounded-lg p-6 mb-6 flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <User className="w-10 h-10 text-primary" />
-            <h1 className="text-2xl font-bold text-gray-800">
-            {employee.fullName}
-            </h1>
+            {employee.photograph ? (
+              <img
+                src={employee.photograph}
+                alt="Profile"
+                className="w-10 h-10 rounded-full object-cover"
+              />
+            ) : (
+              <div className="w-10 h-10 bg-gray-300 rounded-full flex items-center justify-center">
+                <User className="w-6 h-6 text-white" />
+              </div>
+            )}
+            <h1 className="text-2xl font-bold text-gray-800">{employee.fullName}</h1>
           </div>
-          <div className="flex gap-4">
+          <div className="flex flex-col gap-2">
             {!isEditMode && !isTransferMode && (
               <>
                 <button
@@ -176,6 +244,21 @@ export default function EmployeeDetailPage() {
                 </button>
               </>
             )}
+            <button
+    onClick={handleUploadProfilePicture}
+    className={`font-semibold text-[13px] px-4 py-2 transition text-white rounded ${isUploading ? "bg-gray-400 cursor-not-allowed" : "bg-gray-500 hover:bg-gray-600"}`}
+    disabled={isUploading}
+>
+    {isUploading ? "Uploading..." : "Upload Profile Picture"}
+</button>
+            {/* Hidden file input */}
+            <input
+              type="file"
+              accept="image/*"
+              ref={fileInputRef}
+              onChange={handleFileChange}
+              className="hidden"
+            />
           </div>
         </div>
 

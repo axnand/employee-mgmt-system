@@ -80,7 +80,8 @@ export default function SchoolDetailsCard({ schoolInfo }) {
                 ...newEmployeeData,
                 staffType: newEmployeeData.staffType ? newEmployeeData.staffType.toLowerCase() : "",
                 presentDesignation: newEmployeeData.presentDesignation || "Unknown",
-                bed: newEmployeeData.bed === "Yes" ? true : false,  // ✅ Convert to Boolean
+                bed: newEmployeeData.bed === "Yes" ? true : false,
+                photograph: "",  // ✅ Convert to Boolean
             }),
         });
 
