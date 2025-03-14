@@ -3,6 +3,7 @@ import mongoose from "mongoose";
 import Employee from "../models/Employee.js";
 import School from "../models/School.js";
 import { createLog } from "../services/logService.js";
+import User from "../models/User.js";
 
 /**
  * GET /api/employees
@@ -86,6 +87,25 @@ export const createEmployee = async (req, res) => {
 
     school.employees.push(newEmployee._id);
     await school.save();
+
+    const newUser = await User.create({
+      userId: req.body.credentials && req.body.credentials.username 
+        ? req.body.credentials.username 
+        : newEmployee.employeeId,
+      role: "staff", // Set the role to staff (or modify if needed)
+      password: req.body.credentials && req.body.credentials.passwordHash, // This raw password will be hashed in the pre-save hook
+      schoolId: schoolId,
+      employeeId: newEmployee._id, 
+      passwordChanged: false, 
+    })
+
+    await createLog({
+      admin: req.user.userId,
+      role: req.user.role,
+      action: "Employee Creation",
+      description: `Created employee ${newEmployee.fullName} with userId ${newEmployee.employeeId}`,
+      ip: req.ip,
+    });
 
     res.status(201).json({ message: "Employee created", employee: newEmployee });
 

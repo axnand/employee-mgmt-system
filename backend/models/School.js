@@ -3,7 +3,7 @@ import mongoose from "mongoose";
 
 const SchoolSchema = new mongoose.Schema(
   {
-    udiseId: { type: String, required: true, unique: true }, // Unique identifier provided by admin
+    udiseId: { type: String, required: true, unique: true },
     name: { type: String, required: true },
     address: { type: String },
     principal: { type: String },

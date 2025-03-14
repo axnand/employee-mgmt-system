@@ -3,7 +3,6 @@ import {
   loginUser,
   updatePassword,
   registerSchoolAdmin,
-  registerStaff,
 } from "../controllers/authController.js";
 import { protect, isAdmin, isSchoolAdmin } from "../middleware/authMiddleware.js";
 
@@ -31,6 +30,6 @@ router.post("/register-school-admin", protect, isAdmin, registerSchoolAdmin);
  * POST /api/auth/register-staff
  * Protected route - School admin (or main admin) can register new staff.
  */
-router.post("/register-staff", protect, isSchoolAdmin, registerStaff);
+
 
 export default router;
