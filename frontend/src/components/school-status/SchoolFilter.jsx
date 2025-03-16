@@ -12,7 +12,7 @@ export default function SchoolFilter({
   onSchoolChange,
 }) {
   return (
-    <div className="bg-white p-6 rounded-lg shadow-sm mb-8 border-l-2 border-primary">
+    <div className="bg-white p-6 rounded-lg shadow-sm mb-8 border-l-[3px] border-primary">
       <div className="flex flex-col md:flex-row md:items-end md:space-x-4">
         {/* Zone Filter */}
         <div className="flex-1 mb-4 md:mb-0">

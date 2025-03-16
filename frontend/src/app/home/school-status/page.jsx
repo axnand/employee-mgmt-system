@@ -119,7 +119,7 @@ export default function SchoolStatusPage() {
 
   return (
     <div className="min-h-screen capitalize">
-      <div className="max-w-7xl mx-auto px-4">
+      <div className="">
         <header className="mb-8">
           <h1 className="text-2xl font-bold text-secondary flex items-center gap-2">
             School Status Dashboard

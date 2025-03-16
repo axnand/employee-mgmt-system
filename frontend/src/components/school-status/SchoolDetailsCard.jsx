@@ -130,7 +130,7 @@ export default function SchoolDetailsCard({ schoolInfo }) {
       <ToastContainer/>
       <div className="max-w-7xl mx-auto">
         {/* School Information */}
-        <div className="bg-white border-l-2 border-primary p-6 rounded-lg shadow-sm transition duration-300 mb-8 font-medium text-sm">
+        <div className="bg-white border-l-[3px] border-primary p-6 rounded-lg shadow-sm transition duration-300 mb-8 font-medium text-sm">
           <div className="flex items-center gap-3">
             <School className="w-7 h-7 text-primary" />
             <h1 className="text-2xl font-bold text-secondary">{schoolInfo.name}</h1>
@@ -156,7 +156,7 @@ export default function SchoolDetailsCard({ schoolInfo }) {
         </div>
 
         {/* Employee Filter */}
-        <div className="bg-white p-6 rounded-lg shadow-sm mb-8 border-l-2 border-primary">
+        <div className="bg-white p-6 rounded-lg shadow-sm mb-8 border-l-[3px] border-primary">
           <h2 className="text-xl font-semibold text-gray-800 mb-4">Filter Employees</h2>
           <div className="flex flex-col md:flex-row md:items-end md:space-x-4">
             <div className="flex-1 mb-4 md:mb-0">
@@ -213,7 +213,7 @@ export default function SchoolDetailsCard({ schoolInfo }) {
 
         {/* Summary Cards */}
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-          <div className="bg-white shadow-sm rounded-lg p-4 flex flex-col border-l-2 border-primary">
+          <div className="bg-white shadow-sm rounded-lg p-4 flex flex-col border-l-[3px] border-primary">
             <div className="flex items-center space-x-2">
               <Users className="h-5 w-5 text-purple-700" />
               <h3 className="text-[15px] font-semibold">Total Employees</h3>

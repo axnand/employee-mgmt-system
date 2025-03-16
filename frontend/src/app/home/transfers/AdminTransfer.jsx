@@ -22,9 +22,9 @@ export default function MainAdminTransfersPage() {
 
   // For main admin, show only transfers that are pending
   const pendingTransfers =
-    transfersData?.transferRequests.filter(
-      (t) => t.status.toLowerCase() === "pending"
-    ) || [];
+  (transfersData?.transferRequests ?? []).filter(
+    (t) => t.status?.toLowerCase() === "pending"
+  );
 
   // Mutation for approving or rejecting a transfer request (using the approve endpoint)
   const approveMutation = useMutation({
@@ -64,7 +64,7 @@ export default function MainAdminTransfersPage() {
   return (
     <div className="min-h-screen pb-8">
       <ToastContainer position="top-right" autoClose={3000} />
-      <header className="mb-10 max-w-7xl mx-auto px-4">
+      <header className="mb-10 ">
         <h1 className="text-2xl font-bold text-secondary flex items-center gap-2">
           <ArrowLeftRightIcon className="w-8 h-8 text-primary" />
           Transfer Requests (Main Admin)
@@ -73,7 +73,7 @@ export default function MainAdminTransfersPage() {
           Review and update transfer requests.
         </p>
       </header>
-      <div className="max-w-7xl mx-auto px-4 mb-8">
+      <div className=" mb-8">
         <div className="bg-white p-6 rounded-lg shadow-sm border-l-4 border-primary">
           <div className="relative flex-1">
             <SearchIcon className="w-5 h-5 text-gray-400 absolute top-3 left-3" />
@@ -87,7 +87,7 @@ export default function MainAdminTransfersPage() {
           </div>
         </div>
       </div>
-      <div className="max-w-7xl mx-auto px-4 bg-white p-6 rounded-lg shadow-sm">
+      <div className=" bg-white p-6 rounded-lg shadow-sm">
         {isLoading ? (
           <p>Loading transfer requests...</p>
         ) : error ? (

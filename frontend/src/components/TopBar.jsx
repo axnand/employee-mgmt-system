@@ -17,7 +17,7 @@ export function TopBar() {
 
   return (
     <header className="bg-white shadow-sm">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className=" sm:px-6 lg:px-8">
         <div className="flex justify-between items-center gap-6 h-16">
           <div className="font-bold text-xl text-secondary">Welcome, Sahil..</div>
           <div className="flex justify-end items-center gap-6 h-16">

@@ -13,6 +13,7 @@
     import { formatDate } from "@/utils/dateUtils";
     import Calendar from "react-calendar";
     import "react-calendar/dist/Calendar.css";
+    import { useUser } from "@/context/UserContext";
 
     import "@/styles/customCalendar.css"
 
@@ -135,6 +136,8 @@
       const [attendanceHistory, setAttendanceHistory] = useState([]);
       const [transferHistory, setTransferHistory] = useState([]);
       const [selectedDate, setSelectedDate] = useState(new Date());
+      const { user } = useUser();
+      console.log("User:", user);
 
       useEffect(() => {
         // In production, fetch the employee's attendance and transfer history via an API
@@ -368,7 +371,7 @@
               <p className="text-gray-500 text-sm mb-8">
                 Your transfer requests in a timeline
               </p>
-              <div className="relative border-l-2 border-dashed border-gray-300 ml-6 text-sm">
+              <div className="relative border-l-[3px] border-dashed border-gray-300 ml-6 text-sm">
                 {transferHistory.map((transfer, index) => (
                   <div key={index} className="mb-10 ml-8 flex">
                     <span className="flex absolute -left-[19px] justify-center items-center p-2 rounded-full bg-blue-100 ring-2 ring-primary">

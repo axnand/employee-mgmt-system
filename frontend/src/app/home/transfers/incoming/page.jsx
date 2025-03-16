@@ -160,15 +160,15 @@ export default function TransferHistoryPage() {
   }
 
   return (
-    <div className="min-h-screen pb-8">
+    <div className="min-h-screen pb-8 ">
       <ToastContainer position="top-right" autoClose={3000} />
-      <header className="mb-10 max-w-7xl mx-auto px-4">
+      <header className="mb-10  ">
         <h1 className="text-2xl font-bold text-secondary">Transfer History</h1>
         <p className="mt-2 text-sm font-medium text-gray-600">
           View all transfer requests related to your school.
         </p>
       </header>
-      <div className="max-w-7xl mx-auto px-4 mb-8">
+      <div className="  mb-8">
         <div className="bg-white p-6 rounded-lg shadow-sm border-l-4 border-primary">
           <div className="relative flex-1">
             <SearchIcon className="w-5 h-5 text-gray-400 absolute top-3 left-3" />
@@ -184,7 +184,7 @@ export default function TransferHistoryPage() {
       </div>
 
       {/* Current Incoming Requests */}
-      <div className="max-w-7xl mx-auto px-4 bg-white p-6 rounded-lg shadow-sm mb-8">
+      <div className=" px-4 bg-white p-6 rounded-lg shadow-sm mb-8 border-l-[3px] border-primary">
         <h2 className="text-xl font-bold text-secondary mb-4">Current Transfer Requests</h2>
         {filteredCurrent.length > 0 ? (
           <div className="overflow-x-auto">
@@ -258,7 +258,7 @@ export default function TransferHistoryPage() {
       </div>
 
       {/* Transfer History */}
-      <div className="max-w-7xl mx-auto px-4 bg-white p-6 rounded-lg shadow-sm">
+      <div className=" bg-white p-6 rounded-lg shadow-sm">
         <h2 className="text-xl font-bold text-secondary mb-4">Transfer History</h2>
         {filteredHistory.length > 0 ? (
           <div className="overflow-x-auto">

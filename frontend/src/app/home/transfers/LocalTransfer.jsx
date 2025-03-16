@@ -131,7 +131,7 @@ export default function LocalTransfersPage() {
       </header>
 
       {/* Search Bar */}
-      {/* <div className="max-w-7xl mx-auto px-4 mb-8">
+      {/* <div className=" mb-8">
         <div className="bg-white p-6 rounded-lg shadow-sm border-l-4 border-primary">
           <div className="relative">
             <SearchIcon className="w-5 h-5 text-gray-400 absolute top-3 left-3" />
@@ -147,7 +147,7 @@ export default function LocalTransfersPage() {
       </div> */}
 
       {/* Outgoing Transfers */}
-      <div className="max-w-7xl mx-auto px-4 bg-white p-6 rounded-lg shadow-sm my-12">
+      <div className=" bg-white p-6 rounded-lg shadow-sm my-12">
       <div className="flex items-center space-x-2 mb-4">
   <LogOut className="h-5 w-5 text-orange-500 " />
   <h2 className="text-lg font-semibold text-gray-800 ">Outgoing</h2>
@@ -205,7 +205,7 @@ export default function LocalTransfersPage() {
       </div>
 
       {/* Incoming Transfers */}
-      <div className="max-w-7xl mx-auto px-4 bg-white p-6 rounded-lg shadow-sm">
+      <div className=" bg-white p-6 rounded-lg shadow-sm">
       <div className="flex items-center space-x-2 mb-4">
   <LogIn className="h-5 w-5 text-blue-500" />
   <h2 className="text-lg font-semibold text-gray-800  text-center">Ingoing</h2>

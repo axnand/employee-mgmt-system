@@ -179,7 +179,7 @@ export default function SchoolAdminDashboard() {
       {/* Stats Cards */}
       <div className="grid gap-4 md:grid-cols-3 lg:grid-cols-4">
         {/* Total Employees */}
-        <div className="bg-white shadow-sm rounded-lg p-4 border-l-2 border-primary">
+        <div className="bg-white shadow-sm rounded-lg p-4 border-l-[3px] border-primary">
           <div className="flex items-center space-x-2">
             <Users className="h-5 w-5 text-green-500" />
             <h3 className="text-[15px] font-semibold">Total Employees</h3>
@@ -189,7 +189,7 @@ export default function SchoolAdminDashboard() {
         </div>
 
         {/* Pending Transfers */}
-        <div className="bg-white shadow-sm rounded-lg p-4 border-l-2 border-primary">
+        <div className="bg-white shadow-sm rounded-lg p-4 border-l-[3px] border-primary">
           <div className="flex items-center space-x-2">
             <ArrowLeftRight className="h-5 w-5 text-orange-500" />
             <h3 className="text-[15px] font-semibold">Pending Transfers</h3>
@@ -200,7 +200,7 @@ export default function SchoolAdminDashboard() {
       </div>
 
       {/* Recent Activities */}
-      <div className="bg-white shadow-sm rounded-lg p-4 border-l-2 border-primary">
+      <div className="bg-white shadow-sm rounded-lg p-4 border-l-[3px] border-primary">
         <h3 className="text-xl font-bold mb-4 text-secondary">Recent Activities</h3>
         {activitiesToShow && activitiesToShow.length > 0 ? (
           <div className="space-y-2">
@@ -229,7 +229,7 @@ export default function SchoolAdminDashboard() {
       </div>
 
       {/* Retirement Announcements */}
-      <div className="bg-white shadow-sm rounded-lg p-4 border-l-2 border-primary">
+      <div className="bg-white shadow-sm rounded-lg p-4 border-l-[3px] border-primary">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4">
           <h3 className="text-xl font-bold text-gray-800 mb-2 sm:mb-0">
             Retirement Announcements

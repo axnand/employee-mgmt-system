@@ -153,7 +153,7 @@ export default function AdminDashboardPage() {
       {/* Top Stats Row */}
       <div className="grid gap-4 md:grid-cols-4 lg:grid-cols-4">
         {/* Total Schools */}
-        <div className="bg-white shadow-sm rounded-lg p-4 flex flex-col border-l-2 border-primary">
+        <div className="bg-white shadow-sm rounded-lg p-4 flex flex-col border-l-[3px] border-primary">
           <div className="flex items-center space-x-2">
             <SchoolIcon className="h-5 w-5 text-blue-500" />
             <h3 className="text-[15px] font-semibold text-gray-800">
@@ -169,7 +169,7 @@ export default function AdminDashboardPage() {
         </div>
 
         {/* Total Employees */}
-        <div className="bg-white shadow-sm rounded-lg p-4 flex flex-col border-l-2 border-primary">
+        <div className="bg-white shadow-sm rounded-lg p-4 flex flex-col border-l-[3px] border-primary">
           <div className="flex items-center space-x-2">
             <Users className="h-5 w-5 text-green-500" />
             <h3 className="text-[15px] font-semibold text-gray-800">
@@ -185,7 +185,7 @@ export default function AdminDashboardPage() {
         </div>
 
         {/* Total Students */}
-        <div className="bg-white shadow-sm rounded-lg p-4 flex flex-col border-l-2 border-primary">
+        <div className="bg-white shadow-sm rounded-lg p-4 flex flex-col border-l-[3px] border-primary">
           <div className="flex items-center space-x-2">
             <LayoutDashboard className="h-5 w-5 text-purple-500" />
             <h3 className="text-[15px] font-semibold text-gray-800">
@@ -201,7 +201,7 @@ export default function AdminDashboardPage() {
         </div>
 
         {/* Pending Transfers */}
-        <div className="bg-white shadow-sm rounded-lg p-4 flex flex-col border-l-2 border-primary">
+        <div className="bg-white shadow-sm rounded-lg p-4 flex flex-col border-l-[3px] border-primary">
           <div className="flex items-center space-x-2">
             <ArrowLeftRight className="h-5 w-5 text-orange-500" />
             <h3 className="text-[15px] font-semibold text-gray-800">
@@ -263,7 +263,7 @@ export default function AdminDashboardPage() {
       </div>
 
       {/* Recent Activities */}
-      <div className="bg-white shadow-sm rounded-lg p-4 border-l-2 border-primary">
+      <div className="bg-white shadow-sm rounded-lg p-4 border-l-[3px] border-primary">
   <h3 className="text-xl font-bold mb-4 text-gray-800">
     Recent Activities
   </h3>
@@ -305,7 +305,7 @@ export default function AdminDashboardPage() {
 
 
       {/* Retirement Announcements - Employee Retirement Table with Filter */}
-      <div className="bg-white shadow-sm rounded-lg p-4 border-l-2 border-primary">
+      <div className="bg-white shadow-sm rounded-lg p-4 border-l-[3px] border-primary">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4">
           <h3 className="text-xl font-bold text-gray-800 mb-2 sm:mb-0">
             Retirement Announcements

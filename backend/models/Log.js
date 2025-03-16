@@ -5,9 +5,9 @@ const LogSchema = new mongoose.Schema(
     admin: { type: String, required: true }, // e.g., name or username
     role: { type: String, required: true }, // e.g., "Super Admin" or "Admin"
     action: { type: String, required: true }, // e.g., "Login", "Employee Transfer"
-    school: { type: String, default: "-" }, // school name or "-" if not applicable
+    school: { type: String, default: "-" }, 
     description: { type: String, required: true },
-    ip: { type: String }, // optional, if available
+    ip: { type: String }, 
     timestamp: { type: Date, default: Date.now }
   },
   { timestamps: true }
