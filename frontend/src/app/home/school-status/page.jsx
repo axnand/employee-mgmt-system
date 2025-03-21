@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
 import { useUser } from "@/context/UserContext";
@@ -8,7 +8,7 @@ import SchoolFilter from "@/components/school-status/SchoolFilter";
 import SchoolDetailsCard from "@/components/school-status/SchoolDetailsCard";
 import { getAllSchools, getSchoolById, getMySchool } from "@/api/schoolService";
 
-export default function SchoolStatusPage() {
+function SchoolStatusPageContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
 
@@ -156,5 +156,14 @@ export default function SchoolStatusPage() {
         )}
       </div>
     </div>
+  );
+}
+
+// Wrap inside Suspense
+export default function SchoolStatusPage() {
+  return (
+    <Suspense fallback={<p className="text-center">Loading...</p>}>
+      <SchoolStatusPageContent />
+    </Suspense>
   );
 }
