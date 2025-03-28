@@ -1,4 +1,3 @@
-// models/Zone.js
 import mongoose from "mongoose";
 
 const ZoneSchema = new mongoose.Schema(
