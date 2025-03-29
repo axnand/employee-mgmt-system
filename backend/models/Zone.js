@@ -4,7 +4,7 @@ const ZoneSchema = new mongoose.Schema(
   {
     name: { type: String, required: true },
     district: { type: mongoose.Schema.Types.ObjectId, ref: "District", required: true },
-    schools: [{ type: mongoose.Schema.Types.ObjectId, ref: "School" }],
+    offices: [{ type: mongoose.Schema.Types.ObjectId, ref: "Office" }],
     zedioOfficer: { type: mongoose.Schema.Types.ObjectId, ref: "Employee", unique: true, sparse: true },
   },
   { timestamps: true }

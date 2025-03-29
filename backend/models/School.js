@@ -1,4 +1,3 @@
-// models/School.js
 import mongoose from "mongoose";
 
 const SchoolSchema = new mongoose.Schema(
