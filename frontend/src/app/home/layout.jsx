@@ -261,9 +261,9 @@ export default function DashboardLayout({ children }) {
 
       {/* Main Content */}
       <div className="flex-1 flex flex-col overflow-hidden">
-        <div className="flex-none">
+        {/* <div className="flex-none">
           <TopBar />
-        </div>
+        </div> */}
         <main className="flex-1 bg-gray-50 p-6 px-11 overflow-y-auto">
           {isLoading ? (
             <div className="flex justify-center items-center h-full">

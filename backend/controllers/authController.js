@@ -4,6 +4,7 @@ import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import { createLog } from "../services/logService.js";
 import {
+  registerZonalAdmin as registerZonalAdminService,
   registerSchoolAdmin as registerAdminService,
   registerStaff as registerStaffService,
   updatePassword as updatePasswordService
@@ -46,18 +47,25 @@ export const loginUser = async (req, res) => {
       forcePasswordChange: !user.passwordChanged,
     };
 
+    const token = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: "1d" });
+
     // For schoolAdmin, include schoolId
-    if (user.role === "schoolAdmin") {
+    if (user.role.roleName === "schoolAdmin") {
       payload.schoolId = user.schoolId;
     }
-
-    // For staff, include employeeId (and optionally schoolId if needed)
-    if (user.role === "staff") {
+    
+    if (user.role.roleName === "staff") {
       payload.employeeId = user.employeeId;
       payload.schoolId = user.schoolId;
     }
 
-    const token = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: "1d" });
+    if (user.role.roleName === "ZEO") {
+      payload.zoneId = user.zoneId;
+    }
+
+    if (user.role.roleName === "CEO") {
+      payload.districtId = user.districtId;
+    }
 
     await createLog({
       admin: userId,

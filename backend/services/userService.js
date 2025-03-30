@@ -12,6 +12,22 @@ import bcrypt from "bcrypt";
  * @param {Object} currentUser - The user making the request (main admin).
  * @param {String} ip - Request IP address.
  */
+
+export const registerZonalAdmin = async ({ userName, password, zoneId }, currentUser, ip) => {
+  const existingUser = await User.findOne({ userName });
+  if (existingUser) throw new Error("User already exists");
+
+  const newUser = new User({
+    userName,
+    password,
+    role: "ZEO",
+    zoneId,
+    passwordChanged: false
+  });
+
+  await newUser.save();
+  return newUser;
+};
 export const registerSchoolAdmin = async ({ userId, password, schoolId }, currentUser, ip) => {
   const existingUser = await User.findOne({ userId });
   if (existingUser) {
@@ -45,6 +61,8 @@ export const registerSchoolAdmin = async ({ userId, password, schoolId }, curren
  * @param {Object} currentUser - The user making the request.
  * @param {String} ip - Request IP address.
  */
+
+
 export const registerStaff = async ({ userId, password, employeeId }, currentUser, ip) => {
   const existingUser = await User.findOne({ userId });
   if (existingUser) {
