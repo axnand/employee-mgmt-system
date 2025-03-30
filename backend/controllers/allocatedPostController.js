@@ -1,7 +1,7 @@
 
 import AllocatedPosts from "../models/AllocatedPosts.js";
 import Office from "../models/Office.js";
-import Post from "../models/Post.js";
+import Post from "../models/Posts.js";
 
 export const getAllocatedPosts = async (req, res) => {
   try {
