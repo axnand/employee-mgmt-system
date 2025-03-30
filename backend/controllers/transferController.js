@@ -13,15 +13,30 @@ import {
  */
 export const getTransferRequests = async (req, res) => {
   try {
-    // Remove any role-based filtering
-    const requests = await TransferRequest.find()
+    let query = {};
+
+    if (req.user.role.roleName === "CEO") {
+      query = {}; // View all requests
+    } 
+    else if (req.user.role.roleName === "ZEO") {
+      query = { fromZone: req.user.zoneId };
+    } 
+    else if (req.user.role.roleName === "School") {
+      query = { $or: [{ fromSchool: req.user.schoolId }, { toSchool: req.user.schoolId }] };
+    } 
+    else {
+      return res.status(403).json({ message: "Not authorized to view transfer requests" });
+    }
+
+    const requests = await TransferRequest.find(query)
       .populate("employee")
       .populate("fromSchool")
       .populate("toSchool")
       .exec();
+      
     res.json({ transferRequests: requests });
   } catch (error) {
-    res.status(500).json({ message: "Error fetching transfer requests", error });
+    res.status(500).json({ message: "Error fetching transfer requests", error: error.message });
   }
 };
 
