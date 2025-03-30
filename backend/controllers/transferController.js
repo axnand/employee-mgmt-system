@@ -1,5 +1,6 @@
 // controllers/transferController.js
 import TransferRequest from "../models/TransferRequest.js";
+import TransferRemark from "../models/TransferRemark.js";
 import { 
   createTransferRequest as createTransferRequestService,
   approveTransferRequest as approveTransferService,
@@ -57,6 +58,13 @@ export const createTransferRequest = async (req, res) => {
       req.user,
       req.ip
     );
+
+    await TransferRemark.create({
+      transferRequest: transferRequest._id,
+      remarkType: "RequestCreation",
+      remarkText: comment || "No remarks provided",
+      addedBy: req.user.userId,
+    });
     res.status(201).json({ message: "Transfer request created", transferRequest });
   } catch (error) {
     res.status(500).json({ message: "Error creating transfer request", error: error.message });
@@ -72,6 +80,13 @@ export const approveTransferRequest = async (req, res) => {
   try {
     const { action } = req.body; // "approve" or "reject"
     const transferRequest = await approveTransferService(req.params.id, action, req.user, req.ip);
+    await TransferRemark.create({
+      transferRequest: transferRequest._id,
+      remarkType: action === "approve" ? "MainAdminApproval" : "Rejection",
+      remarkText: remarkText || "No remarks provided",
+      addedBy: req.user.userId,
+    });
+
     res.json({ message: `Transfer request ${action}d successfully`, transferRequest });
   } catch (error) {
     res.status(500).json({ message: "Error processing transfer request", error: error.message });
@@ -89,6 +104,13 @@ export const respondToTransferRequest = async (requestId, action, currentUser, i
 
     // Find the transfer request by ID
     const transferRequest = await TransferRequest.findById(requestId);
+    await TransferRemark.create({
+      transferRequest: transferRequest._id,
+      remarkType: action === "accept" ? "SchoolAdminApproval" : "Rejection",
+      remarkText: reason || "No remarks provided",
+      addedBy: req.user.userId,
+    });
+    
     if (!transferRequest) {
       console.error("❌ Transfer request not found:", requestId);
       throw new Error("Transfer request not found");

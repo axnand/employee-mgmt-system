@@ -1,4 +1,5 @@
 import TransferRequest from "../models/TransferRequest.js";
+import TransferRemark from "../models/TransferRemark.js";
 import School from "../models/School.js";
 import { createLog } from "./logService.js";
 
@@ -28,6 +29,14 @@ export const createTransferRequest = async (
     comment,
   });
 
+  // Add initial remark for request creation
+  await TransferRemark.create({
+    transferRequest: transferRequest._id,
+    remarkType: "RequestCreation",
+    remarkText: comment || "No remarks provided",
+    addedBy: currentUser._id,
+  });
+
   await createLog({
     admin: currentUser.userId,
     role: currentUser.role,
@@ -41,16 +50,28 @@ export const createTransferRequest = async (
 };
 
 
-export const approveTransferRequest = async (requestId, action, currentUser, ip) => {
+export const approveTransferRequest = async (requestId, action, currentUser, ip, remarkText = "") => {
   const transferRequest = await TransferRequest.findById(requestId);
 
   if (!transferRequest) throw new Error("Transfer request not found");
 
-  if (action === "approve") transferRequest.status = "approved_by_main";
-  else if (action === "reject") transferRequest.status = "rejected";
-  else throw new Error("Invalid action");
+  if (action === "approve") {
+    transferRequest.status = "approved_by_main";
+  } else if (action === "reject") {
+    transferRequest.status = "rejected";
+  } else {
+    throw new Error("Invalid action");
+  }
 
   await transferRequest.save();
+
+  // Add remark for approval or rejection
+  await TransferRemark.create({
+    transferRequest: transferRequest._id,
+    remarkType: action === "approve" ? "MainAdminApproval" : "Rejection",
+    remarkText: remarkText || (action === "approve" ? "Approved by CEO" : "Rejected by CEO"),
+    addedBy: currentUser._id,
+  });
 
   await createLog({
     admin: currentUser.userId,
@@ -64,7 +85,7 @@ export const approveTransferRequest = async (requestId, action, currentUser, ip)
 };
 
 
-export const respondToTransferRequest = async (requestId, action, currentUser, ip, reason) => {
+export const respondToTransferRequest = async (requestId, action, currentUser, ip, reason = "") => {
   const transferRequest = await TransferRequest.findById(requestId);
 
   if (!transferRequest) throw new Error("Transfer request not found");
@@ -72,14 +93,24 @@ export const respondToTransferRequest = async (requestId, action, currentUser, i
   if (transferRequest.status !== "approved_by_main")
     throw new Error("Transfer request has not been approved by the CEO yet");
 
-  if (action === "accept") transferRequest.status = "accepted_by_receiving";
-  else if (action === "reject") {
+  if (action === "accept") {
+    transferRequest.status = "accepted_by_receiving";
+  } else if (action === "reject") {
     if (!reason || reason.trim() === "") throw new Error("Rejection reason is required");
     transferRequest.status = "rejected";
-    transferRequest.rejectionReason = reason;
-  } else throw new Error("Invalid action");
+  } else {
+    throw new Error("Invalid action");
+  }
 
   await transferRequest.save();
+
+  // Add remark for acceptance or rejection
+  await TransferRemark.create({
+    transferRequest: transferRequest._id,
+    remarkType: action === "accept" ? "SchoolAdminApproval" : "Rejection",
+    remarkText: reason || (action === "accept" ? "Accepted by Receiving School Admin" : "Rejected by Receiving School Admin"),
+    addedBy: currentUser._id,
+  });
 
   await createLog({
     admin: currentUser.userId,
