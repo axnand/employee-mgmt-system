@@ -1,10 +1,8 @@
-// controllers/zoneController.js
+
 import Zone from "../models/Zone.js";
 import District from "../models/District.js";
 
-/**
- * Get all zones
- */
+
 export const getZones = async (req, res) => {
   try {
     const zones = await Zone.find().populate("district").populate("zedioOfficer", "fullName employeeId"); 
@@ -14,9 +12,7 @@ export const getZones = async (req, res) => {
   }
 };
 
-/**
- * Create a new zone
- */
+
 export const createZone = async (req, res) => {
   try {
     const { name, district, zedioOfficer } = req.body;
@@ -25,13 +21,11 @@ export const createZone = async (req, res) => {
       return res.status(400).json({ message: "Name and District are required" });
     }
 
-    // Check if the district exists
     const existingDistrict = await District.findById(district);
     if (!existingDistrict) {
       return res.status(404).json({ message: "District not found" });
     }
 
-    // Check if Zone with the same name already exists in the district
     const existingZone = await Zone.findOne({ name, district });
     if (existingZone) {
       return res.status(400).json({ message: "Zone already exists in this district" });
@@ -50,9 +44,7 @@ export const createZone = async (req, res) => {
   }
 };
 
-/**
- * Update an existing zone
- */
+
 export const updateZone = async (req, res) => {
   try {
     const { zoneId } = req.params;
@@ -74,9 +66,7 @@ export const updateZone = async (req, res) => {
   }
 };
 
-/**
- * Delete a zone
- */
+
 export const deleteZone = async (req, res) => {
   try {
     const { zoneId } = req.params;

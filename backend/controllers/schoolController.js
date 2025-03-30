@@ -46,6 +46,8 @@ export const getMySchool = async (req, res) => {
   }
 };
 
+
+
 /**
  * GET /api/schools/status
  * Returns zones with their associated schools.
@@ -56,5 +58,77 @@ export const getSchoolStatus = async (req, res) => {
     res.status(200).json({ zones });
   } catch (error) {
     res.status(500).json({ message: "Error fetching school status", error: error.message });
+  }
+};
+
+export const createSchool = async (req, res) => {
+  try {
+    const { udiseId, name, office, feasibilityZone, principal, contact, dateOfEstablishment } = req.body;
+
+    // Check if office exists
+    const officeExists = await Office.findById(office);
+    if (!officeExists) {
+      return res.status(400).json({ message: "Invalid office ID" });
+    }
+
+    const newSchool = new School({
+      udiseId,
+      name,
+      office,
+      feasibilityZone,
+      principal,
+      contact,
+      dateOfEstablishment
+    });
+
+    await newSchool.save();
+
+    res.status(201).json({ message: "School created successfully", school: newSchool });
+  } catch (error) {
+    res.status(500).json({ message: "Error creating school", error: error.message });
+  }
+};
+
+/**
+ * PUT /api/schools/:id
+ * Updates an existing school by ID.
+ */
+export const updateSchool = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const updatedSchool = await School.findByIdAndUpdate(id, req.body, { new: true })
+      .populate("employees")
+      .populate({
+        path: "office",
+        populate: { path: "zone", select: "name district" }
+      });
+
+    if (!updatedSchool) {
+      return res.status(404).json({ message: "School not found" });
+    }
+
+    res.json({ message: "School updated successfully", school: updatedSchool });
+  } catch (error) {
+    res.status(500).json({ message: "Error updating school", error: error.message });
+  }
+};
+
+/**
+ * DELETE /api/schools/:id
+ * Deletes a school by ID.
+ */
+export const deleteSchool = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const deletedSchool = await School.findByIdAndDelete(id);
+
+    if (!deletedSchool) {
+      return res.status(404).json({ message: "School not found" });
+    }
+
+    res.json({ message: "School deleted successfully" });
+  } catch (error) {
+    res.status(500).json({ message: "Error deleting school", error: error.message });
   }
 };
