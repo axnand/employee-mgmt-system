@@ -1,21 +1,14 @@
 import Log from "../models/Log.js";
 
-/**
- * GET /api/logs
- * - Main admin: views logs for all zones and schools.
- * - School admin: views only logs related to their school.
- */
 export const getLogs = async (req, res) => {
   try {
     const { role, schoolId } = req.user;
     let filter = {};
     if (role === "schoolAdmin") {
-      // Only logs relevant to the admin's school
       filter = { school: schoolId };
     }
     const logs = await Log.find(filter).sort({ createdAt: -1 }).exec();
 
-    // Format logs to include a human-readable timestamp
     const formattedLogs = logs.map((log) => ({
       action: log.action,
       description: log.description,
@@ -31,10 +24,7 @@ export const getLogs = async (req, res) => {
   }
 };
 
-/**
- * GET /api/logs/stats
- * Returns aggregated log statistics for the last 24 hours.
- */
+
 export const getLocalStats = async (req, res) => {
   try {
     const { role, schoolId } = req.user;
@@ -67,7 +57,6 @@ export const getLocalStats = async (req, res) => {
           title: "Employee Updates",
           value: stats.find((s) => s._id === "Update Employee")?.count || 0,
         },
-        // Additional stat entries as needed.
       ],
     });
   } catch (error) {

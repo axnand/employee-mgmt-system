@@ -1,4 +1,4 @@
-// controllers/employeeController.js
+
 import mongoose from "mongoose";
 import Employee from "../models/Employee.js";
 import School from "../models/School.js";
@@ -6,20 +6,13 @@ import Zone from "../models/Zone.js";
 import { createLog } from "../services/logService.js";
 import User from "../models/User.js";
 
-/**
- * GET /api/employees
- * - CEO (admin): gets all employees.
- * - ZEO: gets employees only from their zone.
- * - School admin: gets employees only from their school.
- */
+
 export const getEmployees = async (req, res) => {
   try {
     let employees;
     if (req.user.role.roleName === "CEO") {
-      // CEO can view all employees.
       employees = await Employee.find({});
     } else if (req.user.role.roleName === "ZEO") {
-      // ZEO can view employees from their zone only
       const zone = await Zone.findById(req.user.zoneId).populate({
         path: "schools",
         populate: { path: "employees" }
@@ -27,7 +20,6 @@ export const getEmployees = async (req, res) => {
 
       employees = zone.schools.reduce((acc, school) => [...acc, ...school.employees], []);
     } else if (req.user.role.roleName === "School") {
-      // School admin can view employees only in their school.
       const school = await School.findById(req.user.schoolId).populate("employees");
       employees = school ? school.employees : [];
     } else {
@@ -39,12 +31,7 @@ export const getEmployees = async (req, res) => {
   }
 };
 
-/**
- * GET /api/employees/:id
- * - CEO can view any employee.
- * - ZEO can view employees only if they belong to schools within their zone.
- * - School admin can view an employee only if that employee belongs to their school.
- */
+
 export const getEmployeeById = async (req, res) => {
   try {
     const employee = await Employee.findById(req.params.id);
@@ -76,10 +63,7 @@ export const getEmployeeById = async (req, res) => {
   }
 };
 
-/**
- * POST /api/employees
- * - Allows CEO, ZEO, or School admin to create an employee.
- */
+
 export const createEmployee = async (req, res) => {
   try {
     const schoolId = req.user.role.roleName === "School" ? req.user.schoolId : req.body.school;
@@ -125,10 +109,7 @@ export const createEmployee = async (req, res) => {
   }
 };
 
-/**
- * PUT /api/employees/:id
- * - CEO, ZEO, and School Admin can update an employee if permitted.
- */
+
 export const updateEmployee = async (req, res) => {
   try {
     const updatedEmployee = await Employee.findByIdAndUpdate(
@@ -155,10 +136,7 @@ export const updateEmployee = async (req, res) => {
   }
 };
 
-/**
- * DELETE /api/employees/:id
- * - CEO, ZEO, and School Admin can delete an employee if permitted.
- */
+
 export const deleteEmployee = async (req, res) => {
   try {
     const deletedEmployee = await Employee.findByIdAndDelete(req.params.id);

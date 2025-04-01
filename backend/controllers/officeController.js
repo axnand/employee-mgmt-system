@@ -1,4 +1,4 @@
-// controllers/officeController.js
+
 import Office from "../models/Office.js";
 import Zone from "../models/Zone.js";
 
@@ -16,9 +16,7 @@ export const getOffices = async (req, res) => {
   }
 };
 
-/**
- * Create a new office
- */
+
 export const createOffice = async (req, res) => {
   try {
     const { officeName, officeType, zone, ddoOfficer, schools, ddoCode, parentOffice, isDdo } = req.body;
@@ -27,7 +25,6 @@ export const createOffice = async (req, res) => {
       return res.status(400).json({ message: "Office name, type, and zone are required" });
     }
 
-    // Check if the zone exists
     const existingZone = await Zone.findById(zone);
     if (!existingZone) {
       return res.status(404).json({ message: "Zone not found" });
@@ -51,9 +48,7 @@ export const createOffice = async (req, res) => {
   }
 };
 
-/**
- * Update an existing office
- */
+
 export const updateOffice = async (req, res) => {
   try {
     const { officeId } = req.params;
@@ -78,9 +73,7 @@ export const updateOffice = async (req, res) => {
   }
 };
 
-/**
- * Delete an office
- */
+
 export const deleteOffice = async (req, res) => {
   try {
     const { officeId } = req.params;

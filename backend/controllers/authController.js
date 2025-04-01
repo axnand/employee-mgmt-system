@@ -1,4 +1,4 @@
-// controllers/authController.js
+
 import User from "../models/User.js";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
@@ -10,11 +10,7 @@ import {
   updatePassword as updatePasswordService
 } from "../services/userService.js";
 
-/**
- * POST /api/auth/login
- * Logs in a user (admin, schoolAdmin, or staff) based on the provided login type.
- * Expected req.body: { userId, password, loginAs }
- */
+
 export const loginUser = async (req, res) => {
   try {
     const { userId, password, loginAs } = req.body;
@@ -40,7 +36,6 @@ export const loginUser = async (req, res) => {
       return res.status(401).json({ message: "Invalid credentials" });
     }
 
-    // Build the payload and include additional fields based on role.
     const payload = {
       userId: user._id,
       role: user.role,
@@ -49,7 +44,7 @@ export const loginUser = async (req, res) => {
 
     const token = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: "1d" });
 
-    // For schoolAdmin, include schoolId
+
     if (user.role.roleName === "schoolAdmin") {
       payload.schoolId = user.schoolId;
     }
@@ -75,7 +70,6 @@ export const loginUser = async (req, res) => {
       ip: req.ip,
     });
 
-    // Return additional fields in the response so the frontend can store them.
     return res.status(200).json({
       message: "Login successful",
       token,
@@ -91,13 +85,9 @@ export const loginUser = async (req, res) => {
 };
 
 
-/**
- * PUT /api/auth/update-password
- * Forces user to update password on first login or any other time.
- */
+
 export const updatePassword = async (req, res) => {
   try {
-    // We assume the user is authenticated and we have userId in req.user
     const { newPassword } = req.body;
     const updatedUser = await updatePasswordService(req.user.userId, newPassword, req.ip);
     res.status(200).json({ message: "Password updated successfully", user: updatedUser });
@@ -106,19 +96,12 @@ export const updatePassword = async (req, res) => {
   }
 };
 
-/**
- * POST /api/auth/register-school-admin
- * Only the main admin can register a new school admin.
- * Expected req.body: { userId, password, schoolId } and (if needed) additional school info.
- */
+
 export const registerSchoolAdmin = async (req, res) => {
   try {
-    // Ensure only the main admin can register a school admin
     if (req.user.role !== "admin") {
       return res.status(403).json({ message: "Only the main admin can register a school admin" });
     }
-
-    // Expected: { userId, password, schoolId } in req.body
     const { userId, password, schoolId } = req.body;
     const newUser = await registerAdminService({ userId, password, schoolId }, req.user, req.ip);
     res.status(201).json({ message: "School admin registered", userId: newUser._id });
@@ -127,18 +110,12 @@ export const registerSchoolAdmin = async (req, res) => {
   }
 };
 
-/**
- * POST /api/auth/register-staff
- * Allows either the main admin or a school admin to register new staff.
- * Expected req.body: { userId, password, employeeId }.
- */
+
 export const registerStaff = async (req, res) => {
   try {
-    // Allow only school admins or the main admin to add employees
     if (!(req.user.role === "schoolAdmin" || req.user.role === "admin")) {
       return res.status(403).json({ message: "Only school admins or the main admin can register staff" });
     }
-    // Expected: { userId, password, employeeId } in req.body
     const { userId, password, employeeId } = req.body;
     const newUser = await registerStaffService({ userId, password, employeeId }, req.user, req.ip);
     res.status(201).json({ message: "Staff registered", userId: newUser._id });

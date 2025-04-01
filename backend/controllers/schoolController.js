@@ -1,10 +1,7 @@
 import School from "../models/School.js";
 import Zone from "../models/Zone.js";
 
-/**
- * GET /api/schools
- * Returns all schools (populated with employees and zone).
- */
+
 export const getAllSchools = async (req, res) => {
   try {
     const schools = await School.find({}).populate("employees").populate("zone");
@@ -14,10 +11,7 @@ export const getAllSchools = async (req, res) => {
   }
 };
 
-/**
- * GET /api/schools/:id
- * Returns details of a school by ID.
- */
+
 export const getSchoolById = async (req, res) => {
   try {
     const school = await School.findById(req.params.id).populate("employees").populate("zone");
@@ -30,10 +24,6 @@ export const getSchoolById = async (req, res) => {
   }
 };
 
-/**
- * GET /api/schools/mine
- * Returns the school for the authenticated user (based on req.user.schoolId).
- */
 export const getMySchool = async (req, res) => {
   try {
     const school = await School.findById(req.user.schoolId).populate("employees").populate("zone");
@@ -47,11 +37,6 @@ export const getMySchool = async (req, res) => {
 };
 
 
-
-/**
- * GET /api/schools/status
- * Returns zones with their associated schools.
- */
 export const getSchoolStatus = async (req, res) => {
   try {
     const zones = await Zone.find({}).populate("schools");
@@ -65,7 +50,6 @@ export const createSchool = async (req, res) => {
   try {
     const { udiseId, name, office, feasibilityZone, principal, contact, dateOfEstablishment } = req.body;
 
-    // Check if office exists
     const officeExists = await Office.findById(office);
     if (!officeExists) {
       return res.status(400).json({ message: "Invalid office ID" });
@@ -89,10 +73,6 @@ export const createSchool = async (req, res) => {
   }
 };
 
-/**
- * PUT /api/schools/:id
- * Updates an existing school by ID.
- */
 export const updateSchool = async (req, res) => {
   try {
     const { id } = req.params;
@@ -113,10 +93,7 @@ export const updateSchool = async (req, res) => {
   }
 };
 
-/**
- * DELETE /api/schools/:id
- * Deletes a school by ID.
- */
+
 export const deleteSchool = async (req, res) => {
   try {
     const { id } = req.params;

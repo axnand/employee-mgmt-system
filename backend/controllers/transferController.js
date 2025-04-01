@@ -1,4 +1,4 @@
-// controllers/transferController.js
+
 import TransferRequest from "../models/TransferRequest.js";
 import TransferRemark from "../models/TransferRemark.js";
 import { 
@@ -7,17 +7,13 @@ import {
   respondToTransferRequest as respondTransferService 
 } from "../services/transferService.js";
 
-/**
- * GET /api/transfers
- * - Main admin: can view all transfer requests.
- * - School admin: can view requests either initiated by or targeting their school.
- */
+
 export const getTransferRequests = async (req, res) => {
   try {
     let query = {};
 
     if (req.user.role.roleName === "CEO") {
-      query = {}; // View all requests
+      query = {}; 
     } 
     else if (req.user.role.roleName === "ZEO") {
       query = { fromZone: req.user.zoneId };
@@ -42,17 +38,10 @@ export const getTransferRequests = async (req, res) => {
 };
 
 
-/**
- * POST /api/transfers
- * - School admin can initiate a transfer request.
- *   Expected req.body: { employeeId, toSchoolId, comment }
- */
 export const createTransferRequest = async (req, res) => {
   try {
     const { employeeId, toSchoolId, comment } = req.body;
-    // fromSchool is derived from the authenticated user's school.
     const fromSchoolId = req.user.schoolId;
-    // Delegate the creation to the transfer service.
     const transferRequest = await createTransferRequestService(
       { employeeId, fromSchoolId, toSchoolId, requestedBy: req.user.userId, comment },
       req.user,
@@ -71,14 +60,10 @@ export const createTransferRequest = async (req, res) => {
   }
 };
 
-/**
- * PUT /api/transfers/:id/approve
- * - Main admin can approve (or reject) a transfer request.
- *   Expected req.body: { action } where action is "approve" or "reject".
- */
+
 export const approveTransferRequest = async (req, res) => {
   try {
-    const { action } = req.body; // "approve" or "reject"
+    const { action } = req.body;
     const transferRequest = await approveTransferService(req.params.id, action, req.user, req.ip);
     await TransferRemark.create({
       transferRequest: transferRequest._id,
@@ -93,16 +78,10 @@ export const approveTransferRequest = async (req, res) => {
   }
 };
 
-/**
- * PUT /api/transfers/:id/respond
- * - Receiving school admin responds to an approved transfer request.
- *   Expected req.body: { action } with "accept" or "reject".
- */
+
 export const respondToTransferRequest = async (requestId, action, currentUser, ip, reason) => {
   try {
     console.log("🔍 Received Transfer Response Request:", { requestId, action, reason });
-
-    // Find the transfer request by ID
     const transferRequest = await TransferRequest.findById(requestId);
     await TransferRemark.create({
       transferRequest: transferRequest._id,
@@ -116,7 +95,6 @@ export const respondToTransferRequest = async (requestId, action, currentUser, i
       throw new Error("Transfer request not found");
     }
 
-    // Ensure the request has been approved before processing
     if (transferRequest.status !== "approved_by_main") {
       console.error("❌ Transfer request not approved yet:", requestId);
       throw new Error("Transfer request has not been approved by the main admin yet");
@@ -125,10 +103,8 @@ export const respondToTransferRequest = async (requestId, action, currentUser, i
     if (action === "accept") {
       console.log("✅ Transfer request accepted:", requestId);
       transferRequest.status = "accepted_by_receiving";
-      // (update schools, etc.)
 
     } else if (action === "reject") {
-      // Ensure reason is provided for rejection
       if (!reason || reason.trim() === "") {
         console.error("❌ Rejection reason is missing");
         throw new Error("Rejection reason is required");
@@ -143,11 +119,7 @@ export const respondToTransferRequest = async (requestId, action, currentUser, i
       console.error("❌ Invalid action received:", action);
       throw new Error("Invalid action");
     }
-
-    // Save the updated transfer request
     await transferRequest.save();
-
-    // Log the action
     await createLog({
       admin: currentUser.userId,
       role: currentUser.role,

@@ -1,14 +1,10 @@
-// controllers/postingHistoryController.js
+
 import PostingHistory from "../models/PostingHistory.js";
 import Employee from "../models/Employee.js";
 import Zone from "../models/Zone.js";
 import { createLog } from "../services/logService.js";
 
-/**
- * GET /api/posting-history/:employeeId
- * Fetches the posting history of a particular employee.
- * CEO can view all employees, ZEO can view employees within their zone, and School Admin can view employees only in their school.
- */
+
 export const getPostingHistoryByEmployee = async (req, res) => {
   try {
     const employee = await Employee.findById(req.params.employeeId);
@@ -18,12 +14,10 @@ export const getPostingHistoryByEmployee = async (req, res) => {
     }
 
     if (req.user.role.roleName === "CEO") {
-      // CEO can view posting history of all employees
       const history = await PostingHistory.find({ employee: req.params.employeeId }).populate("office");
       res.json({ history });
 
     } else if (req.user.role.roleName === "ZEO") {
-      // ZEO can view posting history of employees within their zone
       const zone = await Zone.findById(req.user.zoneId).populate("schools");
 
       const schoolIds = zone.schools.map(school => school._id.toString());
@@ -35,7 +29,6 @@ export const getPostingHistoryByEmployee = async (req, res) => {
       res.json({ history });
 
     } else if (req.user.role.roleName === "School") {
-      // School Admin can only view posting history for employees within their own school
       if (employee.school.toString() !== req.user.schoolId) {
         return res.status(403).json({ message: "Not authorized to view this employee's posting history" });
       }
@@ -51,11 +44,7 @@ export const getPostingHistoryByEmployee = async (req, res) => {
   }
 };
 
-/**
- * POST /api/posting-history
- * Creates a new posting history record.
- * Only CEO, ZEO, or School Admins are allowed to create posting history.
- */
+
 export const createPostingHistory = async (req, res) => {
   try {
     const { employee, office } = req.body;

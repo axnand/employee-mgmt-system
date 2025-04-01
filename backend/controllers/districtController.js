@@ -1,7 +1,7 @@
-// controllers/districtController.js
+
 import District from "../models/District.js";
 
-// Get all districts
+
 export const getDistricts = async (req, res) => {
   try {
     const districts = await District.find();
@@ -11,7 +11,7 @@ export const getDistricts = async (req, res) => {
   }
 };
 
-// Create a new district
+
 export const createDistrict = async (req, res) => {
   try {
     const { name } = req.body;
@@ -32,7 +32,7 @@ export const createDistrict = async (req, res) => {
   }
 };
 
-// Update an existing district
+
 export const updateDistrict = async (req, res) => {
   try {
     const { districtId } = req.params;
@@ -58,7 +58,7 @@ export const updateDistrict = async (req, res) => {
   }
 };
 
-// Delete a district
+
 export const deleteDistrict = async (req, res) => {
   try {
     const { districtId } = req.params;
