@@ -1,4 +1,4 @@
-// models/TransferRequest.js
+
 import mongoose from "mongoose";
 
 const TransferRequestSchema = new mongoose.Schema(

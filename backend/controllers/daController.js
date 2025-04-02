@@ -1,4 +1,4 @@
-// controllers/daController.js
+
 import DA from "../models/DA.js";
 import PayCommission from "../models/PayCommission.js";
 
