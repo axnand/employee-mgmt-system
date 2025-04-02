@@ -55,11 +55,11 @@ export const registerSchoolAdmin = async ({ userId, password, schoolId }, curren
 /**
  * Registers a new staff. A school admin or the main admin can do this.
  * @param {Object} params
- * @param {String} params.userId - The new staff's login ID.
- * @param {String} params.password - The staff's password.
- * @param {String} params.employeeId - The _id of the Employee document (if linked).
- * @param {Object} currentUser - The user making the request.
- * @param {String} ip - Request IP address.
+ * @param {String} params.userId 
+ * @param {String} params.password 
+ * @param {String} params.employeeId 
+ * @param {Object} currentUser 
+ * @param {String} ip
  */
 
 
@@ -89,9 +89,9 @@ export const registerStaff = async ({ userId, password, employeeId }, currentUse
 
 /**
  * Forces a user to update their password (e.g., after first login).
- * @param {String} userId - The user's _id from the token.
- * @param {String} newPassword - The new password.
- * @param {String} ip - Request IP address.
+ * @param {String} userId 
+ * @param {String} newPassword 
+ * @param {String} ip 
  */
 export const updatePassword = async (userId, newPassword, ip) => {
   const user = await User.findById(userId);

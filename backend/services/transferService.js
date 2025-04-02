@@ -104,7 +104,6 @@ export const respondToTransferRequest = async (requestId, action, currentUser, i
 
   await transferRequest.save();
 
-  // Add remark for acceptance or rejection
   await TransferRemark.create({
     transferRequest: transferRequest._id,
     remarkType: action === "accept" ? "SchoolAdminApproval" : "Rejection",
