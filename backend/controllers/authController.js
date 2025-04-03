@@ -96,6 +96,21 @@ export const updatePassword = async (req, res) => {
   }
 };
 
+export const registerZonalAdmin = async (req, res) => {
+  try {
+    if (req.user.role !== "admin") {
+      return res.status(403).json({ message: "Only the main admin can register a zonal admin" });
+    }
+
+    const { userName, password, zoneId } = req.body;
+    const newUser = await registerZonalAdminService({ userName, password, zoneId }, req.user, req.ip);
+    res.status(201).json({ message: "Zonal admin registered", userId: newUser._id });
+  } catch (error) {
+    res.status(500).json({ message: "Error registering zonal admin", error: error.message });
+  }
+};
+
+
 
 export const registerSchoolAdmin = async (req, res) => {
   try {

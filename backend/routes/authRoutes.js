@@ -5,6 +5,7 @@ import {
   registerSchoolAdmin,
   registerStaff,
   registerZonalAdmin
+  
 } from "../controllers/authController.js";
 import { protect, isAdmin, isSchoolAdmin } from "../middleware/authMiddleware.js";
 
