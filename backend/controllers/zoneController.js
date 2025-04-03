@@ -34,7 +34,7 @@ export const createZone = async (req, res) => {
     const newZone = new Zone({
       name,
       district,
-      zedioOfficer,
+      zeoOfficer,
     });
 
     await newZone.save();

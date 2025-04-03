@@ -12,16 +12,12 @@ const router = express.Router();
 
 router.get("/", protect, getEmployees);
 
-
 router.get("/:id", protect, getEmployeeById);
 
+router.post("/", protect, authorizeRoles("CEO", "ZEO", "School"), createEmployee);
 
-router.post("/", protect, authorizeRoles("admin", "schoolAdmin"), createEmployee);
+router.put("/:id", protect, authorizeRoles("CEO", "ZEO", "School"), updateEmployee);
 
-
-router.put("/:id", protect, authorizeRoles("admin", "schoolAdmin"), updateEmployee);
-
-
-router.delete("/:id", protect, authorizeRoles("admin", "schoolAdmin"), deleteEmployee);
+router.delete("/:id", protect, authorizeRoles("CEO", "ZEO", "School"), deleteEmployee);
 
 export default router;

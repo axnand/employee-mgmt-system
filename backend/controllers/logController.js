@@ -2,11 +2,17 @@ import Log from "../models/Log.js";
 
 export const getLogs = async (req, res) => {
   try {
-    const { role, schoolId } = req.user;
+    const { role, schoolId, zoneId, districtId } = req.user;
     let filter = {};
-    if (role === "schoolAdmin") {
-      filter = { school: schoolId };
+
+    if (role.roleName === "School") {
+      filter.school = schoolId;
+    } else if (role.roleName === "ZEO") {
+      filter.zoneId = zoneId;
+    } else if (role.roleName === "CEO") {
+      filter.districtId = districtId;
     }
+
     const logs = await Log.find(filter).sort({ createdAt: -1 }).exec();
 
     const formattedLogs = logs.map((log) => ({
@@ -24,15 +30,19 @@ export const getLogs = async (req, res) => {
   }
 };
 
-
 export const getLocalStats = async (req, res) => {
   try {
-    const { role, schoolId } = req.user;
+    const { role, schoolId, zoneId, districtId } = req.user;
     const twentyFourHoursAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
-    
+
     let match = { createdAt: { $gte: twentyFourHoursAgo } };
-    if (role === "schoolAdmin") {
+
+    if (role.roleName === "School") {
       match.school = schoolId;
+    } else if (role.roleName === "ZEO") {
+      match.zoneId = zoneId;
+    } else if (role.roleName === "CEO") {
+      match.districtId = districtId;
     }
 
     const stats = await Log.aggregate([
@@ -57,6 +67,10 @@ export const getLocalStats = async (req, res) => {
           title: "Employee Updates",
           value: stats.find((s) => s._id === "Update Employee")?.count || 0,
         },
+        {
+          title: "Login Attempts",
+          value: stats.find((s) => s._id === "Login")?.count || 0,
+        }
       ],
     });
   } catch (error) {

@@ -1,18 +1,10 @@
-// services/userService.js
 import User from "../models/User.js";
 import { createLog } from "./logService.js";
 import bcrypt from "bcrypt";
 
 /**
- * Registers a new school admin. Only the main admin can do this.
- * @param {Object} params
- * @param {String} params.userId - The new user's login ID.
- * @param {String} params.password - The new user's password.
- * @param {String} params.schoolId - The _id of the School document.
- * @param {Object} currentUser - The user making the request (main admin).
- * @param {String} ip - Request IP address.
+ * Registers a new Zonal Admin (ZEO). Only the main admin can do this.
  */
-
 export const registerZonalAdmin = async ({ userName, password, zoneId }, currentUser, ip) => {
   const existingUser = await User.findOne({ userName });
   if (existingUser) throw new Error("User already exists");
@@ -26,88 +18,96 @@ export const registerZonalAdmin = async ({ userName, password, zoneId }, current
   });
 
   await newUser.save();
-  return newUser;
-};
-export const registerSchoolAdmin = async ({ userId, password, schoolId }, currentUser, ip) => {
-  const existingUser = await User.findOne({ userId });
-  if (existingUser) {
-    throw new Error("User already exists");
-  }
-  const newUser = new User({
-    userId,
-    password,
-    role: "schoolAdmin",
-    schoolId,
-    passwordChanged: false
-  });
-  await newUser.save();
+
   await createLog({
     admin: currentUser.userId,
-    role: "Super Admin",
-    action: "Register School Admin",
-    school: schoolId, // or fetch the school name if desired
-    description: `Created school admin user: ${userId}`,
+    role: currentUser.role,
+    action: "Register Zonal Admin",
+    description: `Created Zonal Admin user: ${userName} for Zone ID: ${zoneId}`,
     ip
   });
+
   return newUser;
 };
 
 /**
- * Registers a new staff. A school admin or the main admin can do this.
- * @param {Object} params
- * @param {String} params.userId 
- * @param {String} params.password 
- * @param {String} params.employeeId 
- * @param {Object} currentUser 
- * @param {String} ip
+ * Registers a new School Admin. Only the main admin can do this.
  */
+export const registerSchoolAdmin = async ({ userName, password, schoolId }, currentUser, ip) => {
+  const existingUser = await User.findOne({ userName });
+  if (existingUser) throw new Error("User already exists");
 
-
-export const registerStaff = async ({ userId, password, employeeId }, currentUser, ip) => {
-  const existingUser = await User.findOne({ userId });
-  if (existingUser) {
-    throw new Error("User already exists");
-  }
   const newUser = new User({
-    userId,
+    userName,
+    password,
+    role: "School",
+    schoolId,
+    passwordChanged: false
+  });
+
+  await newUser.save();
+
+  await createLog({
+    admin: currentUser.userId,
+    role: "Super Admin",
+    action: "Register School Admin",
+    school: schoolId,
+    description: `Created School Admin user: ${userName} for School ID: ${schoolId}`,
+    ip
+  });
+
+  return newUser;
+};
+
+/**
+ * Registers a new Staff Member. A School Admin or the Main Admin can do this.
+ */
+export const registerStaff = async ({ userName, password, employeeId }, currentUser, ip) => {
+  const existingUser = await User.findOne({ userName });
+  if (existingUser) throw new Error("User already exists");
+
+  const newUser = new User({
+    userName,
     password,
     role: "staff",
     employeeId,
     passwordChanged: false
   });
+
   await newUser.save();
+
   await createLog({
     admin: currentUser.userId,
-    role: currentUser.role === "admin" ? "Super Admin" : "Admin",
+    role: currentUser.role,
     action: "Register Staff",
-    school: "-", // optionally replace with currentUser.schoolId or name
-    description: `Created staff user: ${userId}`,
+    school: currentUser.schoolId || "-", 
+    description: `Created staff user: ${userName} for Employee ID: ${employeeId}`,
     ip
   });
+
   return newUser;
 };
 
 /**
- * Forces a user to update their password (e.g., after first login).
- * @param {String} userId 
- * @param {String} newPassword 
- * @param {String} ip 
+ * Updates a user's password (e.g., after first login or if forced by admin).
  */
 export const updatePassword = async (userId, newPassword, ip) => {
   const user = await User.findById(userId);
-  if (!user) {
-    throw new Error("User not found");
-  }
-  user.password = newPassword;
+  if (!user) throw new Error("User not found");
+
+  user.password = await bcrypt.hash(newPassword, 10);
   user.passwordChanged = true;
+
   await user.save();
+
   await createLog({
     admin: user.userId,
     role: user.role,
     action: "Password Update",
-    school: "-", // adjust if needed
-    description: `User ${user.userId} changed password`,
+    school: user.schoolId || "-", 
+    description: `User ${user.userId} updated their password.`,
     ip
   });
+
   return user;
 };

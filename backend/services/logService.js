@@ -1,5 +1,5 @@
-// services/logService.js
 import Log from "../models/Log.js";
+import logger from "../utils/logger.js";
 
 /**
  * Creates a log entry for significant events.
@@ -20,7 +20,7 @@ export const createLog = async ({
   ip,
 }) => {
   try {
-    await Log.create({
+    const logEntry = await Log.create({
       admin,
       role,
       action,
@@ -28,7 +28,11 @@ export const createLog = async ({
       description,
       ip,
     });
+
+    logger.info(`Action: ${action} - Performed by: ${admin} (${role}) - Description: ${description} - IP: ${ip || "N/A"}`);
+
+    return logEntry;
   } catch (error) {
-    console.error("Failed to create log:", error);
+    logger.error("Failed to create log:", error);
   }
 };

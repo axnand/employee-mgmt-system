@@ -217,7 +217,7 @@ export default function DashboardLayout({ children }) {
                  }`}
                  onClick={() => handleTabClick(sub.title)}
                >
-                 {/* ✅ Subnav icon is now always visible, even when collapsed */}
+                 
                  {sub.icon}
                  {sidebarOpen && <span>{sub.title}</span>}
                </Link>
