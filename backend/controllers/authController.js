@@ -12,67 +12,62 @@ import {
 export const loginUser = async (req, res) => {
   try {
     const { userName, password, loginAs } = req.body;
-    const user = await User.findOne({ userName }).populate("role");
+    const user = await User.findOne({ userName });
     if (!user) {
       return res.status(401).json({ message: "Invalid credentials" });
     }
-    // Check if the loginAs provided matches the user's role
-    if (loginAs && user.role.roleName !== loginAs) {
+    // Compare the string role directly
+    if (loginAs && user.role !== loginAs) {
       return res.status(403).json({ message: `You are not authorized to login as ${loginAs}` });
     }
     const isMatch = await user.comparePassword(password);
     if (!isMatch) {
       await createLog({
         admin: userName,
-        role: user.role.roleName,
+        role: user.role,
         action: "Failed Login",
         description: "Unsuccessful login attempt",
         ip: req.ip,
       });
       return res.status(401).json({ message: "Invalid credentials" });
     }
-
     const payload = {
       userId: user._id,
-      role: user.role.roleName,
+      role: user.role,
       forcePasswordChange: !user.passwordChanged,
     };
-
-    // Add additional payload fields based on role
-    if (user.role.roleName === "schoolAdmin") {
+    if (user.role === "schoolAdmin") {
       payload.schoolId = user.schoolId;
     }
-    if (user.role.roleName === "staff") {
+    if (user.role === "staff") {
       payload.employeeId = user.employeeId;
       payload.schoolId = user.schoolId;
     }
-    if (user.role.roleName === "ZEO") {
+    if (user.role === "ZEO") {
       payload.zoneId = user.zoneId;
     }
-    if (user.role.roleName === "CEO") {
+    if (user.role === "CEO") {
       payload.districtId = user.districtId;
     }
-
     const token = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: "1d" });
-
     await createLog({
       admin: userName,
-      role: user.role.roleName === "admin" ? "Super Admin" : user.role.roleName,
+      // Map "admin" to "Super Admin" if necessary, otherwise just use the role string
+      role: user.role === "admin" ? "Super Admin" : user.role,
       action: "Login",
-      description: `${userName} logged in successfully as ${user.role.roleName}`,
+      description: `${userName} logged in successfully as ${user.role}`,
       ip: req.ip,
     });
-
     return res.status(200).json({
       message: "Login successful",
       token,
-      role: user.role.roleName,
+      role: user.role,
       userId: user._id,
       forcePasswordChange: !user.passwordChanged,
-      ...(user.role.roleName === "schoolAdmin" && { schoolId: user.schoolId }),
-      ...(user.role.roleName === "staff" && { employeeId: user.employeeId, schoolId: user.schoolId }),
-      ...(user.role.roleName === "ZEO" && { zoneId: user.zoneId }),
-      ...(user.role.roleName === "CEO" && { districtId: user.districtId }),
+      ...(user.role === "schoolAdmin" && { schoolId: user.schoolId }),
+      ...(user.role === "staff" && { employeeId: user.employeeId, schoolId: user.schoolId }),
+      ...(user.role === "ZEO" && { zoneId: user.zoneId }),
+      ...(user.role === "CEO" && { districtId: user.districtId }),
     });
   } catch (error) {
     return res.status(500).json({ message: "Error logging in", error: error.message });
@@ -91,6 +86,7 @@ export const updatePassword = async (req, res) => {
 
 export const registerZonalAdmin = async (req, res) => {
   try {
+    // Adjust this check if your main admin role is different (e.g., "CEO")
     if (req.user.role !== "admin") {
       return res.status(403).json({ message: "Only the main admin can register a zonal admin" });
     }
@@ -104,6 +100,7 @@ export const registerZonalAdmin = async (req, res) => {
 
 export const registerSchoolAdmin = async (req, res) => {
   try {
+    // Adjust this check if your main admin role is different (e.g., "CEO")
     if (req.user.role !== "admin") {
       return res.status(403).json({ message: "Only the main admin can register a school admin" });
     }

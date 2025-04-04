@@ -17,9 +17,9 @@ function SchoolStatusPageContent() {
   const contextSchoolId = user?.schoolId;
 
   // Determine role flags
-  const isAdmin = userRole === "admin";
+  const isCEO = userRole === "CEO";
   const isSchoolAdmin = userRole === "schoolAdmin";
-  const isAuthorized = isAdmin || isSchoolAdmin;
+  const isAuthorized = isCEO || isSchoolAdmin;
 
   // State Hooks – always called in the same order
   const [selectedZone, setSelectedZone] = useState("");
@@ -35,7 +35,7 @@ function SchoolStatusPageContent() {
     queryKey: ["schools"],
     queryFn: getAllSchools,
     staleTime: 1000 * 60 * 5,
-    enabled: isAdmin, // only admin fetches all schools
+    enabled: isCEO, // only admin fetches all schools
   });
 
   // For schoolAdmin, use getMySchool; for admin, use getSchoolById.
@@ -52,14 +52,14 @@ function SchoolStatusPageContent() {
   // useEffect: For admin, read from URL; for schoolAdmin, use contextSchoolId.
   useEffect(() => {
     const schoolParam = searchParams.get("school");
-    if (isAdmin) {
+    if (isCEO) {
       if (schoolParam) {
         setSelectedSchoolId(schoolParam);
       }
     } else if (isSchoolAdmin && contextSchoolId) {
       setSelectedSchoolId(contextSchoolId);
     }
-  }, [searchParams, isAdmin, isSchoolAdmin, contextSchoolId, router]);
+  }, [searchParams, isCEO, isSchoolAdmin, contextSchoolId, router]);
 
   // If user is not authorized, display an unauthorized message.
   if (!isAuthorized) {
@@ -110,10 +110,10 @@ function SchoolStatusPageContent() {
   };
 
   // For admin: show loading or error if fetching schools
-  if (isAdmin && isLoadingSchools) {
+  if (isCEO && isLoadingSchools) {
     return <p className="text-center">Loading schools...</p>;
   }
-  if (isAdmin && schoolsError) {
+  if (isCEO && schoolsError) {
     return <p className="text-center text-red-500">Error loading schools</p>;
   }
 
@@ -130,7 +130,7 @@ function SchoolStatusPageContent() {
         </header>
 
         {/* Render filter controls only for admin */}
-        {isAdmin && (
+        {isCEO && (
           <SchoolFilter
             zoneOptions={zoneOptions}
             schemeOptions={schemeOptions}

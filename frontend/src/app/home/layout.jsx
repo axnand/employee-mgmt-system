@@ -39,7 +39,7 @@ export default function DashboardLayout({ children }) {
 
   // Define navigation items for each role
   const navItemsByRole = {
-    admin: [
+    CEO: [
       {
         title: "Dashboard",
         href: "/home/dashboard",

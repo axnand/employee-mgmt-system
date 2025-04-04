@@ -7,7 +7,7 @@ const SchoolSchema = new mongoose.Schema(
     address: { type: String },
     principal: { type: String },
     contact: { type: String },
-    office: { type: mongoose.Schema.Types.ObjectId, ref: "Office", required: true, unique: true },
+    office: { type: mongoose.Schema.Types.ObjectId, ref: "Office", required: true },
     isPMShiriSchool: { type: Boolean, default: false },
     feasibilityZone: { type: String, required: true },
     scheme: { type: String },

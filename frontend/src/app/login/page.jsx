@@ -10,7 +10,7 @@ import { Eye, EyeOff } from "lucide-react";
 import Image from "next/image";
 
 export default function LoginPage() {
-  const [userType, setUserType] = useState("admin");
+  const [userType, setUserType] = useState("CEO");
   const [userId, setUserId] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -51,7 +51,7 @@ export default function LoginPage() {
   const handleLogin = (e) => {
     e.preventDefault();
     setError("");
-    mutation.mutate({ userId, password, loginAs: userType });
+    mutation.mutate({ userName: userId, password, loginAs: userType });
   };
 
   return (

@@ -1,137 +1,84 @@
-// seedData.js
-import dotenv from "dotenv";
-import mongoose from "mongoose";
-import District from "./models/District.js";
-import Zone from "./models/Zone.js";
-import School from "./models/School.js";
-import Employee from "./models/Employee.js";
-import User from "./models/User.js"; // Ensure your User model is defined
+import mongoose from 'mongoose';
+import dotenv from 'dotenv';
+import bcrypt from 'bcrypt';
+import User from './models/User.js';
+import Role from './models/Role.js';
+import District from './models/District.js';
+import Zone from './models/Zone.js';
+import Office from './models/Office.js';
+import School from './models/School.js';
 
 dotenv.config();
 
-const seedData = async () => {
-  try {
-    // Connect to MongoDB
-    await mongoose.connect(process.env.MONGO_URI);
-    console.log("Connected to MongoDB");
+const seedDatabase = async () => {
+    try {
+        await mongoose.connect(process.env.MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true });
+        console.log('Database connected successfully.');
 
-    // Drop problematic indexes on Zone and School collections
-    await Zone.collection.dropIndexes().catch((err) => {
-      console.error("Error dropping indexes on Zone collection:", err);
-    });
-    await School.collection.dropIndexes().catch((err) => {
-      console.error("Error dropping indexes on School collection:", err);
-    });
+        // Clear existing data
+        await Role.deleteMany({});
+        await User.deleteMany({});
+        await District.deleteMany({});
+        await Zone.deleteMany({});
+        await Office.deleteMany({});
+        await School.deleteMany({});
 
-    // Clear existing data from collections
-    await District.deleteMany({});
-    await Zone.deleteMany({});
-    await School.deleteMany({});
-    await Employee.deleteMany({});
-    await User.deleteMany({}); // Clear users as well
+        await Role.insertMany([
+          { roleName: 'CEO' },
+          { roleName: 'ZEO' },
+          { roleName: 'schoolAdmin' },
+          { roleName: 'staff' }
+        ]);
 
-    // 1. Create a dummy District
-    const district = await District.create({
-      name: "Jammu District",
-    });
-    console.log("District created:", district);
+        console.log('Roles created successfully.');
 
-    // 2. Create dummy Zones that belong to the district
-    const zone1 = await Zone.create({
-      name: "Assar Zone",
-      district: district._id,
-    });
-    const zone2 = await Zone.create({
-      name: "Baderwah Zone",
-      district: district._id,
-    });
-    console.log("Zones created:", zone1, zone2);
+        // Create Dummy Districts and Zones
+        const districts = [];
+        const zones = [];
+        const offices = [];
 
-    // Update the district with the created zones
-    district.zones = [zone1._id, zone2._id];
-    await district.save();
+        for (let i = 1; i <= 3; i++) {
+            const district = new District({
+                name: `District ${i}`
+            });
+            await district.save();
+            districts.push(district);
 
-    // 3. Create dummy Schools under each Zone
-    const school1 = await School.create({
-      udiseId: "JK001", // Unique school identifier
-      name: "Sanskriti Vidyalaya",
-      address: "Plot 12, Sector 5, Jammu, J&K 180001",
-      principal: "Amit Kumar",
-      contact: "+91-9876543210",
-      scheme: "elementary",
-      subScheme: "10+2",
-      zone: zone1._id,
-      numberOfStudents: 500,
-    });
-    const school2 = await School.create({
-      udiseId: "JK002",
-      name: "Baderwah Public School",
-      address: "Block B, Model Town, Baderwah, J&K 180002",
-      principal: "Sunita Rani",
-      contact: "+91-9876543220",
-      scheme: "secondary",
-      subScheme: "10+2",
-      zone: zone2._id,
-      numberOfStudents: 300,
-    });
-    console.log("Schools created:", school1, school2);
+            for (let j = 1; j <= 3; j++) {
+                const zone = new Zone({
+                    name: `Zone ${j} of District ${i}`,
+                    district: district._id,
+                    offices: []
+                });
+                await zone.save();
+                zones.push(zone);
 
-    // Update the zones with the created schools
-    zone1.schools.push(school1._id);
-    await zone1.save();
-    zone2.schools.push(school2._id);
-    await zone2.save();
+                if (!district.zones) district.zones = [];
+                district.zones.push(zone._id);
+            }
 
-    // 4. Create a dummy Employee and assign to school1
-    const employee = await Employee.create({
-      employeeId: "EMP1001", // Unique employee identifier
-      sanctionedPost: "Teacher",
-      employeeName: "Alice Johnson",
-      staffType: "teaching",
-      dateOfBirth: new Date("1985-01-01"),
-      dateOfFirstAppointment: new Date("2010-09-01"),
-      designationAtFirstAppointment: "Assistant Teacher",
-      qualification: "B.Ed",
-      subjectInPG: "Mathematics",
-      presentDesignation: "Senior Teacher",
-      dateOfLatestPromotion: new Date("2018-07-01"),
-      dateOfRetirement: new Date("2045-01-01"),
-      dateOfCurrentPosting: new Date("2019-08-01"),
-      previousPostings: [
-        {
-          schoolName: "Old School",
-          startDate: new Date("2010-09-01"),
-          endDate: new Date("2015-06-30"),
-        },
-      ],
-      currentPayScale: "Scale A",
-      payLevel: "Level 3",
-      grossSalary: "50000",
-      pensionScheme: "NPS",
-      school: school1._id,
-    });
-    console.log("Employee created:", employee);
+            await district.save();
+        }
 
-    // Update the school with the created employee
-    school1.employees.push(employee._id);
-    await school1.save();
+        console.log('Districts and Zones created successfully.');
 
-    // 5. Create the main admin user
-    // Credentials: userId "admin" and password "admin123"
-    const adminUser = await User.create({
-      userId: "admin",
-      password: "admin123",
-      role: "admin",
-      passwordChanged: true, // Set true if you want the admin to not be forced to change the password
-    });
-    console.log("Admin user created:", adminUser.userId);
+        // ✅ Create a User with the CEO role and associate it with the FIRST district created
+        const admin = new User({
+            userName: 'anand',
+            password: 'anand', // 🔑 Store the plain text password; the hashing will be done by Mongoose pre-save middleware
+            role: 'CEO',
+            passwordChanged: false,
+            districtId: districts[0]._id  // Correctly assigning the existing district ID
+        });
 
-    console.log("Dummy data inserted successfully");
-    process.exit(0);
-  } catch (error) {
-    console.error("Error seeding data:", error);
-    process.exit(1);
-  }
+        await admin.save();  // Save the user after setting the districtId
+        console.log('Admin user created successfully.');
+
+        process.exit();
+    } catch (error) {
+        console.error('Error seeding database:', error);
+        process.exit(1);
+    }
 };
 
-seedData();
+seedDatabase();

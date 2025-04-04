@@ -8,7 +8,6 @@ export const getAllocatedPosts = async (req, res) => {
     const allocations = await AllocatedPosts.find()
       .populate("office", "officeName")  
       .populate("post", "postName");      
-
     res.json({ allocations });
   } catch (error) {
     res.status(500).json({ message: "Error fetching allocated posts", error: error.message });
