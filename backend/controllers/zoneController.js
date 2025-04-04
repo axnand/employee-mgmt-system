@@ -5,12 +5,13 @@ import District from "../models/District.js";
 
 export const getZones = async (req, res) => {
   try {
-    const zones = await Zone.find().populate("district").populate("zedioOfficer", "fullName employeeId"); 
-    res.json({ zones });
+    const zones = await Zone.find().populate("district");
+    res.status(200).json({ zones });
   } catch (error) {
     res.status(500).json({ message: "Error fetching zones", error: error.message });
   }
 };
+
 
 
 export const createZone = async (req, res) => {

@@ -64,3 +64,12 @@
 2025-04-04 20:33:48 [INFO]: Action: Failed Login - Performed by: anand (CEO) - Description: Unsuccessful login attempt - IP: ::1
 2025-04-04 20:36:43 [INFO]: Action: Login - Performed by: anand (CEO) - Description: anand logged in successfully as CEO - IP: ::1
 2025-04-04 20:36:49 [INFO]: Action: Password Update - Performed by: anand (CEO) - Description: User anand updated their password. - IP: ::1
+2025-04-04 21:20:35 [INFO]: Action: Failed Login - Performed by: anand (CEO) - Description: Unsuccessful login attempt - IP: ::1
+2025-04-04 21:20:38 [INFO]: Action: Failed Login - Performed by: anand (CEO) - Description: Unsuccessful login attempt - IP: ::1
+2025-04-04 21:20:39 [INFO]: Action: Failed Login - Performed by: anand (CEO) - Description: Unsuccessful login attempt - IP: ::1
+2025-04-04 21:20:50 [INFO]: Action: Failed Login - Performed by: anand (CEO) - Description: Unsuccessful login attempt - IP: ::1
+2025-04-04 21:20:51 [INFO]: Action: Failed Login - Performed by: anand (CEO) - Description: Unsuccessful login attempt - IP: ::1
+2025-04-04 21:20:53 [INFO]: Action: Failed Login - Performed by: anand (CEO) - Description: Unsuccessful login attempt - IP: ::1
+2025-04-04 21:25:52 [INFO]: Action: Failed Login - Performed by: anand (CEO) - Description: Unsuccessful login attempt - IP: ::1
+2025-04-04 21:26:48 [INFO]: Action: Failed Login - Performed by: anand (CEO) - Description: Unsuccessful login attempt - IP: ::1
+2025-04-04 21:26:53 [INFO]: Action: Login - Performed by: anand (CEO) - Description: anand logged in successfully as CEO - IP: ::1

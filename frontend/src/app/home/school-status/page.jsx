@@ -7,14 +7,17 @@ import { useUser } from "@/context/UserContext";
 import SchoolFilter from "@/components/school-status/SchoolFilter";
 import SchoolDetailsCard from "@/components/school-status/SchoolDetailsCard";
 import { getAllSchools, getSchoolById, getMySchool } from "@/api/schoolService";
+import axiosClient from "@/api/axiosClient"; // Make sure your axiosClient is correctly configured
 
 function SchoolStatusPageContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
-
-  // Get user info from context
+  
   const { userRole, user } = useUser();
   const contextSchoolId = user?.schoolId;
+  const userDistrictId = user?.districtId; // ✅ Get districtId from useUser
+  
+  console.log("user:", user);
 
   // Determine role flags
   const isCEO = userRole === "CEO";
@@ -25,6 +28,24 @@ function SchoolStatusPageContent() {
   const [selectedZone, setSelectedZone] = useState("");
   const [selectedScheme, setSelectedScheme] = useState("");
   const [selectedSchoolId, setSelectedSchoolId] = useState("");
+  const [zoneOptions, setZoneOptions] = useState([]);
+
+  // ✅ Fetch zones based on districtId
+  useEffect(() => {
+    const fetchZones = async () => {
+      try {
+        if (!userDistrictId) return; // Skip fetching if no districtId is available
+
+        const response = await axiosClient.get(`/zones?district=${userDistrictId}`);
+        const zones = response.data.zones || [];
+        setZoneOptions(zones.map(zone => zone.name));
+      } catch (error) {
+        console.error("Error fetching zones:", error.message);
+      }
+    };
+
+    fetchZones();
+  }, [userDistrictId]);
 
   // Only admin fetches the full school list
   const {
@@ -61,7 +82,6 @@ function SchoolStatusPageContent() {
     }
   }, [searchParams, isCEO, isSchoolAdmin, contextSchoolId, router]);
 
-  // If user is not authorized, display an unauthorized message.
   if (!isAuthorized) {
     return (
       <div className="h-full w-full flex justify-center items-center font-bold text-xl text-secondary">
@@ -70,28 +90,24 @@ function SchoolStatusPageContent() {
     );
   }
 
-  // Process school list for admin users
   const allSchools = schoolsData.map((school) => ({
     ...school,
     id: school._id,
     zone: school.zone?.name ?? school.zone,
   }));
 
-  // Build filter options (admin only)
-  const zoneOptions = [...new Set(allSchools.map((s) => s.zone))];
   const filteredByZone = selectedZone
     ? allSchools.filter((school) => school.zone === selectedZone)
     : allSchools;
+
   const schemeOptions = [...new Set(filteredByZone.map((s) => s.scheme))];
 
-  // Final filtered school list for dropdown (admin only)
   const filteredSchools = allSchools.filter((school) => {
     if (selectedZone && school.zone !== selectedZone) return false;
     if (selectedScheme && school.scheme !== selectedScheme) return false;
     return true;
   });
 
-  // Handlers for admin filtering
   const handleZoneChange = (e) => {
     setSelectedZone(e.target.value);
     setSelectedScheme("");
@@ -109,7 +125,6 @@ function SchoolStatusPageContent() {
     router.push(`/home/school-status?school=${newSchoolId}`);
   };
 
-  // For admin: show loading or error if fetching schools
   if (isCEO && isLoadingSchools) {
     return <p className="text-center">Loading schools...</p>;
   }
@@ -129,7 +144,6 @@ function SchoolStatusPageContent() {
           </p>
         </header>
 
-        {/* Render filter controls only for admin */}
         {isCEO && (
           <SchoolFilter
             zoneOptions={zoneOptions}
@@ -144,7 +158,6 @@ function SchoolStatusPageContent() {
           />
         )}
 
-        {/* Render school details if a school is selected */}
         {selectedSchoolId && isLoadingSchool && (
           <p className="text-center">Loading school details...</p>
         )}
@@ -159,7 +172,6 @@ function SchoolStatusPageContent() {
   );
 }
 
-// Wrap inside Suspense
 export default function SchoolStatusPage() {
   return (
     <Suspense fallback={<p className="text-center">Loading...</p>}>

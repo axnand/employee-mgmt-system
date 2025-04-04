@@ -31,6 +31,7 @@ export default function DashboardLayout({ children }) {
 
   // Retrieve the logged-in user from localStorage on mount
   const { user, userRole } = useUser();
+  console.log("user:", user)
 
   const schoolId = useMemo(() => {
     return userRole === "schoolAdmin" && user?.schoolId
