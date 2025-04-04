@@ -11,6 +11,7 @@ function page() {
   return (
     <>
     {userRole === "CEO" && <AdminDashboardPage/>}
+    {userRole === "ZEO" && <AdminDashboardPage/>}
     {userRole === "schoolAdmin" && <SchoolAdminDashboard/>}
     {userRole === "staff" && <StaffDashboard/>}
     </>

@@ -14,6 +14,7 @@ import {
   Download,
   Upload,
   PlusCircleIcon,
+  Briefcase,
 
 } from "lucide-react";
 import Link from "next/link";
@@ -73,6 +74,28 @@ export default function DashboardLayout({ children }) {
         icon: <Clipboard className=" h-5 w-5" />,
       },
       
+    ],
+    ZEO: [
+      {
+        title: "Dashboard",
+        href: "/home/dashboard",
+        icon: <LayoutDashboard className=" h-5 w-5" />,
+      },
+      {
+        title: "Offices",
+        href: "/home/offices",
+        icon: <Briefcase className=" h-5 w-5" />,
+      },
+      {
+        title: "School Status",
+        href: "/home/school-status",
+        icon: <School className=" h-5 w-5" />,
+      },
+      {
+        title: "Logs",
+        href: "/home/logs",
+        icon: <Clipboard className=" h-5 w-5" />,
+      },
     ],
     schoolAdmin: [
       {

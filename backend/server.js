@@ -11,6 +11,7 @@ import postRoutes from './routes/postRoutes.js';
 import zoneRoutes from './routes/zoneRoutes.js';
 import postingHistoryRoutes from './routes/postingHistoryRoutes.js';
 import districtRoutes from './routes/districtRoutes.js';
+import officeRoutes from './routes/officeRoutes.js';
 import { errorHandler } from './middleware/errorMiddleware.js';
 
 import cors from 'cors';
@@ -35,6 +36,7 @@ app.use("/api/posts", postRoutes);
 app.use("/api/zones", zoneRoutes);
 app.use("/api/posting-history", postingHistoryRoutes);
 app.use("/api/districts", districtRoutes);
+app.use("/api/offices", officeRoutes);
 
 
 app.get("/", (req, res) => {

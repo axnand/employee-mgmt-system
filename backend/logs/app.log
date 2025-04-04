@@ -73,3 +73,19 @@
 2025-04-04 21:25:52 [INFO]: Action: Failed Login - Performed by: anand (CEO) - Description: Unsuccessful login attempt - IP: ::1
 2025-04-04 21:26:48 [INFO]: Action: Failed Login - Performed by: anand (CEO) - Description: Unsuccessful login attempt - IP: ::1
 2025-04-04 21:26:53 [INFO]: Action: Login - Performed by: anand (CEO) - Description: anand logged in successfully as CEO - IP: ::1
+2025-04-04 21:49:38 [INFO]: Action: Failed Login - Performed by: zonal (ZEO) - Description: Unsuccessful login attempt - IP: ::1
+2025-04-04 21:50:40 [INFO]: Action: Login - Performed by: zonal (ZEO) - Description: zonal logged in successfully as ZEO - IP: ::1
+2025-04-04 21:50:45 [INFO]: Action: Password Update - Performed by: zonal (ZEO) - Description: User zonal updated their password. - IP: ::1
+2025-04-04 22:15:21 [INFO]: Action: Login - Performed by: anand (CEO) - Description: anand logged in successfully as CEO - IP: ::1
+2025-04-04 22:20:08 [INFO]: Action: Failed Login - Performed by: zonal (ZEO) - Description: Unsuccessful login attempt - IP: ::1
+2025-04-04 22:20:12 [INFO]: Action: Failed Login - Performed by: zonal (ZEO) - Description: Unsuccessful login attempt - IP: ::1
+2025-04-04 22:20:16 [INFO]: Action: Failed Login - Performed by: zonal (ZEO) - Description: Unsuccessful login attempt - IP: ::1
+2025-04-04 22:20:20 [INFO]: Action: Failed Login - Performed by: zonal (ZEO) - Description: Unsuccessful login attempt - IP: ::1
+2025-04-04 22:22:27 [INFO]: Action: Failed Login - Performed by: zonal (ZEO) - Description: Unsuccessful login attempt - IP: ::1
+2025-04-04 22:22:31 [INFO]: Action: Failed Login - Performed by: zonal (ZEO) - Description: Unsuccessful login attempt - IP: ::1
+2025-04-04 22:22:34 [INFO]: Action: Failed Login - Performed by: zonal (ZEO) - Description: Unsuccessful login attempt - IP: ::1
+2025-04-04 22:22:58 [INFO]: Action: Login - Performed by: zonal (ZEO) - Description: zonal logged in successfully as ZEO - IP: ::1
+2025-04-05 01:29:16 [INFO]: Action: Login - Performed by: anand (CEO) - Description: anand logged in successfully as CEO - IP: ::1
+2025-04-05 01:29:30 [INFO]: Action: Login - Performed by: zonal (ZEO) - Description: zonal logged in successfully as ZEO - IP: ::1
+2025-04-05 01:47:34 [INFO]: Action: Login - Performed by: zonal (ZEO) - Description: zonal logged in successfully as ZEO - IP: ::1
+2025-04-05 03:38:22 [INFO]: Action: Login - Performed by: zonal (ZEO) - Description: zonal logged in successfully as ZEO - IP: ::1
