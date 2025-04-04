@@ -5,9 +5,14 @@ import authRoutes from './routes/authRoutes.js';
 import employeeRoutes from './routes/employeeRoutes.js';
 import schoolRoutes from './routes/schoolRoutes.js';
 import transferRoutes from './routes/transferRoutes.js';
-import uploadRoutes from "./routes/uploadRoutes.js";
+import uploadRoutes from './routes/uploadRoutes.js';
 import logRoutes from './routes/logRoutes.js';
-import { errorHandler } from "./middleware/errorMiddleware.js";
+import postRoutes from './routes/postRoutes.js';
+import zoneRoutes from './routes/zoneRoutes.js';
+import postingHistoryRoutes from './routes/postingHistoryRoutes.js';
+import districtRoutes from './routes/districtRoutes.js';
+import { errorHandler } from './middleware/errorMiddleware.js';
+
 import cors from 'cors';
 
 dotenv.config();
@@ -26,10 +31,15 @@ app.use("/api/logs", logRoutes);
 app.use("/api/schools", schoolRoutes);
 app.use("/api/transfers", transferRoutes);
 app.use("/api/uploads", uploadRoutes);
+app.use("/api/posts", postRoutes);
+app.use("/api/zones", zoneRoutes);
+app.use("/api/posting-history", postingHistoryRoutes);
+app.use("/api/districts", districtRoutes);
+
+
 app.get("/", (req, res) => {
     res.send("Server is up and running!");
-  });
-
+});
 
 app.use(errorHandler);
 

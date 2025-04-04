@@ -1,0 +1,120 @@
+2025-04-04 20:49:31 [ERROR]: uncaughtException: roleRoutes is not defined
+ReferenceError: roleRoutes is not defined
+    at file:///C:/Users/hp/OneDrive/Desktop/projects/EMS/backend/server.js:35:23
+    at ModuleJob.run (node:internal/modules/esm/module_job:222:25)
+    at async ModuleLoader.import (node:internal/modules/esm/loader:316:24)
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:123:5)
+Stack Trace: ReferenceError: roleRoutes is not defined
+    at file:///C:/Users/hp/OneDrive/Desktop/projects/EMS/backend/server.js:35:23
+    at ModuleJob.run (node:internal/modules/esm/module_job:222:25)
+    at async ModuleLoader.import (node:internal/modules/esm/loader:316:24)
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:123:5)
+Meta: {"error":{},"exception":true,"date":"Fri Apr 04 2025 20:49:31 GMT+0530 (India Standard Time)","process":{"pid":10128,"uid":null,"gid":null,"cwd":"C:\\Users\\hp\\OneDrive\\Desktop\\projects\\EMS\\backend","execPath":"C:\\Users\\hp\\AppData\\Local\\fnm_multishells\\7344_1743751134418\\node.exe","version":"v20.14.0","argv":["C:\\Users\\hp\\AppData\\Local\\fnm_multishells\\7344_1743751134418\\node.exe","C:\\Users\\hp\\OneDrive\\Desktop\\projects\\EMS\\backend\\server.js"],"memoryUsage":{"rss":78286848,"heapTotal":57831424,"heapUsed":33442648,"external":20802406,"arrayBuffers":18262807}},"os":{"loadavg":[0,0,0],"uptime":1286008.671},"trace":[{"column":23,"file":"file:///C:/Users/hp/OneDrive/Desktop/projects/EMS/backend/server.js","function":null,"line":35,"method":null,"native":false},{"column":25,"file":"node:internal/modules/esm/module_job","function":"ModuleJob.run","line":222,"method":"run","native":false},{"column":24,"file":"node:internal/modules/esm/loader","function":"async ModuleLoader.import","line":316,"method":"import","native":false},{"column":5,"file":"node:internal/modules/run_main","function":"async asyncRunEntryPointWithESMLoader","line":123,"method":null,"native":false}]}
+2025-04-04 21:00:31 [ERROR]: uncaughtException: protect is not defined
+ReferenceError: protect is not defined
+    at file:///C:/Users/hp/OneDrive/Desktop/projects/EMS/backend/routes/districtRoutes.js:11:17
+    at ModuleJob.run (node:internal/modules/esm/module_job:222:25)
+    at async ModuleLoader.import (node:internal/modules/esm/loader:316:24)
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:123:5)
+Stack Trace: ReferenceError: protect is not defined
+    at file:///C:/Users/hp/OneDrive/Desktop/projects/EMS/backend/routes/districtRoutes.js:11:17
+    at ModuleJob.run (node:internal/modules/esm/module_job:222:25)
+    at async ModuleLoader.import (node:internal/modules/esm/loader:316:24)
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:123:5)
+Meta: {"error":{},"exception":true,"date":"Fri Apr 04 2025 21:00:31 GMT+0530 (India Standard Time)","process":{"pid":15252,"uid":null,"gid":null,"cwd":"C:\\Users\\hp\\OneDrive\\Desktop\\projects\\EMS\\backend","execPath":"C:\\Users\\hp\\AppData\\Local\\fnm_multishells\\7344_1743751134418\\node.exe","version":"v20.14.0","argv":["C:\\Users\\hp\\AppData\\Local\\fnm_multishells\\7344_1743751134418\\node.exe","C:\\Users\\hp\\OneDrive\\Desktop\\projects\\EMS\\backend\\server.js"],"memoryUsage":{"rss":80232448,"heapTotal":57569280,"heapUsed":32992912,"external":20791147,"arrayBuffers":18262472}},"os":{"loadavg":[0,0,0],"uptime":1286668.484},"trace":[{"column":17,"file":"file:///C:/Users/hp/OneDrive/Desktop/projects/EMS/backend/routes/districtRoutes.js","function":null,"line":11,"method":null,"native":false},{"column":25,"file":"node:internal/modules/esm/module_job","function":"ModuleJob.run","line":222,"method":"run","native":false},{"column":24,"file":"node:internal/modules/esm/loader","function":"async ModuleLoader.import","line":316,"method":"import","native":false},{"column":5,"file":"node:internal/modules/run_main","function":"async asyncRunEntryPointWithESMLoader","line":123,"method":null,"native":false}]}
+2025-04-04 21:00:34 [ERROR]: uncaughtException: protect is not defined
+ReferenceError: protect is not defined
+    at file:///C:/Users/hp/OneDrive/Desktop/projects/EMS/backend/routes/districtRoutes.js:11:17
+    at ModuleJob.run (node:internal/modules/esm/module_job:222:25)
+    at async ModuleLoader.import (node:internal/modules/esm/loader:316:24)
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:123:5)
+Stack Trace: ReferenceError: protect is not defined
+    at file:///C:/Users/hp/OneDrive/Desktop/projects/EMS/backend/routes/districtRoutes.js:11:17
+    at ModuleJob.run (node:internal/modules/esm/module_job:222:25)
+    at async ModuleLoader.import (node:internal/modules/esm/loader:316:24)
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:123:5)
+Meta: {"error":{},"exception":true,"date":"Fri Apr 04 2025 21:00:34 GMT+0530 (India Standard Time)","process":{"pid":23460,"uid":null,"gid":null,"cwd":"C:\\Users\\hp\\OneDrive\\Desktop\\projects\\EMS\\backend","execPath":"C:\\Users\\hp\\AppData\\Local\\fnm_multishells\\7344_1743751134418\\node.exe","version":"v20.14.0","argv":["C:\\Users\\hp\\AppData\\Local\\fnm_multishells\\7344_1743751134418\\node.exe","C:\\Users\\hp\\OneDrive\\Desktop\\projects\\EMS\\backend\\server.js"],"memoryUsage":{"rss":77615104,"heapTotal":57569280,"heapUsed":32750560,"external":20789869,"arrayBuffers":18262472}},"os":{"loadavg":[0,0,0],"uptime":1286671.718},"trace":[{"column":17,"file":"file:///C:/Users/hp/OneDrive/Desktop/projects/EMS/backend/routes/districtRoutes.js","function":null,"line":11,"method":null,"native":false},{"column":25,"file":"node:internal/modules/esm/module_job","function":"ModuleJob.run","line":222,"method":"run","native":false},{"column":24,"file":"node:internal/modules/esm/loader","function":"async ModuleLoader.import","line":316,"method":"import","native":false},{"column":5,"file":"node:internal/modules/run_main","function":"async asyncRunEntryPointWithESMLoader","line":123,"method":null,"native":false}]}
+2025-04-04 21:00:36 [ERROR]: uncaughtException: protect is not defined
+ReferenceError: protect is not defined
+    at file:///C:/Users/hp/OneDrive/Desktop/projects/EMS/backend/routes/districtRoutes.js:11:17
+    at ModuleJob.run (node:internal/modules/esm/module_job:222:25)
+    at async ModuleLoader.import (node:internal/modules/esm/loader:316:24)
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:123:5)
+Stack Trace: ReferenceError: protect is not defined
+    at file:///C:/Users/hp/OneDrive/Desktop/projects/EMS/backend/routes/districtRoutes.js:11:17
+    at ModuleJob.run (node:internal/modules/esm/module_job:222:25)
+    at async ModuleLoader.import (node:internal/modules/esm/loader:316:24)
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:123:5)
+Meta: {"error":{},"exception":true,"date":"Fri Apr 04 2025 21:00:36 GMT+0530 (India Standard Time)","process":{"pid":19880,"uid":null,"gid":null,"cwd":"C:\\Users\\hp\\OneDrive\\Desktop\\projects\\EMS\\backend","execPath":"C:\\Users\\hp\\AppData\\Local\\fnm_multishells\\7344_1743751134418\\node.exe","version":"v20.14.0","argv":["C:\\Users\\hp\\AppData\\Local\\fnm_multishells\\7344_1743751134418\\node.exe","C:\\Users\\hp\\OneDrive\\Desktop\\projects\\EMS\\backend\\server.js"],"memoryUsage":{"rss":78589952,"heapTotal":57565184,"heapUsed":31635224,"external":20789869,"arrayBuffers":18262472}},"os":{"loadavg":[0,0,0],"uptime":1286674.328},"trace":[{"column":17,"file":"file:///C:/Users/hp/OneDrive/Desktop/projects/EMS/backend/routes/districtRoutes.js","function":null,"line":11,"method":null,"native":false},{"column":25,"file":"node:internal/modules/esm/module_job","function":"ModuleJob.run","line":222,"method":"run","native":false},{"column":24,"file":"node:internal/modules/esm/loader","function":"async ModuleLoader.import","line":316,"method":"import","native":false},{"column":5,"file":"node:internal/modules/run_main","function":"async asyncRunEntryPointWithESMLoader","line":123,"method":null,"native":false}]}
+2025-04-04 21:00:40 [ERROR]: uncaughtException: protect is not defined
+ReferenceError: protect is not defined
+    at file:///C:/Users/hp/OneDrive/Desktop/projects/EMS/backend/routes/districtRoutes.js:11:17
+    at ModuleJob.run (node:internal/modules/esm/module_job:222:25)
+    at async ModuleLoader.import (node:internal/modules/esm/loader:316:24)
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:123:5)
+Stack Trace: ReferenceError: protect is not defined
+    at file:///C:/Users/hp/OneDrive/Desktop/projects/EMS/backend/routes/districtRoutes.js:11:17
+    at ModuleJob.run (node:internal/modules/esm/module_job:222:25)
+    at async ModuleLoader.import (node:internal/modules/esm/loader:316:24)
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:123:5)
+Meta: {"error":{},"exception":true,"date":"Fri Apr 04 2025 21:00:40 GMT+0530 (India Standard Time)","process":{"pid":8132,"uid":null,"gid":null,"cwd":"C:\\Users\\hp\\OneDrive\\Desktop\\projects\\EMS\\backend","execPath":"C:\\Users\\hp\\AppData\\Local\\fnm_multishells\\7344_1743751134418\\node.exe","version":"v20.14.0","argv":["C:\\Users\\hp\\AppData\\Local\\fnm_multishells\\7344_1743751134418\\node.exe","C:\\Users\\hp\\OneDrive\\Desktop\\projects\\EMS\\backend\\server.js"],"memoryUsage":{"rss":79450112,"heapTotal":57827328,"heapUsed":32050656,"external":20789869,"arrayBuffers":18262472}},"os":{"loadavg":[0,0,0],"uptime":1286677.484},"trace":[{"column":17,"file":"file:///C:/Users/hp/OneDrive/Desktop/projects/EMS/backend/routes/districtRoutes.js","function":null,"line":11,"method":null,"native":false},{"column":25,"file":"node:internal/modules/esm/module_job","function":"ModuleJob.run","line":222,"method":"run","native":false},{"column":24,"file":"node:internal/modules/esm/loader","function":"async ModuleLoader.import","line":316,"method":"import","native":false},{"column":5,"file":"node:internal/modules/run_main","function":"async asyncRunEntryPointWithESMLoader","line":123,"method":null,"native":false}]}
+2025-04-04 21:00:56 [ERROR]: uncaughtException: protect is not defined
+ReferenceError: protect is not defined
+    at file:///C:/Users/hp/OneDrive/Desktop/projects/EMS/backend/routes/districtRoutes.js:11:17
+    at ModuleJob.run (node:internal/modules/esm/module_job:222:25)
+    at async ModuleLoader.import (node:internal/modules/esm/loader:316:24)
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:123:5)
+Stack Trace: ReferenceError: protect is not defined
+    at file:///C:/Users/hp/OneDrive/Desktop/projects/EMS/backend/routes/districtRoutes.js:11:17
+    at ModuleJob.run (node:internal/modules/esm/module_job:222:25)
+    at async ModuleLoader.import (node:internal/modules/esm/loader:316:24)
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:123:5)
+Meta: {"error":{},"exception":true,"date":"Fri Apr 04 2025 21:00:56 GMT+0530 (India Standard Time)","process":{"pid":15252,"uid":null,"gid":null,"cwd":"C:\\Users\\hp\\OneDrive\\Desktop\\projects\\EMS\\backend","execPath":"C:\\Users\\hp\\AppData\\Local\\fnm_multishells\\7344_1743751134418\\node.exe","version":"v20.14.0","argv":["C:\\Users\\hp\\AppData\\Local\\fnm_multishells\\7344_1743751134418\\node.exe","C:\\Users\\hp\\OneDrive\\Desktop\\projects\\EMS\\backend\\server.js"],"memoryUsage":{"rss":79855616,"heapTotal":57569280,"heapUsed":33044960,"external":20789869,"arrayBuffers":18262472}},"os":{"loadavg":[0,0,0],"uptime":1286694.078},"trace":[{"column":17,"file":"file:///C:/Users/hp/OneDrive/Desktop/projects/EMS/backend/routes/districtRoutes.js","function":null,"line":11,"method":null,"native":false},{"column":25,"file":"node:internal/modules/esm/module_job","function":"ModuleJob.run","line":222,"method":"run","native":false},{"column":24,"file":"node:internal/modules/esm/loader","function":"async ModuleLoader.import","line":316,"method":"import","native":false},{"column":5,"file":"node:internal/modules/run_main","function":"async asyncRunEntryPointWithESMLoader","line":123,"method":null,"native":false}]}
+2025-04-04 21:01:52 [ERROR]: uncaughtException: protect is not defined
+ReferenceError: protect is not defined
+    at file:///C:/Users/hp/OneDrive/Desktop/projects/EMS/backend/routes/districtRoutes.js:11:17
+    at ModuleJob.run (node:internal/modules/esm/module_job:222:25)
+    at async ModuleLoader.import (node:internal/modules/esm/loader:316:24)
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:123:5)
+Stack Trace: ReferenceError: protect is not defined
+    at file:///C:/Users/hp/OneDrive/Desktop/projects/EMS/backend/routes/districtRoutes.js:11:17
+    at ModuleJob.run (node:internal/modules/esm/module_job:222:25)
+    at async ModuleLoader.import (node:internal/modules/esm/loader:316:24)
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:123:5)
+Meta: {"error":{},"exception":true,"date":"Fri Apr 04 2025 21:01:52 GMT+0530 (India Standard Time)","process":{"pid":2620,"uid":null,"gid":null,"cwd":"C:\\Users\\hp\\OneDrive\\Desktop\\projects\\EMS\\backend","execPath":"C:\\Users\\hp\\AppData\\Local\\fnm_multishells\\7344_1743751134418\\node.exe","version":"v20.14.0","argv":["C:\\Users\\hp\\AppData\\Local\\fnm_multishells\\7344_1743751134418\\node.exe","C:\\Users\\hp\\OneDrive\\Desktop\\projects\\EMS\\backend\\server.js"],"memoryUsage":{"rss":79294464,"heapTotal":57569280,"heapUsed":32708416,"external":20789869,"arrayBuffers":18262472}},"os":{"loadavg":[0,0,0],"uptime":1286749.796},"trace":[{"column":17,"file":"file:///C:/Users/hp/OneDrive/Desktop/projects/EMS/backend/routes/districtRoutes.js","function":null,"line":11,"method":null,"native":false},{"column":25,"file":"node:internal/modules/esm/module_job","function":"ModuleJob.run","line":222,"method":"run","native":false},{"column":24,"file":"node:internal/modules/esm/loader","function":"async ModuleLoader.import","line":316,"method":"import","native":false},{"column":5,"file":"node:internal/modules/run_main","function":"async asyncRunEntryPointWithESMLoader","line":123,"method":null,"native":false}]}
+2025-04-04 21:02:11 [ERROR]: uncaughtException: protect is not defined
+ReferenceError: protect is not defined
+    at file:///C:/Users/hp/OneDrive/Desktop/projects/EMS/backend/routes/districtRoutes.js:11:17
+    at ModuleJob.run (node:internal/modules/esm/module_job:222:25)
+    at async ModuleLoader.import (node:internal/modules/esm/loader:316:24)
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:123:5)
+Stack Trace: ReferenceError: protect is not defined
+    at file:///C:/Users/hp/OneDrive/Desktop/projects/EMS/backend/routes/districtRoutes.js:11:17
+    at ModuleJob.run (node:internal/modules/esm/module_job:222:25)
+    at async ModuleLoader.import (node:internal/modules/esm/loader:316:24)
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:123:5)
+Meta: {"error":{},"exception":true,"date":"Fri Apr 04 2025 21:02:11 GMT+0530 (India Standard Time)","process":{"pid":7276,"uid":null,"gid":null,"cwd":"C:\\Users\\hp\\OneDrive\\Desktop\\projects\\EMS\\backend","execPath":"C:\\Users\\hp\\AppData\\Local\\fnm_multishells\\7344_1743751134418\\node.exe","version":"v20.14.0","argv":["C:\\Users\\hp\\AppData\\Local\\fnm_multishells\\7344_1743751134418\\node.exe","C:\\Users\\hp\\OneDrive\\Desktop\\projects\\EMS\\backend\\server.js"],"memoryUsage":{"rss":79421440,"heapTotal":57569280,"heapUsed":32567672,"external":20789869,"arrayBuffers":18262472}},"os":{"loadavg":[0,0,0],"uptime":1286769},"trace":[{"column":17,"file":"file:///C:/Users/hp/OneDrive/Desktop/projects/EMS/backend/routes/districtRoutes.js","function":null,"line":11,"method":null,"native":false},{"column":25,"file":"node:internal/modules/esm/module_job","function":"ModuleJob.run","line":222,"method":"run","native":false},{"column":24,"file":"node:internal/modules/esm/loader","function":"async ModuleLoader.import","line":316,"method":"import","native":false},{"column":5,"file":"node:internal/modules/run_main","function":"async asyncRunEntryPointWithESMLoader","line":123,"method":null,"native":false}]}
+2025-04-04 21:02:32 [ERROR]: uncaughtException: protect is not defined
+ReferenceError: protect is not defined
+    at file:///C:/Users/hp/OneDrive/Desktop/projects/EMS/backend/routes/districtRoutes.js:11:17
+    at ModuleJob.run (node:internal/modules/esm/module_job:222:25)
+    at async ModuleLoader.import (node:internal/modules/esm/loader:316:24)
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:123:5)
+Stack Trace: ReferenceError: protect is not defined
+    at file:///C:/Users/hp/OneDrive/Desktop/projects/EMS/backend/routes/districtRoutes.js:11:17
+    at ModuleJob.run (node:internal/modules/esm/module_job:222:25)
+    at async ModuleLoader.import (node:internal/modules/esm/loader:316:24)
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:123:5)
+Meta: {"error":{},"exception":true,"date":"Fri Apr 04 2025 21:02:32 GMT+0530 (India Standard Time)","process":{"pid":24340,"uid":null,"gid":null,"cwd":"C:\\Users\\hp\\OneDrive\\Desktop\\projects\\EMS\\backend","execPath":"C:\\Users\\hp\\AppData\\Local\\fnm_multishells\\7344_1743751134418\\node.exe","version":"v20.14.0","argv":["C:\\Users\\hp\\AppData\\Local\\fnm_multishells\\7344_1743751134418\\node.exe","C:\\Users\\hp\\OneDrive\\Desktop\\projects\\EMS\\backend\\server.js"],"memoryUsage":{"rss":79749120,"heapTotal":57569280,"heapUsed":33225584,"external":20789869,"arrayBuffers":18262472}},"os":{"loadavg":[0,0,0],"uptime":1286789.875},"trace":[{"column":17,"file":"file:///C:/Users/hp/OneDrive/Desktop/projects/EMS/backend/routes/districtRoutes.js","function":null,"line":11,"method":null,"native":false},{"column":25,"file":"node:internal/modules/esm/module_job","function":"ModuleJob.run","line":222,"method":"run","native":false},{"column":24,"file":"node:internal/modules/esm/loader","function":"async ModuleLoader.import","line":316,"method":"import","native":false},{"column":5,"file":"node:internal/modules/run_main","function":"async asyncRunEntryPointWithESMLoader","line":123,"method":null,"native":false}]}
+2025-04-04 21:03:22 [ERROR]: uncaughtException: express is not defined
+ReferenceError: express is not defined
+    at file:///C:/Users/hp/OneDrive/Desktop/projects/EMS/backend/routes/districtRoutes.js:4:16
+    at ModuleJob.run (node:internal/modules/esm/module_job:222:25)
+    at async ModuleLoader.import (node:internal/modules/esm/loader:316:24)
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:123:5)
+Stack Trace: ReferenceError: express is not defined
+    at file:///C:/Users/hp/OneDrive/Desktop/projects/EMS/backend/routes/districtRoutes.js:4:16
+    at ModuleJob.run (node:internal/modules/esm/module_job:222:25)
+    at async ModuleLoader.import (node:internal/modules/esm/loader:316:24)
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:123:5)
+Meta: {"error":{},"exception":true,"date":"Fri Apr 04 2025 21:03:22 GMT+0530 (India Standard Time)","process":{"pid":15624,"uid":null,"gid":null,"cwd":"C:\\Users\\hp\\OneDrive\\Desktop\\projects\\EMS\\backend","execPath":"C:\\Users\\hp\\AppData\\Local\\fnm_multishells\\7344_1743751134418\\node.exe","version":"v20.14.0","argv":["C:\\Users\\hp\\AppData\\Local\\fnm_multishells\\7344_1743751134418\\node.exe","C:\\Users\\hp\\OneDrive\\Desktop\\projects\\EMS\\backend\\server.js"],"memoryUsage":{"rss":79851520,"heapTotal":57307136,"heapUsed":33013536,"external":20789869,"arrayBuffers":18262472}},"os":{"loadavg":[0,0,0],"uptime":1286839.89},"trace":[{"column":16,"file":"file:///C:/Users/hp/OneDrive/Desktop/projects/EMS/backend/routes/districtRoutes.js","function":null,"line":4,"method":null,"native":false},{"column":25,"file":"node:internal/modules/esm/module_job","function":"ModuleJob.run","line":222,"method":"run","native":false},{"column":24,"file":"node:internal/modules/esm/loader","function":"async ModuleLoader.import","line":316,"method":"import","native":false},{"column":5,"file":"node:internal/modules/run_main","function":"async asyncRunEntryPointWithESMLoader","line":123,"method":null,"native":false}]}

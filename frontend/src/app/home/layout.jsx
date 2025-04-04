@@ -13,6 +13,7 @@ import {
   File,Menu,
   Download,
   Upload,
+  PlusCircleIcon,
 
 } from "lucide-react";
 import Link from "next/link";
@@ -49,6 +50,11 @@ export default function DashboardLayout({ children }) {
         title: "School Status",
         href: "/home/school-status",
         icon: <School className=" h-5 w-5" />,
+      },
+      {
+        title: "Add Zones",
+        href: "/home/zones",
+        icon: <PlusCircleIcon className=" h-5 w-5" />,
       },
       {
         title: "Transfers",
