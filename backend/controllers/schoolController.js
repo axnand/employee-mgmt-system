@@ -1,16 +1,15 @@
 import School from "../models/School.js";
 import Zone from "../models/Zone.js";
-
+import Office from "../models/Office.js"; // Added import for Office
 
 export const getAllSchools = async (req, res) => {
   try {
     const schools = await School.find({}).populate("employees").populate("zone");
     res.json(schools);
   } catch (error) {
-    res.status(500).json({ message: "Error fetching schools", error });
+    res.status(500).json({ message: "Error fetching schools", error: error.message });
   }
 };
-
 
 export const getSchoolById = async (req, res) => {
   try {
@@ -20,19 +19,24 @@ export const getSchoolById = async (req, res) => {
     }
     res.json(school);
   } catch (error) {
-    res.status(500).json({ message: "Error fetching school by ID", error });
+    res.status(500).json({ message: "Error fetching school by ID", error: error.message });
   }
 };
 
 export const getMySchool = async (req, res) => {
   try {
-    const school = await School.findById(req.user.schoolId).populate("employees").populate("zone");
+    const school = await School.findById(req.user.schoolId)
+      .populate("employees")
+      .populate({
+        path: "office",
+        populate: { path: "zone", select: "name" }
+      });
     if (!school) {
       return res.status(404).json({ message: "School not found" });
     }
     res.json(school);
   } catch (error) {
-    res.status(500).json({ message: "Error fetching your school", error });
+    res.status(500).json({ message: "Error fetching your school", error: error.message });
   }
 };
 
@@ -92,7 +96,6 @@ export const updateSchool = async (req, res) => {
     res.status(500).json({ message: "Error updating school", error: error.message });
   }
 };
-
 
 export const deleteSchool = async (req, res) => {
   try {
