@@ -3,10 +3,8 @@
 import React, { useState } from "react";
 
 
-// Staff types available for selection
 export const staffTypes = ["Teaching", "Non-Teaching"];
 
-// Highest qualification options
 export const highestQualificationOptions = [
   "10TH",
   "12TH",
@@ -16,8 +14,6 @@ export const highestQualificationOptions = [
   "PHD"
 ];
 
-// PG Specialization options (for when highest qualification is not 10th/12th)
-// (This list is long; adjust or shorten as needed)
 export const pgSpecializationOptions = [
   "Master of Arts (MA)",
   "MA Arabic",
@@ -260,6 +256,7 @@ export default function AddEmployeeModal({
   if (!isOpen) return null;
 
   const staffTypes = ["Teaching", "Non-Teaching"];
+  const [posts, setPosts] = useState([]);
 
   // (Optional) You can add a function here to return a list of sanctioned posts based on staff type if needed.
   // For this updated schema, we assume "Designation" is provided as a free text or via a select list below.
@@ -375,6 +372,16 @@ export default function AddEmployeeModal({
       ))}
     </select>
   </div>
+  <div>
+    <label className="font-semibold text-gray-600 block mb-1">Date of Birth</label>
+    <input
+      type="date"
+      name="dateOfBirth"
+      value={newEmployeeData.dateOfBirth || ""}
+      onChange={(e) => setNewEmployeeData({ ...newEmployeeData, dateOfBirth: e.target.value })}
+      className="border border-gray-300 rounded w-full p-2"
+    />
+  </div>
 
   {/* Name of Sanctioned Posts */}
   <div>
@@ -414,16 +421,7 @@ export default function AddEmployeeModal({
   </div>
 
   {/* DATE OF BIRTH */}
-  <div>
-    <label className="font-semibold text-gray-600 block mb-1">Date of Birth</label>
-    <input
-      type="date"
-      name="dateOfBirth"
-      value={newEmployeeData.dateOfBirth || ""}
-      onChange={(e) => setNewEmployeeData({ ...newEmployeeData, dateOfBirth: e.target.value })}
-      className="border border-gray-300 rounded w-full p-2"
-    />
-  </div>
+  
 
   {/* DESIGNATION AT THE TIME OF APPOINTMENT */}
   <div>
@@ -493,8 +491,34 @@ export default function AddEmployeeModal({
               className="border border-gray-300 rounded w-full p-2"
             />
           </div>
+          {/* <div>
+            <label className="font-semibold text-gray-600 block mb-1">Posted Office ID</label>
+            <input
+              type="text"
+              name="postedOffice"
+              value={newEmployeeData.postedOffice || ""}
+              onChange={(e) =>
+                setNewEmployeeData({ ...newEmployeeData, postedOffice: e.target.value })
+              }
+              className="border border-gray-300 rounded w-full p-2"
+            />
+          </div> */}
+
+          {/* Working Office */}
+          {/* <div>
+            <label className="font-semibold text-gray-600 block mb-1">Working Office ID</label>
+            <input
+              type="text"
+              name="workingOffice"
+              value={newEmployeeData.workingOffice || ""}
+              onChange={(e) =>
+                setNewEmployeeData({ ...newEmployeeData, workingOffice: e.target.value })
+              }
+              className="border border-gray-300 rounded w-full p-2"
+            />
+          </div> */}
           {/* Working At */}
-          <div>
+          {/* <div>
             <label className="font-semibold text-gray-600 block mb-1">Working At</label>
             <input
               type="text"
@@ -503,7 +527,7 @@ export default function AddEmployeeModal({
               onChange={(e) => setNewEmployeeData({ ...newEmployeeData, workingAt: e.target.value })}
               className="border border-gray-300 rounded w-full p-2"
             />
-          </div>
+          </div> */}
           {/* Basis of Work */}
           <div>
             <label className="font-semibold text-gray-600 block mb-1">Basis of Work</label>
@@ -708,6 +732,248 @@ export default function AddEmployeeModal({
     </select>
   </div>
 
+  {/* Salary Details Section */}
+{/* <div className="border-t pt-4 mt-4">
+  <h3 className="text-lg font-bold mb-2">Salary Details</h3> */}
+  
+  {/* Basic Pay Section */}
+  {/* <div>
+    <label className="font-semibold text-gray-600 block mb-1">Basic Pay Amount</label>
+    <input
+      type="number"
+      name="salaryData.basicPay.amount"
+      value={newEmployeeData.salaryData?.basicPay?.amount || ""}
+      onChange={(e) =>
+        setNewEmployeeData({
+          ...newEmployeeData,
+          salaryData: {
+            ...newEmployeeData.salaryData,
+            basicPay: {
+              ...newEmployeeData.salaryData?.basicPay,
+              amount: e.target.value,
+            },
+          },
+        })
+      }
+      className="border border-gray-300 rounded w-full p-2"
+    />
+  </div> */}
+  
+  {/* PayScale (nested in BasicPay) */}
+  {/* <div className="mt-2">
+    <h4 className="font-semibold text-gray-700">PayScale Details</h4>
+    <div>
+      <label className="font-semibold text-gray-600 block mb-1">Pay Commission ID</label>
+      <input
+        type="text"
+        name="salaryData.basicPay.payScale.payCommission"
+        value={newEmployeeData.salaryData?.basicPay?.payScale?.payCommission || ""}
+        onChange={(e) =>
+          setNewEmployeeData({
+            ...newEmployeeData,
+            salaryData: {
+              ...newEmployeeData.salaryData,
+              basicPay: {
+                ...newEmployeeData.salaryData?.basicPay,
+                payScale: {
+                  ...newEmployeeData.salaryData?.basicPay?.payScale,
+                  payCommission: e.target.value,
+                },
+              },
+            },
+          })
+        }
+        className="border border-gray-300 rounded w-full p-2"
+      />
+    </div>
+    <div>
+      <label className="font-semibold text-gray-600 block mb-1">Pay Level Code</label>
+      <input
+        type="text"
+        name="salaryData.basicPay.payScale.payLevelCode"
+        value={newEmployeeData.salaryData?.basicPay?.payScale?.payLevelCode || ""}
+        onChange={(e) =>
+          setNewEmployeeData({
+            ...newEmployeeData,
+            salaryData: {
+              ...newEmployeeData.salaryData,
+              basicPay: {
+                ...newEmployeeData.salaryData?.basicPay,
+                payScale: {
+                  ...newEmployeeData.salaryData?.basicPay?.payScale,
+                  payLevelCode: e.target.value,
+                },
+              },
+            },
+          })
+        }
+        className="border border-gray-300 rounded w-full p-2"
+      />
+    </div>
+    <div>
+      <label className="font-semibold text-gray-600 block mb-1">Scale Range</label>
+      <input
+        type="text"
+        name="salaryData.basicPay.payScale.scaleRange"
+        value={newEmployeeData.salaryData?.basicPay?.payScale?.scaleRange || ""}
+        onChange={(e) =>
+          setNewEmployeeData({
+            ...newEmployeeData,
+            salaryData: {
+              ...newEmployeeData.salaryData,
+              basicPay: {
+                ...newEmployeeData.salaryData?.basicPay,
+                payScale: {
+                  ...newEmployeeData.salaryData?.basicPay?.payScale,
+                  scaleRange: e.target.value,
+                },
+              },
+            },
+          })
+        }
+        className="border border-gray-300 rounded w-full p-2"
+      />
+    </div>
+  </div> */}
+  
+  {/* DA Section */}
+  {/* <div className="mt-4">
+    <h4 className="font-semibold text-gray-700">DA Details</h4>
+    <div>
+      <label className="font-semibold text-gray-600 block mb-1">DA Percentage</label>
+      <input
+        type="number"
+        name="salaryData.da.daPercentage"
+        value={newEmployeeData.salaryData?.da?.daPercentage || ""}
+        onChange={(e) =>
+          setNewEmployeeData({
+            ...newEmployeeData,
+            salaryData: {
+              ...newEmployeeData.salaryData,
+              da: {
+                ...newEmployeeData.salaryData?.da,
+                daPercentage: e.target.value,
+              },
+            },
+          })
+        }
+        className="border border-gray-300 rounded w-full p-2"
+      />
+    </div>
+    <div>
+      <label className="font-semibold text-gray-600 block mb-1">DA Effective Date</label>
+      <input
+        type="date"
+        name="salaryData.da.effectiveDate"
+        value={newEmployeeData.salaryData?.da?.effectiveDate || ""}
+        onChange={(e) =>
+          setNewEmployeeData({
+            ...newEmployeeData,
+            salaryData: {
+              ...newEmployeeData.salaryData,
+              da: {
+                ...newEmployeeData.salaryData?.da,
+                effectiveDate: e.target.value,
+              },
+            },
+          })
+        }
+        className="border border-gray-300 rounded w-full p-2"
+      />
+    </div>
+    <div>
+      <label className="font-semibold text-gray-600 block mb-1">DA - Pay Commission ID</label>
+      <input
+        type="text"
+        name="salaryData.da.payCommission"
+        value={newEmployeeData.salaryData?.da?.payCommission || ""}
+        onChange={(e) =>
+          setNewEmployeeData({
+            ...newEmployeeData,
+            salaryData: {
+              ...newEmployeeData.salaryData,
+              da: {
+                ...newEmployeeData.salaryData?.da,
+                payCommission: e.target.value,
+              },
+            },
+          })
+        }
+        className="border border-gray-300 rounded w-full p-2"
+      />
+    </div>
+  </div> */}
+  
+  {/* HRA Section */}
+  {/* <div className="mt-4">
+    <h4 className="font-semibold text-gray-700">HRA Details</h4>
+    <div>
+      <label className="font-semibold text-gray-600 block mb-1">HRA Type</label>
+      <input
+        type="text"
+        name="salaryData.hra.hraType"
+        value={newEmployeeData.salaryData?.hra?.hraType || ""}
+        onChange={(e) =>
+          setNewEmployeeData({
+            ...newEmployeeData,
+            salaryData: {
+              ...newEmployeeData.salaryData,
+              hra: {
+                ...newEmployeeData.salaryData?.hra,
+                hraType: e.target.value,
+              },
+            },
+          })
+        }
+        className="border border-gray-300 rounded w-full p-2"
+      />
+    </div>
+    <div>
+      <label className="font-semibold text-gray-600 block mb-1">HRA Percentage</label>
+      <input
+        type="number"
+        name="salaryData.hra.hraPercentage"
+        value={newEmployeeData.salaryData?.hra?.hraPercentage || ""}
+        onChange={(e) =>
+          setNewEmployeeData({
+            ...newEmployeeData,
+            salaryData: {
+              ...newEmployeeData.salaryData,
+              hra: {
+                ...newEmployeeData.salaryData?.hra,
+                hraPercentage: e.target.value,
+              },
+            },
+          })
+        }
+        className="border border-gray-300 rounded w-full p-2"
+      />
+    </div>
+    <div>
+      <label className="font-semibold text-gray-600 block mb-1">HRA Effective Date</label>
+      <input
+        type="date"
+        name="salaryData.hra.effectiveDate"
+        value={newEmployeeData.salaryData?.hra?.effectiveDate || ""}
+        onChange={(e) =>
+          setNewEmployeeData({
+            ...newEmployeeData,
+            salaryData: {
+              ...newEmployeeData.salaryData,
+              hra: {
+                ...newEmployeeData.salaryData?.hra,
+                effectiveDate: e.target.value,
+              },
+            },
+          })
+        }
+        className="border border-gray-300 rounded w-full p-2"
+      />
+    </div>
+  </div> */}
+{/* </div> */}
+
+
   
 
           
@@ -737,78 +1003,149 @@ export default function AddEmployeeModal({
           </div>
 
           <div>
-      <label className="font-semibold text-gray-600 block mb-1">
-        Posting Details
-      </label>
-      {newEmployeeData.previousPostings && newEmployeeData.previousPostings.length > 0 && (
-        newEmployeeData.previousPostings.map((posting, index) => (
-          <div key={index} className="border p-2 rounded mb-2">
-            <input
-              type="text"
-              name="schoolName"
-              placeholder="School Name"
-              value={posting.schoolName}
-              onChange={(e) => {
-                const updatedPosting = { ...posting, schoolName: e.target.value };
-                const updatedPostings = [...(newEmployeeData.previousPostings || [])];
-                updatedPostings[index] = updatedPosting;
-                setNewEmployeeData({ ...newEmployeeData, previousPostings: updatedPostings });
-              }}
-              className="border rounded w-full p-1 mb-1"
-            />
-            <input
-              type="date"
-              name="startDate"
-              placeholder="Start Date"
-              value={posting.startDate ? posting.startDate.substring(0, 10) : ""}
-              onChange={(e) => {
-                const updatedPosting = { ...posting, startDate: e.target.value };
-                const updatedPostings = [...(newEmployeeData.previousPostings || [])];
-                updatedPostings[index] = updatedPosting;
-                setNewEmployeeData({ ...newEmployeeData, previousPostings: updatedPostings });
-              }}
-              className="border rounded w-full p-1 mb-1"
-            />
-            <input
-              type="date"
-              name="endDate"
-              placeholder="End Date"
-              value={posting.endDate ? posting.endDate.substring(0, 10) : ""}
-              onChange={(e) => {
-                const updatedPosting = { ...posting, endDate: e.target.value };
-                const updatedPostings = [...(newEmployeeData.previousPostings || [])];
-                updatedPostings[index] = updatedPosting;
-                setNewEmployeeData({ ...newEmployeeData, previousPostings: updatedPostings });
-              }}
-              className="border rounded w-full p-1 mb-1"
-            />
-            <button
-              onClick={() => {
-                // Remove the posting at index
-                const updatedPostings = newEmployeeData.previousPostings.filter((_, idx) => idx !== index);
-                setNewEmployeeData({ ...newEmployeeData, previousPostings: updatedPostings });
-              }}
-              className="text-red-500 text-xs"
-            >
-              Remove
-            </button>
-          </div>
-        ))
-      )}
-      <button
-        onClick={() => {
-          // Append a new empty posting to the previousPostings array
-          const newPosting = { schoolName: "", startDate: "", endDate: "" };
-          setNewEmployeeData({
-            ...newEmployeeData,
-            previousPostings: [...(newEmployeeData.previousPostings || []), newPosting],
-          });
-        }}
-        className="bg-blue-500 text-white px-3 py-1 rounded text-sm"
-      >
-        Add Posting
-      </button>
-  </div>
+  <label className="font-semibold text-gray-600 block mb-1">
+    Posting History
+  </label>
+  {newEmployeeData.postingHistory && newEmployeeData.postingHistory.length > 0 && (
+    newEmployeeData.postingHistory.map((posting, index) => (
+      <div key={index} className="border p-2 rounded mb-2">
+        {/* Office ID */}
+        <input
+          type="text"
+          name="office"
+          placeholder="Office ID"
+          value={posting.office || ""}
+          onChange={(e) => {
+            const updatedPosting = { ...posting, office: e.target.value };
+            const updatedPostings = [...(newEmployeeData.postingHistory || [])];
+            updatedPostings[index] = updatedPosting;
+            setNewEmployeeData({ ...newEmployeeData, postingHistory: updatedPostings });
+          }}
+          className="border rounded w-full p-1 mb-1"
+        />
+        {/* Designation During Posting */}
+        <input
+          type="text"
+          name="designationDuringPosting"
+          placeholder="Designation During Posting"
+          value={posting.designationDuringPosting || ""}
+          onChange={(e) => {
+            const updatedPosting = { ...posting, designationDuringPosting: e.target.value };
+            const updatedPostings = [...(newEmployeeData.postingHistory || [])];
+            updatedPostings[index] = updatedPosting;
+            setNewEmployeeData({ ...newEmployeeData, postingHistory: updatedPostings });
+          }}
+          className="border rounded w-full p-1 mb-1"
+        />
+        {/* Start Date */}
+        <input
+          type="date"
+          name="startDate"
+          placeholder="Start Date"
+          value={posting.startDate ? posting.startDate.substring(0, 10) : ""}
+          onChange={(e) => {
+            const updatedPosting = { ...posting, startDate: e.target.value };
+            const updatedPostings = [...(newEmployeeData.postingHistory || [])];
+            updatedPostings[index] = updatedPosting;
+            setNewEmployeeData({ ...newEmployeeData, postingHistory: updatedPostings });
+          }}
+          className="border rounded w-full p-1 mb-1"
+        />
+        {/* End Date */}
+        <input
+          type="date"
+          name="endDate"
+          placeholder="End Date"
+          value={posting.endDate ? posting.endDate.substring(0, 10) : ""}
+          onChange={(e) => {
+            const updatedPosting = { ...posting, endDate: e.target.value };
+            const updatedPostings = [...(newEmployeeData.postingHistory || [])];
+            updatedPostings[index] = updatedPosting;
+            setNewEmployeeData({ ...newEmployeeData, postingHistory: updatedPostings });
+          }}
+          className="border rounded w-full p-1 mb-1"
+        />
+        {/* Posting Type */}
+        <select
+          name="postingType"
+          value={posting.postingType || ""}
+          onChange={(e) => {
+            const updatedPosting = { ...posting, postingType: e.target.value };
+            const updatedPostings = [...(newEmployeeData.postingHistory || [])];
+            updatedPostings[index] = updatedPosting;
+            setNewEmployeeData({ ...newEmployeeData, postingHistory: updatedPostings });
+          }}
+          className="border rounded w-full p-1 mb-1"
+        >
+          <option value="">Select Posting Type</option>
+          <option value="Transfer">Transfer</option>
+          <option value="Deputation">Deputation</option>
+          <option value="Attachment">Attachment</option>
+          <option value="Other">Other</option>
+        </select>
+        {/* Reason */}
+        <input
+          type="text"
+          name="reason"
+          placeholder="Reason"
+          value={posting.reason || ""}
+          onChange={(e) => {
+            const updatedPosting = { ...posting, reason: e.target.value };
+            const updatedPostings = [...(newEmployeeData.postingHistory || [])];
+            updatedPostings[index] = updatedPosting;
+            setNewEmployeeData({ ...newEmployeeData, postingHistory: updatedPostings });
+          }}
+          className="border rounded w-full p-1 mb-1"
+        />
+        {/* Remarks */}
+        <input
+          type="text"
+          name="remarks"
+          placeholder="Remarks"
+          value={posting.remarks || ""}
+          onChange={(e) => {
+            const updatedPosting = { ...posting, remarks: e.target.value };
+            const updatedPostings = [...(newEmployeeData.postingHistory || [])];
+            updatedPostings[index] = updatedPosting;
+            setNewEmployeeData({ ...newEmployeeData, postingHistory: updatedPostings });
+          }}
+          className="border rounded w-full p-1 mb-1"
+        />
+        <button
+          onClick={() => {
+            const updatedPostings = newEmployeeData.postingHistory.filter((_, idx) => idx !== index);
+            setNewEmployeeData({ ...newEmployeeData, postingHistory: updatedPostings });
+          }}
+          className="text-red-500 text-xs"
+        >
+          Remove
+        </button>
+      </div>
+    ))
+  )}
+  <button
+    onClick={() => {
+      const newPosting = {
+        office: "",
+        designationDuringPosting: "",
+        startDate: "",
+        endDate: "",
+        postingType: "",
+        reason: "",
+        remarks: "",
+      };
+      setNewEmployeeData({
+        ...newEmployeeData,
+        postingHistory: [...(newEmployeeData.postingHistory || []), newPosting],
+      });
+    }}
+    className="bg-blue-500 text-white px-3 py-1 rounded text-sm"
+  >
+    Add Posting History
+  </button>
+</div>
+
+
 
   {/* Credentials */}
       <div>

@@ -16,6 +16,7 @@ const SchoolSchema = new mongoose.Schema(
     dateOfEstablishment: { type: Date },
     employees: [{ type: mongoose.Schema.Types.ObjectId, ref: "Employee" }],
     numberOfStudents: { type: Number },
+    zone: { type: mongoose.Schema.Types.ObjectId, ref: 'Zone' },
   },
   { timestamps: true }
 );

@@ -26,6 +26,7 @@ function SchoolStatusPageContent() {
   const [selectedSchoolId, setSelectedSchoolId] = useState("");
   const [zoneOptions, setZoneOptions] = useState([]);
 
+  // Fetch zones for CEO only, based on district
   useEffect(() => {
     const fetchZones = async () => {
       try {
@@ -40,6 +41,7 @@ function SchoolStatusPageContent() {
     if (isCEO) fetchZones();
   }, [userDistrictId, isCEO]);
 
+  // Fetch schools based on role
   const {
     data: schoolsData = [],
     isLoading: isLoadingSchools,
@@ -51,6 +53,8 @@ function SchoolStatusPageContent() {
     enabled: isCEO || isZEO,
   });
 
+  console.log("Schools data:", schoolsData);
+
   const {
     data: selectedSchoolData,
     isLoading: isLoadingSchool,
@@ -61,15 +65,17 @@ function SchoolStatusPageContent() {
     enabled: isSchoolAdmin ? true : !!selectedSchoolId,
   });
 
-
+  // Set school selection from URL or context
   useEffect(() => {
     const schoolParam = searchParams.get("school");
-    if (isCEO) {
-      if (schoolParam) setSelectedSchoolId(schoolParam);
+    const urlSchoolId = router.query?.schoolId || searchParams.get("school"); // Read schoolId from URL params
+
+    if ( urlSchoolId) {
+      setSelectedSchoolId(urlSchoolId); // If URL has schoolId, set it
     } else if (isSchoolAdmin && contextSchoolId) {
       setSelectedSchoolId(contextSchoolId);
     }
-  }, [searchParams, isCEO, isSchoolAdmin, contextSchoolId]);
+  }, [searchParams, isSchoolAdmin, contextSchoolId, router]);
 
   if (!isAuthorized) {
     return (
@@ -79,40 +85,46 @@ function SchoolStatusPageContent() {
     );
   }
 
-
-  let allSchools = [];
-  if (isCEO || isZEO) {
-    allSchools = schoolsData.map(school => ({
+ 
+  let allSchools = Array.isArray(schoolsData)
+  ? schoolsData.map((school) => ({
       ...school,
       id: school._id,
       zoneId: school.zone?._id,
-      zoneName: school.zone?.name,
-    }));
-  }
+    }))
+  : [];
 
+  console.log("All Schools:", allSchools);
+
+
+
+  // For ZEO, filter by user's zone
   if (isZEO && userZoneId) {
-    allSchools = allSchools.filter(school => school.zoneId?.toString() === userZoneId.toString());
-  
-    if (searchSchoolName) {
-      allSchools = allSchools.filter(school =>
-        school.name.toLowerCase().includes(searchSchoolName.toLowerCase())
-      );
-    }
+    allSchools = allSchools.filter(
+      school => school.zoneId?.toString() === userZoneId.toString()
+    );
   }
 
+  console.log("Filtered Schools:", allSchools);
+  // Create filteredSchools based on search term. If searchSchoolName is empty, show all schools.
+  const filteredSchools = searchSchoolName
+    ? allSchools.filter(school =>
+        school.name.toLowerCase().includes(searchSchoolName.toLowerCase())
+      )
+    : allSchools;
 
-  let filteredSchools = allSchools;
+  // For CEO: filter by zone and scheme if selected
+  let displayedSchools = filteredSchools;
   if (isCEO) {
     if (selectedZone) {
-      filteredSchools = filteredSchools.filter(school => school.zoneName === selectedZone);
+      displayedSchools = displayedSchools.filter(school => school.zoneName === selectedZone);
     }
     if (selectedScheme) {
-      filteredSchools = filteredSchools.filter(school => school.scheme === selectedScheme);
+      displayedSchools = displayedSchools.filter(school => school.scheme === selectedScheme);
     }
   }
 
-
-  const schemeOptions = [...new Set(filteredSchools.map(s => s.scheme).filter(Boolean))];
+  const schemeOptions = [...new Set(displayedSchools.map(s => s.scheme).filter(Boolean))];
 
   const handleZoneChange = (e) => {
     setSelectedZone(e.target.value);
@@ -142,6 +154,7 @@ function SchoolStatusPageContent() {
         </p>
       </header>
 
+      {/* Filters for CEO */}
       {isCEO && (
         <div className="mb-6">
           <div className="flex flex-col md:flex-row md:items-center md:gap-4">
@@ -176,7 +189,7 @@ function SchoolStatusPageContent() {
             className="border p-2 rounded w-full md:w-1/2"
           >
             <option value="">Select a School</option>
-            {filteredSchools.map(school => (
+            {displayedSchools.map(school => (
               <option key={school.id} value={school.id}>
                 {school.name}
               </option>
@@ -185,6 +198,7 @@ function SchoolStatusPageContent() {
         </div>
       )}
 
+      {/* Filters for ZEO */}
       {isZEO && (
         <div className="mb-6">
           <input

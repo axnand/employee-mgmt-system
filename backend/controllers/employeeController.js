@@ -5,6 +5,11 @@ import School from "../models/School.js";
 import Zone from "../models/Zone.js";
 import { createLog } from "../services/logService.js";
 import User from "../models/User.js";
+// import BasicPay from "../models/BasicPay.js";
+// import DA from "../models/DA.js";
+// import HRA from "../models/HRA.js";
+import EmployeeSalaries from "../models/EmployeeSalary.js";
+import PostingHistory from "../models/PostingHistory.js";
 
 
 export const getEmployees = async (req, res) => {
@@ -65,11 +70,17 @@ export const getEmployeeById = async (req, res) => {
 
 
 export const createEmployee = async (req, res) => {
+  const session = await mongoose.startSession();
+  session.startTransaction();
   try {
-    const schoolId = req.user.role.roleName === "School" ? req.user.schoolId : req.body.school;
+    // Determine the school ID based on the user's role
+    const schoolId =
+      req.user.role.roleName === "SchoolAdmin"
+        ? req.user.schoolId
+        : req.body.school;
 
-    if (!schoolId) {
-      return res.status(400).json({ message: "School ID is required" });
+    if (!schoolId || !mongoose.Types.ObjectId.isValid(schoolId)) {
+      return res.status(400).json({ message: "Valid School ID is required" });
     }
 
     const school = await School.findById(schoolId);
@@ -77,37 +88,77 @@ export const createEmployee = async (req, res) => {
       return res.status(404).json({ message: "School not found" });
     }
 
-    const newEmployee = await Employee.create({
-      ...req.body,
-      school: schoolId,
-    });
+    // Create a new employee
+    const newEmployee = await Employee.create(
+      [
+        {
+          ...req.body,
+          school: schoolId,
+        },
+      ],
+      { session }
+    );
 
-    school.employees.push(newEmployee._id);
-    await school.save();
+    const savedEmployee = newEmployee[0]; // Since Mongoose returns an array when using transactions
 
-    const newUser = await User.create({
-      userName: req.body.credentials?.username || newEmployee.employeeId,
-      role: req.body.roleId,
-      password: req.body.credentials?.passwordHash,
-      schoolId,
-      employeeId: newEmployee._id,
-      passwordChanged: false,
-    });
+    // Push the new employee ID into the school's employees array and save the school
+    school.employees.push(savedEmployee._id);
+    await school.save({ session });
 
+    // Create a User record for the employee
+    const newUser = await User.create(
+      [
+        {
+          userName: req.body.credentials?.username || savedEmployee.employeeId,
+          role: 'staff',
+          password: req.body.credentials?.passwordHash,
+          schoolId,
+          employeeId: savedEmployee._id,
+          passwordChanged: false,
+        },
+      ],
+      { session }
+    );
+
+    // Handle Posting History
+    if (req.body.postingHistory && Array.isArray(req.body.postingHistory)) {
+      const postingRecords = req.body.postingHistory.map((posting) => ({
+        employee: savedEmployee._id,
+        office: posting.office,
+        designationDuringPosting: posting.designationDuringPosting,
+        startDate: posting.startDate,
+        endDate: posting.endDate,
+        postingType: posting.postingType,
+        reason: posting.reason,
+        remarks: posting.remarks,
+      }));
+
+      if (postingRecords.length > 0) {
+        await PostingHistory.insertMany(postingRecords, { session });
+      }
+    }
+
+    // Log the employee creation action
     await createLog({
       admin: req.user.userId,
       role: req.user.role.roleName,
       action: "Employee Creation",
-      description: `Created employee ${newEmployee.fullName}`,
+      description: `Created employee ${savedEmployee.fullName}`,
       ip: req.ip,
     });
 
-    res.status(201).json({ message: "Employee created", employee: newEmployee });
+    await session.commitTransaction();
+    session.endSession();
 
+    res.status(201).json({ message: "Employee created successfully", employee: savedEmployee });
   } catch (error) {
-    res.status(500).json({ message: "Error creating employee", error });
+    await session.abortTransaction();
+    session.endSession();
+    console.error(error);
+    res.status(500).json({ message: "Error creating employee", error: error.message });
   }
 };
+
 
 
 export const updateEmployee = async (req, res) => {

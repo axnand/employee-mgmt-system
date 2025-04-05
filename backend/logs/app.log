@@ -94,3 +94,8 @@
 2025-04-05 10:42:36 [INFO]: Action: Login - Performed by: anand (CEO) - Description: anand logged in successfully as CEO - IP: ::1
 2025-04-05 10:42:41 [INFO]: Action: Login - Performed by: anand (CEO) - Description: anand logged in successfully as CEO - IP: ::1
 2025-04-05 10:44:11 [INFO]: Action: Login - Performed by: anand (CEO) - Description: anand logged in successfully as CEO - IP: ::1
+2025-04-05 14:44:48 [INFO]: Action: Login - Performed by: zeo_moda (ZEO) - Description: zeo_moda logged in successfully as ZEO - IP: ::1
+2025-04-05 14:45:01 [INFO]: Action: Password Update - Performed by: zeo_moda (ZEO) - Description: User zeo_moda updated their password. - IP: ::1
+2025-04-05 19:46:07 [INFO]: Action: Login - Performed by: anand (CEO) - Description: anand logged in successfully as CEO - IP: ::1
+2025-04-06 00:04:17 [INFO]: Action: Login - Performed by: schoolAdmin_4000 (schoolAdmin) - Description: schoolAdmin_4000 logged in successfully as schoolAdmin - IP: ::1
+2025-04-06 00:04:22 [INFO]: Action: Password Update - Performed by: schoolAdmin_4000 (schoolAdmin) - Description: User schoolAdmin_4000 updated their password. - IP: ::1

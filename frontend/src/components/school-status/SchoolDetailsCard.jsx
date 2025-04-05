@@ -17,7 +17,8 @@ import AddEmployeeModal from "./AddEmployeeModal";
 import { ToastContainer, toast } from "react-toastify";
 
 export default function SchoolDetailsCard({ schoolInfo }) {
-  const { userRole } = useUser();
+  const { userRole, user } = useUser();
+  const schoolId = user?.schoolId;
   console.log("SchoolInfo",schoolInfo);
   const queryClient = useQueryClient();
   const [isEditing, setIsEditing] = useState(false);
@@ -81,12 +82,14 @@ export default function SchoolDetailsCard({ schoolInfo }) {
                 Authorization: `Bearer ${token}`,
             },
             body: JSON.stringify({
-                ...newEmployeeData,
-                staffType: newEmployeeData.staffType ? newEmployeeData.staffType.toLowerCase() : "",
-                presentDesignation: newEmployeeData.presentDesignation || "Unknown",
-                bed: newEmployeeData.bed === "Yes" ? true : false,
-                photograph: "",  // ✅ Convert to Boolean
-            }),
+              ...newEmployeeData,
+              staffType: newEmployeeData.staffType ? newEmployeeData.staffType.toLowerCase() : "",
+              presentDesignation: newEmployeeData.presentDesignation || "Unknown",
+              bed: newEmployeeData.bed === "Yes" ? true : false,
+              photograph: "",
+              school: String(schoolInfo._id), // ✅ Ensure it's a string.
+          }),
+          
         });
 
         const text = await response.text();

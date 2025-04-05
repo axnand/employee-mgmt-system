@@ -1,11 +1,11 @@
-"use client";
+'use client';
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useUser } from "@/context/UserContext";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { createOffice } from "@/api/officeService";
-
+import { toast } from "react-toastify"; // Make sure react-toastify is installed
 
 export default function AddOfficePage() {
   const router = useRouter();
@@ -36,6 +36,21 @@ export default function AddOfficePage() {
     mutationFn: createOffice, // Correct usage in v4
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ["offices"] });
+      toast.success("School added successfully!");
+      // Reset form fields
+      setOfficeName("");
+      setOfficeType("Administrative");
+      setIsDdo(false);
+      setDdoOfficer("");
+      setDdoCode("");
+      setParentOffice("");
+      setUdiseId("");
+      setSchoolName("");
+      setScheme("");
+      setSubScheme("");
+      setFeasibilityZone("");
+      setAdminUserName("");
+      setAdminPassword("");
     },
     onError: (err) => {
       setError(err.response?.data?.message || "Failed to create office");
@@ -59,10 +74,14 @@ export default function AddOfficePage() {
     }
   };
   
-
   const handleSubmit = (e) => {
     e.preventDefault();
     setError("");
+
+    if (!zoneId) {
+      setError("Zone ID is missing. Please contact your administrator.");
+      return;
+    }
 
     const officeData = {
       officeName,
@@ -82,8 +101,9 @@ export default function AddOfficePage() {
           scheme,
           subScheme,
           feasibilityZone,
-          adminUserName,
+          adminUserName,    
           adminPassword,
+          zone: zoneId ,
         },
       ];
     }
@@ -214,7 +234,7 @@ export default function AddOfficePage() {
               <input
                 type="text"
                 value={adminUserName}
-                onChange={(e) => setAdminUserName(e.target.value)} // Allow changing username
+                onChange={(e) => setAdminUserName(e.target.value)}
                 className="w-full border rounded p-2"
               />
             </div>

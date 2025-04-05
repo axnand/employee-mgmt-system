@@ -4,7 +4,10 @@ import Office from "../models/Office.js"; // Added import for Office
 
 export const getAllSchools = async (req, res) => {
   try {
-    const schools = await School.find({}).populate("employees").populate("zone");
+    const schools = await School.find()
+      .populate('zone')  
+      .exec();
+
     res.json(schools);
   } catch (error) {
     res.status(500).json({ message: "Error fetching schools", error: error.message });
