@@ -2,14 +2,18 @@
 import { useState, useEffect } from 'react';
 import axiosClient from "@/api/axiosClient";
 import { useRouter } from 'next/navigation';
+import { useUser } from "@/context/UserContext";
 
 const AddZonePage = () => {
   const [name, setName] = useState('');
   const [districts, setDistricts] = useState([]);
-  const [selectedDistrict, setSelectedDistrict] = useState('');
+  const [zeoUserName, setZeoUserName] = useState('');
+  const [zeoPassword, setZeoPassword] = useState('');
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const router = useRouter();
+  const { user } = useUser();
+  const districtId = user?.districtId;
 
   useEffect(() => {
     const fetchDistricts = async () => {
@@ -24,24 +28,50 @@ const AddZonePage = () => {
     fetchDistricts();
   }, []);
 
+  // Function to generate random password
+  const generatePassword = () => {
+    const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*";
+    let password = "";
+    for (let i = 0; i < 12; i++) {
+      password += chars.charAt(Math.floor(Math.random() * chars.length));
+    }
+    return password;
+  };
+
+  // Automatically generate username and password when zone name is entered
+  useEffect(() => {
+    if (name) {
+      const formattedName = name.trim().toLowerCase().replace(/\s+/g, '_');
+      setZeoUserName(`zeo_${formattedName}`);
+      setZeoPassword(generatePassword());
+    }
+  }, [name]);
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
     setSuccess('');
 
-    if (!name || !selectedDistrict) {
-      setError('Zone name and District are required');
+    if (!name) {
+      setError('Zone name is required');
       return;
     }
 
     try {
-      const response = await axiosClient.post('/zones', { name, district: selectedDistrict });
-      setSuccess('Zone added successfully!');
+      const response = await axiosClient.post('/zones', { 
+        name, 
+        district: districtId,
+        zeoUserName,
+        zeoPassword 
+      });
+
+      setSuccess('Zone and ZEO user added successfully!');
       setName('');
-      setSelectedDistrict('');
+      setZeoUserName('');
+      setZeoPassword('');
     } catch (error) {
       console.error(error.message);
-      setError('Failed to create zone. Make sure the zone name is unique within the selected district.');
+      setError('Failed to create zone. Make sure the zone name is unique within the district.');
     }
   };
 
@@ -62,23 +92,32 @@ const AddZonePage = () => {
               onChange={(e) => setName(e.target.value)}
               className="w-full p-2 border border-gray-300 rounded mt-1"
               placeholder="Enter zone name"
+              required
+            />
+          </div>
+
+          
+
+          <div>
+            <label className="block text-gray-700"> ZEO Username</label>
+            <input
+              type="text"
+              onChange={(e) => setZeoUserName(e.target.value)}
+              value={zeoUserName}
+              className="w-full p-2 border border-gray-300 rounded mt-1 "
+              
             />
           </div>
 
           <div>
-            <label className="block text-gray-700">Select District</label>
-            <select
-              value={selectedDistrict}
-              onChange={(e) => setSelectedDistrict(e.target.value)}
-              className="w-full p-2 border border-gray-300 rounded mt-1"
-            >
-              <option value="">Select District</option>
-              {districts.map((district) => (
-                <option key={district._id} value={district._id}>
-                  {district.name}
-                </option>
-              ))}
-            </select>
+            <label className="block text-gray-700">Generated ZEO Password</label>
+            <input
+              type="text"
+              onChange={(e) => setZeoPassword(e.target.value)}
+              value={zeoPassword}
+              className="w-full p-2 border border-gray-300 rounded mt-1 "
+              
+            />
           </div>
 
           <button

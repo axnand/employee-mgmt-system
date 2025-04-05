@@ -9,14 +9,7 @@ import { useOutsideClick } from "@/hooks/useOutsideClick";
 import {
   Users,
   ChevronLeft,
-  // Check,
-  // X,
-  // AlertTriangle,
   Briefcase,
-  // UserX,
-  // UserCheck,
-  // UserMinus,
-  // UserRoundPenIcon
 } from "lucide-react";
 import { School, MapPin, User, Phone } from "lucide-react";
 import { useUser } from "@/context/UserContext";

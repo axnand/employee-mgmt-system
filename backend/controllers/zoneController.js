@@ -1,6 +1,7 @@
 
 import Zone from "../models/Zone.js";
 import District from "../models/District.js";
+import User from "../models/User.js";
 
 
 export const getZones = async (req, res) => {
@@ -16,7 +17,7 @@ export const getZones = async (req, res) => {
 
 export const createZone = async (req, res) => {
   try {
-    const { name, district, zedioOfficer } = req.body;
+    const { name, district, zedioOfficer, zeoUserName, zeoPassword } = req.body;
 
     if (!name || !district) {
       return res.status(400).json({ message: "Name and District are required" });
@@ -35,10 +36,30 @@ export const createZone = async (req, res) => {
     const newZone = new Zone({
       name,
       district,
+      zedioOfficer
     });
 
     await newZone.save();
-    res.status(201).json({ message: "Zone created", zone: newZone });
+
+   
+    if (!zeoUserName || !zeoPassword) {
+      return res.status(400).json({ message: "ZEO Username and Password are required" });
+    }
+
+    
+
+    const newUser = new User({
+      userName: zeoUserName,
+      password: zeoPassword,
+      role: 'ZEO',
+      passwordChanged: false,
+      districtId: district,
+      zoneId: newZone._id
+    });
+
+    await newUser.save();
+
+    res.status(201).json({ message: "Zone created and ZEO user created successfully", zone: newZone, user: newUser });
   } catch (error) {
     res.status(500).json({ message: "Error creating zone", error: error.message });
   }
