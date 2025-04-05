@@ -1,8 +1,11 @@
 "use client";
 
-import { useState,useEffect } from "react";
+import { useState,useEffect,useRef } from "react";
 import Link from "next/link";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import EditSchoolModal from "./EditSchoolModal";
+import { useOutsideClick } from "@/hooks/useOutsideClick";
+
 import {
   Users,
   ChevronLeft,
@@ -24,6 +27,14 @@ export default function SchoolDetailsCard({ schoolInfo }) {
   const { userRole } = useUser();
   console.log("SchoolInfo",schoolInfo);
   const queryClient = useQueryClient();
+  const [isEditing, setIsEditing] = useState(false);
+  const editModalRef = useRef(null);
+
+  useOutsideClick(editModalRef, () => {
+    if (isEditing) {
+      setDropdownVisible(false);
+    }
+  });
 
 
   // Use the employees array from the fresh schoolInfo data.
@@ -130,30 +141,86 @@ export default function SchoolDetailsCard({ schoolInfo }) {
       <ToastContainer/>
       <div className="max-w-7xl mx-auto">
         {/* School Information */}
-        <div className="bg-white border-l-[3px] border-primary p-6 rounded-lg shadow-sm transition duration-300 mb-8 font-medium text-sm">
-          <div className="flex items-center gap-3">
-            <School className="w-7 h-7 text-primary" />
-            <h1 className="text-2xl font-bold text-secondary">{schoolInfo.name}</h1>
-          </div>
-          <div className="mt-4 space-y-3">
-            <p className="flex items-center text-gray-600">
-              <MapPin className="w-5 h-5 text-secondary mr-2" />
-              {schoolInfo.address}
-            </p>
-            <p className="flex items-center text-gray-600">
-              <User className="w-5 h-5 text-secondary mr-2" />
-              {schoolInfo.principal}
-            </p>
-            <p className="flex items-center text-gray-600">
-              <Phone className="w-5 h-5 text-secondary mr-2" />
-              {schoolInfo.contact}
-            </p>
-            <p className="text-gray-600">
-              <span className="font-semibold text-secondary">School Type:</span>{" "}
-              {schoolInfo.scheme}
-            </p>
-          </div>
-        </div>
+         <div className="bg-white border-l-[3px] border-primary p-6 rounded-lg shadow-sm transition duration-300 mb-8 text-sm">
+      <div className="flex items-center gap-3">
+        <School className="w-7 h-7 text-primary" />
+        <h1 className="text-2xl font-bold text-secondary">{schoolInfo.name}</h1>
+      </div>
+      <div className="mt-4 space-y-3">
+        <p className="flex items-center text-gray-600">
+          <MapPin className="w-5 h-5 text-secondary mr-2" />
+          {schoolInfo.address || "No address provided"}
+        </p>
+        <p className="flex items-center text-gray-600">
+          <User className="w-5 h-5 text-secondary mr-2" />
+          {schoolInfo.principal || "No principal provided"}
+        </p>
+        <p className="flex items-center text-gray-600">
+          <Phone className="w-5 h-5 text-secondary mr-2" />
+          {schoolInfo.contact || "No contact provided"}
+        </p>
+        {schoolInfo.office && schoolInfo.office.zone && (
+          <p className="flex items-center text-gray-600">
+            <span className="font-semibold text-secondary">Zone: </span>{" "}
+            {schoolInfo.office.zone.name}
+          </p>
+        )}
+        {schoolInfo.office && schoolInfo.office.zone && schoolInfo.office.zone.district && (
+          <p className="flex items-center text-gray-600">
+            <span className="font-semibold text-secondary">District:</span>{" "}
+            {schoolInfo.office.zone.district}
+          </p>
+        )}
+        <p className="text-gray-600">
+          <span className="font-semibold text-secondary">UDISe ID:</span>{" "}
+          {schoolInfo.udiseId}
+        </p>
+        <p className="text-gray-600">
+          <span className="font-semibold text-secondary">Feasibility Zone:</span>{" "}
+          {schoolInfo.feasibilityZone}
+        </p>
+        {schoolInfo.scheme && (
+          <p className="text-gray-600">
+            <span className="font-semibold text-secondary">Scheme:</span>{" "}
+            {schoolInfo.scheme}
+          </p>
+        )}
+        {schoolInfo.subScheme && (
+          <p className="text-gray-600">
+            <span className="font-semibold text-secondary">Sub Scheme:</span>{" "}
+            {schoolInfo.subScheme}
+          </p>
+        )}
+        {schoolInfo.dateOfEstablishment && (
+          <p className="text-gray-600">
+            <span className="font-semibold text-secondary">Established:</span>{" "}
+            {new Date(schoolInfo.dateOfEstablishment).toLocaleDateString()}
+          </p>
+        )}
+        {schoolInfo.dateOfUpgrade && (
+          <p className="text-gray-600">
+            <span className="font-semibold text-secondary">Upgraded On:</span>{" "}
+            {new Date(schoolInfo.dateOfUpgrade).toLocaleDateString()}
+          </p>
+        )}
+      </div>
+      {schoolInfo && schoolInfo._id && (
+        <button
+          onClick={() => setIsEditing(true)}
+          className="mt-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+        >
+          Edit School Details
+        </button>
+      )}
+
+      {isEditing && (
+        <EditSchoolModal
+          ref={editModalRef}
+          school={schoolInfo}
+          onClose={() => setIsEditing(false)}
+        />
+      )}
+    </div>
 
         {/* Employee Filter */}
         <div className="bg-white p-6 rounded-lg shadow-sm mb-8 border-l-[3px] border-primary">

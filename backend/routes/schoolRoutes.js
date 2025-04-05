@@ -22,7 +22,7 @@ router.get("/:id", protect, getSchoolById);
 
 router.post("/", protect, authorizeRoles("CEO", "ZEO"), createSchool); 
 
-router.put("/:id", protect, authorizeRoles("CEO", "ZEO", "School"), updateSchool); 
+router.put("/:id", protect, authorizeRoles("CEO", "ZEO", "schoolAdmin"), updateSchool);
 
 router.delete("/:id", protect, authorizeRoles("CEO", "ZEO"), deleteSchool);
 

@@ -25,3 +25,8 @@ export const getSchoolStatus = async () => {
   // Expecting res.data to have a 'zones' property
   return res.data.zones;
 };
+
+export const updateSchool = async (id, schoolData) => {
+  const res = await axiosClient.put(`/schools/${id}`, schoolData);
+  return res.data;
+};

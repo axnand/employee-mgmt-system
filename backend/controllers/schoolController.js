@@ -23,6 +23,7 @@ export const getSchoolById = async (req, res) => {
   }
 };
 
+
 export const getMySchool = async (req, res) => {
   try {
     const school = await School.findById(req.user.schoolId)
@@ -86,16 +87,15 @@ export const updateSchool = async (req, res) => {
         path: "office",
         populate: { path: "zone", select: "name district" }
       });
-
     if (!updatedSchool) {
       return res.status(404).json({ message: "School not found" });
     }
-
     res.json({ message: "School updated successfully", school: updatedSchool });
   } catch (error) {
     res.status(500).json({ message: "Error updating school", error: error.message });
   }
 };
+
 
 export const deleteSchool = async (req, res) => {
   try {
