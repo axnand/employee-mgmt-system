@@ -13,49 +13,54 @@ import PostingHistory from "../models/PostingHistory.js";
 
 
 export const getEmployees = async (req, res) => {
+  
+
   try {
+    console.log("User role:", req.user.role);
     let employees;
-    if (req.user.role.roleName === "CEO") {
+    
+    if (req.user.role === "CEO") {
+      // CEO can access all employees
       employees = await Employee.find({});
-    } else if (req.user.role.roleName === "ZEO") {
+    } else if (req.user.role === "ZEO") {
+      // For ZEO, populate the zone's schools and then get employees
       const zone = await Zone.findById(req.user.zoneId).populate({
         path: "schools",
-        populate: { path: "employees" }
+        populate: { path: "employees" },
       });
-
       employees = zone.schools.reduce((acc, school) => [...acc, ...school.employees], []);
-    } else if (req.user.role.roleName === "School") {
+    } else if (req.user.role === "schoolAdmin") {
+      // For schoolAdmin, find the employees for the given school
       const school = await School.findById(req.user.schoolId).populate("employees");
       employees = school ? school.employees : [];
     } else {
       return res.status(403).json({ message: "Not authorized to view employees" });
     }
+    
     res.json(employees);
   } catch (error) {
     res.status(500).json({ message: "Error fetching employees", error });
   }
 };
 
-
 export const getEmployeeById = async (req, res) => {
   try {
+    // Populate posting history if needed (you can do a separate query if required)
     const employee = await Employee.findById(req.params.id);
     if (!employee) {
       return res.status(404).json({ message: "Employee not found" });
     }
 
-    if (req.user.role.roleName === "CEO") {
+    if (req.user.role === "CEO") {
       return res.json(employee);
-    } else if (req.user.role.roleName === "ZEO") {
+    } else if (req.user.role === "ZEO") {
       const zone = await Zone.findById(req.user.zoneId).populate("schools");
       const schoolIds = zone.schools.map((school) => school._id.toString());
-
       if (!schoolIds.includes(employee.school.toString())) {
         return res.status(403).json({ message: "Not authorized to view this employee" });
       }
-
       return res.json(employee);
-    } else if (req.user.role.roleName === "School") {
+    } else if (req.user.role === "School") {
       if (employee.school.toString() !== req.user.schoolId) {
         return res.status(403).json({ message: "Not authorized to view this employee" });
       }
@@ -75,7 +80,7 @@ export const createEmployee = async (req, res) => {
   try {
     // Determine the school ID based on the user's role
     const schoolId =
-      req.user.role.roleName === "SchoolAdmin"
+      req.user.role === "SchoolAdmin"
         ? req.user.schoolId
         : req.body.school;
 
@@ -141,7 +146,7 @@ export const createEmployee = async (req, res) => {
     // Log the employee creation action
     await createLog({
       admin: req.user.userId,
-      role: req.user.role.roleName,
+      role: req.user.role,
       action: "Employee Creation",
       description: `Created employee ${savedEmployee.fullName}`,
       ip: req.ip,
@@ -168,42 +173,35 @@ export const updateEmployee = async (req, res) => {
       req.body,
       { new: true }
     );
-
     if (!updatedEmployee) {
       return res.status(404).json({ message: "Employee not found" });
     }
-
     await createLog({
       admin: req.user.userId,
-      role: req.user.role.roleName,
+      role: req.user.role,
       action: "Update Employee",
       description: `Updated employee ${updatedEmployee.fullName}`,
       ip: req.ip,
     });
-
     res.json(updatedEmployee);
   } catch (error) {
     res.status(500).json({ message: "Error updating employee", error });
   }
 };
 
-
 export const deleteEmployee = async (req, res) => {
   try {
     const deletedEmployee = await Employee.findByIdAndDelete(req.params.id);
-
     if (!deletedEmployee) {
       return res.status(404).json({ message: "Employee not found" });
     }
-
     await createLog({
       admin: req.user.userId,
-      role: req.user.role.roleName,
+      role: req.user.role,
       action: "Delete Employee",
       description: `Deleted employee ${deletedEmployee.fullName}`,
       ip: req.ip,
     });
-
     res.json({ message: "Employee deleted successfully" });
   } catch (error) {
     res.status(500).json({ message: "Error deleting employee", error });

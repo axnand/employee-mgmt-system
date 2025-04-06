@@ -99,3 +99,14 @@
 2025-04-05 19:46:07 [INFO]: Action: Login - Performed by: anand (CEO) - Description: anand logged in successfully as CEO - IP: ::1
 2025-04-06 00:04:17 [INFO]: Action: Login - Performed by: schoolAdmin_4000 (schoolAdmin) - Description: schoolAdmin_4000 logged in successfully as schoolAdmin - IP: ::1
 2025-04-06 00:04:22 [INFO]: Action: Password Update - Performed by: schoolAdmin_4000 (schoolAdmin) - Description: User schoolAdmin_4000 updated their password. - IP: ::1
+2025-04-06 04:19:26 [ERROR]: Failed to create log: Log validation failed: role: Path `role` is required.
+Stack Trace: ValidationError: Log validation failed: role: Path `role` is required.
+    at Document.invalidate (C:\Users\hp\OneDrive\Desktop\projects\EMS\backend\node_modules\mongoose\lib\document.js:3329:32)
+    at C:\Users\hp\OneDrive\Desktop\projects\EMS\backend\node_modules\mongoose\lib\document.js:3090:17
+    at C:\Users\hp\OneDrive\Desktop\projects\EMS\backend\node_modules\mongoose\lib\schemaType.js:1407:9
+    at process.processTicksAndRejections (node:internal/process/task_queues:77:11)
+Meta: {"errors":{"role":{"name":"ValidatorError","message":"Path `role` is required.","properties":{"message":"Path `role` is required.","type":"required","path":"role"},"kind":"required","path":"role"}},"_message":"Log validation failed"}
+2025-04-06 05:21:46 [INFO]: Action: Failed Login - Performed by: anand (CEO) - Description: Unsuccessful login attempt - IP: ::1
+2025-04-06 05:21:52 [INFO]: Action: Login - Performed by: anand (CEO) - Description: anand logged in successfully as CEO - IP: ::1
+2025-04-06 06:21:06 [INFO]: Action: Login - Performed by: anandmohan (staff) - Description: anandmohan logged in successfully as staff - IP: ::1
+2025-04-06 06:21:10 [INFO]: Action: Password Update - Performed by: anandmohan (staff) - Description: User anandmohan updated their password. - IP: ::1

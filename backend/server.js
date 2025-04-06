@@ -32,7 +32,7 @@ app.use("/api/schools", schoolRoutes);
 app.use("/api/transfers", transferRoutes);
 app.use("/api/uploads", uploadRoutes);
 app.use("/api/zones", zoneRoutes);
-app.use("/api/posting-history", postingHistoryRoutes);
+app.use("/api/postingHistory", postingHistoryRoutes);
 app.use("/api/districts", districtRoutes);
 app.use("/api/offices", officeRoutes);
 

@@ -1,8 +1,6 @@
 import jwt from "jsonwebtoken";
 
-/**
- * protect - Middleware to verify the user's JWT and attach user info to req.user.
- */
+
 export const protect = (req, res, next) => {
   let token;
   if (
@@ -12,8 +10,6 @@ export const protect = (req, res, next) => {
     try {
       token = req.headers.authorization.split(" ")[1];
       const decoded = jwt.verify(token, process.env.JWT_SECRET);
-
-      // Attach user data to req.user
       req.user = {
         userId: decoded.userId,
         role: decoded.role,
@@ -24,7 +20,6 @@ export const protect = (req, res, next) => {
       };
       next();
     } catch (error) {
-      console.error("Token verification failed:", error);
       return res.status(401).json({ message: "Not authorized, token failed" });
     }
   } else {
@@ -32,10 +27,8 @@ export const protect = (req, res, next) => {
   }
 };
 
-/**
- * authorizeRoles - Generic middleware to check if the user's role is one of the allowed roles.
- * Usage: router.use(authorizeRoles("CEO", "ZEO", "schoolAdmin", "staff"))
- */
+
+
 export const authorizeRoles = (...allowedRoles) => {
   return (req, res, next) => {
     if (req.user && allowedRoles.includes(req.user.role)) {
@@ -48,9 +41,7 @@ export const authorizeRoles = (...allowedRoles) => {
   };
 };
 
-/**
- * isCEO - Middleware to check if the user has the "CEO" role.
- */
+
 export const isCEO = (req, res, next) => {
   if (req.user && req.user.role === "CEO") {
     next();
@@ -59,9 +50,7 @@ export const isCEO = (req, res, next) => {
   }
 };
 
-/**
- * isZEO - Middleware to check if the user has the "ZEO" role.
- */
+
 export const isZEO = (req, res, next) => {
   if (req.user && req.user.role === "ZEO") {
     next();
@@ -70,9 +59,7 @@ export const isZEO = (req, res, next) => {
   }
 };
 
-/**
- * isSchoolAdmin - Middleware to check if the user has the "schoolAdmin" role.
- */
+
 export const isSchoolAdmin = (req, res, next) => {
   if (req.user && req.user.role === "schoolAdmin") {
     next();
@@ -81,9 +68,7 @@ export const isSchoolAdmin = (req, res, next) => {
   }
 };
 
-/**
- * isStaff - Middleware to check if the user has the "staff" role.
- */
+
 export const isStaff = (req, res, next) => {
   if (req.user && req.user.role === "staff") {
     next();

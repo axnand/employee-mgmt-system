@@ -13,32 +13,26 @@ export const getPostingHistoryByEmployee = async (req, res) => {
       return res.status(404).json({ message: "Employee not found" });
     }
 
-    if (req.user.role.roleName === "CEO") {
+    if (req.user.role === "CEO") {
       const history = await PostingHistory.find({ employee: req.params.employeeId }).populate("office");
       res.json({ history });
-
-    } else if (req.user.role.roleName === "ZEO") {
+    } else if (req.user.role === "ZEO") {
       const zone = await Zone.findById(req.user.zoneId).populate("schools");
-
       const schoolIds = zone.schools.map(school => school._id.toString());
       if (!schoolIds.includes(employee.school.toString())) {
         return res.status(403).json({ message: "Not authorized to view this employee's posting history" });
       }
-
       const history = await PostingHistory.find({ employee: req.params.employeeId }).populate("office");
       res.json({ history });
-
-    } else if (req.user.role.roleName === "School") {
+    } else if (req.user.role === "schoolAdmin") {
       if (employee.school.toString() !== req.user.schoolId) {
         return res.status(403).json({ message: "Not authorized to view this employee's posting history" });
       }
-
       const history = await PostingHistory.find({ employee: req.params.employeeId }).populate("office");
       res.json({ history });
-      
     } else {
       res.status(403).json({ message: "Not authorized" });
-    }
+    }    
   } catch (error) {
     res.status(500).json({ message: "Error fetching posting history", error: error.message });
   }
@@ -54,11 +48,11 @@ export const createPostingHistory = async (req, res) => {
       return res.status(404).json({ message: "Employee not found" });
     }
 
-    if (req.user.role.roleName === "School" && employeeRecord.school.toString() !== req.user.schoolId) {
+    if (req.user.role === "School" && employeeRecord.school.toString() !== req.user.schoolId) {
       return res.status(403).json({ message: "Not authorized to add posting history for this employee" });
     }
 
-    if (req.user.role.roleName === "ZEO") {
+    if (req.user.role === "ZEO") {
       const zone = await Zone.findById(req.user.zoneId).populate("schools");
       const schoolIds = zone.schools.map(school => school._id.toString());
 
@@ -71,7 +65,7 @@ export const createPostingHistory = async (req, res) => {
 
     await createLog({
       admin: req.user.userId,
-      role: req.user.role.roleName,
+      role: req.user.role,
       action: "Create Posting History",
       description: `Created posting history for employee ${employeeRecord.fullName}`,
       ip: req.ip,
