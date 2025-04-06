@@ -4,9 +4,7 @@ const SchoolSchema = new mongoose.Schema(
   {
     udiseId: { type: String, required: true, unique: true },
     name: { type: String, required: true },
-    address: { type: String },
     principal: { type: String },
-    contact: { type: String },
     office: { type: mongoose.Schema.Types.ObjectId, ref: "Office", default: null },
     isPMShiriSchool: { type: Boolean, default: false },
     feasibilityZone: { type: String, required: true },
@@ -16,7 +14,6 @@ const SchoolSchema = new mongoose.Schema(
     dateOfEstablishment: { type: Date },
     employees: [{ type: mongoose.Schema.Types.ObjectId, ref: "Employee" }],
     numberOfStudents: { type: Number },
-    zone: { type: mongoose.Schema.Types.ObjectId, ref: 'Zone' },
   },
   { timestamps: true }
 );

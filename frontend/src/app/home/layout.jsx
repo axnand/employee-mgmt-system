@@ -49,14 +49,19 @@ export default function DashboardLayout({ children }) {
         icon: <LayoutDashboard className=" h-5 w-5" />,
       },
       {
+        title: "Subordinate Offices",
+        href: "/home/zones",
+        icon: <PlusCircleIcon className=" h-5 w-5" />,
+      },
+      {
+        title: "Offices",
+        href: "/home/offices",
+        icon: <Briefcase className=" h-5 w-5" />,
+      },
+      {
         title: "School Status",
         href: "/home/school-status",
         icon: <School className=" h-5 w-5" />,
-      },
-      {
-        title: "Add Zones",
-        href: "/home/zones",
-        icon: <PlusCircleIcon className=" h-5 w-5" />,
       },
       {
         title: "Transfers",
