@@ -1,13 +1,5 @@
 import mongoose from "mongoose";
 
-const PostingSchema = new mongoose.Schema(
-  {
-    schoolName: { type: String, required: true },
-    startDate: { type: Date, required: true },
-    endDate: { type: Date, required: true },
-  },
-  { _id: false }
-);
 
 const EmployeeSchema = new mongoose.Schema(
   {
@@ -40,7 +32,6 @@ const EmployeeSchema = new mongoose.Schema(
     anyOtherCertification: { type: String },
     // salaryDetails: { type: mongoose.Schema.Types.ObjectId, ref: "EmployeeSalaries" },
     pensionScheme: { type: String, enum: ["NPS", "OPS"] },
-    previousPostings: [PostingSchema],
     phoneNo: { type: String },
     email: { type: String },
     photograph: { type: String }, 

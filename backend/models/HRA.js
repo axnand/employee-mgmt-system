@@ -1,7 +1,7 @@
 import mongoose from "mongoose";
 
 const HRASchema = new mongoose.Schema({
-  hraType: { type: String, required: true, unique: true },
+  hraType: { type: String, required: true, unique: true },//
   hraPercentage: { type: Number },
   effectiveDate: { type: Date }
 }, { timestamps: true });

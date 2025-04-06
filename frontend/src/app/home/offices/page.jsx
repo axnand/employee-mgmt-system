@@ -12,7 +12,7 @@ export default function AddOfficePage() {
   const queryClient = useQueryClient();
   const { user } = useUser();
   const zoneId = user?.zoneId;  
-
+  const [officeId, setOfficeId] = useState("");
   const [officeName, setOfficeName] = useState("");
   const [officeType, setOfficeType] = useState("Administrative");
   const [isDdo, setIsDdo] = useState(false);
@@ -82,8 +82,13 @@ export default function AddOfficePage() {
       setError("Zone ID is missing. Please contact your administrator.");
       return;
     }
+    if (!officeId) {
+      setError("Office ID is required.");
+      return;
+    }
 
     const officeData = {
+      officeId,
       officeName,
       officeType,
       zone: zoneId,
@@ -116,6 +121,16 @@ export default function AddOfficePage() {
       <h1 className="text-2xl font-bold mb-4">Add New Office</h1>
       {error && <p className="text-red-500 mb-4">{error}</p>}
       <form onSubmit={handleSubmit} className="bg-white shadow rounded p-6 space-y-4">
+      <div>
+          <label className="block text-gray-700">Office ID</label>
+          <input
+            type="text"
+            value={officeId}
+            onChange={(e) => setOfficeId(e.target.value)}
+            className="w-full border rounded p-2"
+            required
+          />
+        </div>
         <div>
           <label className="block text-gray-700">Office Name</label>
           <input

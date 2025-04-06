@@ -7,6 +7,7 @@ import User from "../models/User.js";
 export const getOffices = async (req, res) => {
   try {
     const offices = await Office.find()
+      .select("officeId officeName officeType zone ddoOfficer schools isDdo ddoCode parentOffice")
       .populate("zone")
       .populate("ddoOfficer", "fullName employeeId")
       .populate("schools", "name udiseId");
@@ -18,11 +19,12 @@ export const getOffices = async (req, res) => {
 };
 
 
+
 export const createOffice = async (req, res) => {
   try {
-    const { officeName, officeType, zone, ddoOfficer, schools, ddoCode, parentOffice, isDdo } = req.body;
+    const { officeId, officeName, officeType, zone, ddoOfficer, schools, ddoCode, parentOffice, isDdo } = req.body;
 
-    if (!officeName || !officeType || !zone) {
+    if (!officeId || !officeName || !officeType || !zone) {
       return res.status(400).json({ message: "Office name, type, and zone are required" });
     }
 
@@ -62,6 +64,7 @@ export const createOffice = async (req, res) => {
     }
 
     const officeData = {
+      officeId,
       officeName,
       officeType,
       zone,
@@ -102,7 +105,7 @@ export const updateOffice = async (req, res) => {
     const { officeName, officeType, zone, ddoOfficer, schools, ddoCode, parentOffice, isDdo } = req.body;
 
     const updatedOffice = await Office.findByIdAndUpdate(
-      officeId,
+      { officeId },
       { officeName, officeType, zone, ddoOfficer, schools, ddoCode, parentOffice, isDdo },
       { new: true }
     )

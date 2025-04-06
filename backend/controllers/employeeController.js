@@ -45,26 +45,40 @@ export const getEmployees = async (req, res) => {
 
 export const getEmployeeById = async (req, res) => {
   try {
-    // Populate posting history if needed (you can do a separate query if required)
+    // Fetch the employee by ID from the request
     const employee = await Employee.findById(req.params.id);
+
     if (!employee) {
       return res.status(404).json({ message: "Employee not found" });
     }
 
     if (req.user.role === "CEO") {
+      // CEO can access any employee
       return res.json(employee);
+
     } else if (req.user.role === "ZEO") {
       const zone = await Zone.findById(req.user.zoneId).populate("schools");
       const schoolIds = zone.schools.map((school) => school._id.toString());
+
       if (!schoolIds.includes(employee.school.toString())) {
         return res.status(403).json({ message: "Not authorized to view this employee" });
       }
+
       return res.json(employee);
-    } else if (req.user.role === "School") {
+
+    } else if (req.user.role === "schoolAdmin") {
       if (employee.school.toString() !== req.user.schoolId) {
         return res.status(403).json({ message: "Not authorized to view this employee" });
       }
       return res.json(employee);
+
+    } else if (req.user.role === "staff") {
+      // Allow staff to view only their own profile
+      if (employee._id.toString() !== req.user.employeeId) {
+        return res.status(403).json({ message: "Not authorized to view this profile" });
+      }
+      return res.json(employee);
+
     } else {
       return res.status(403).json({ message: "Not authorized" });
     }
@@ -74,13 +88,14 @@ export const getEmployeeById = async (req, res) => {
 };
 
 
+
 export const createEmployee = async (req, res) => {
   const session = await mongoose.startSession();
   session.startTransaction();
   try {
     // Determine the school ID based on the user's role
     const schoolId =
-      req.user.role === "SchoolAdmin"
+      req.user.role === "schoolAdmin"
         ? req.user.schoolId
         : req.body.school;
 

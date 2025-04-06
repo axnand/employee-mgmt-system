@@ -1,6 +1,7 @@
 import mongoose from "mongoose";
 
 const OfficeSchema = new mongoose.Schema({
+  officeId: { type: String, required: true, unique: true },
   officeName: { type: String, required: true },
   officeType: { type: String, required: true, enum: ['Administrative', 'Educational'] },
   zone: { type: mongoose.Schema.Types.ObjectId, ref: "Zone", required: true },

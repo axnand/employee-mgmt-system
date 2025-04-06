@@ -1,6 +1,6 @@
 export const staffTypes = ["Teaching", "Non-Teaching"];
 
-// Highest qualification options
+
 export const highestQualificationOptions = [
   "10TH",
   "12TH",
@@ -10,8 +10,7 @@ export const highestQualificationOptions = [
   "PHD"
 ];
 
-// PG Specialization options (for when highest qualification is not 10th/12th)
-// (This list is long; adjust or shorten as needed)
+
 export const pgSpecializationOptions = [
   "Master of Arts (MA)",
   "MA Arabic",
@@ -98,7 +97,6 @@ export const pgSpecializationOptions = [
   "MTM (Master of Tourism and Management)"
 ];
 
-// Teaching designation options (example list)
 export const teachingDesignationOptions = [
   "HEADMASTER",
   "HEADMASTER RMSA",
@@ -140,7 +138,7 @@ export const teachingDesignationOptions = [
   "Vocational Trainer"
 ];
 
-// Non-teaching designation options (example list)
+
 export const nonTeachingDesignationOptions = [
   "ACCOUNTANT",
   "ACCOUNTS ASSISTANT",
@@ -199,7 +197,7 @@ export const nonTeachingDesignationOptions = [
   "AAYA"
 ];
 
-// Current Payscale and Level options
+
 export const currentPayscaleOptions = [
   "SL1 (14800-47100)",
   "SL2 (15900-50400)",

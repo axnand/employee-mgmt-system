@@ -6,7 +6,7 @@ import Post from "../models/Posts.js";
 export const getAllocatedPosts = async (req, res) => {
   try {
     const allocations = await AllocatedPosts.find()
-      .populate("office", "officeName")  
+      .populate("office", "officeId")  
       .populate("post", "postName");      
     res.json({ allocations });
   } catch (error) {

@@ -110,3 +110,20 @@ Meta: {"errors":{"role":{"name":"ValidatorError","message":"Path `role` is requi
 2025-04-06 05:21:52 [INFO]: Action: Login - Performed by: anand (CEO) - Description: anand logged in successfully as CEO - IP: ::1
 2025-04-06 06:21:06 [INFO]: Action: Login - Performed by: anandmohan (staff) - Description: anandmohan logged in successfully as staff - IP: ::1
 2025-04-06 06:21:10 [INFO]: Action: Password Update - Performed by: anandmohan (staff) - Description: User anandmohan updated their password. - IP: ::1
+2025-04-06 11:29:02 [INFO]: Action: Login - Performed by: anand (CEO) - Description: anand logged in successfully as CEO - IP: ::1
+2025-04-06 14:55:12 [INFO]: Action: Update Employee - Performed by: 67eff55ae0e221b836393c1f (CEO) - Description: Updated employee Anand Mohan Jha - IP: ::1
+2025-04-06 15:06:13 [INFO]: Action: Update Employee - Performed by: 67eff55ae0e221b836393c1f (CEO) - Description: Updated employee Anand Mohan Jha - IP: ::1
+2025-04-06 15:06:24 [INFO]: Action: Update Employee - Performed by: 67eff55ae0e221b836393c1f (CEO) - Description: Updated employee Anand Mohan Jha - IP: ::1
+2025-04-06 15:07:52 [INFO]: Action: Update Employee - Performed by: 67eff55ae0e221b836393c1f (CEO) - Description: Updated employee Anand Mohan Jha - IP: ::1
+2025-04-06 15:08:21 [INFO]: Action: Update Employee - Performed by: 67eff55ae0e221b836393c1f (CEO) - Description: Updated employee Anand Mohan Jha - IP: ::1
+2025-04-06 15:10:33 [INFO]: Action: Update Employee - Performed by: 67eff55ae0e221b836393c1f (CEO) - Description: Updated employee Anand Mohan - IP: ::1
+2025-04-06 15:10:45 [INFO]: Action: Update Employee - Performed by: 67eff55ae0e221b836393c1f (CEO) - Description: Updated employee Anand Mohan kathmandu - IP: ::1
+2025-04-06 15:48:15 [INFO]: Action: Update Employee - Performed by: 67eff55ae0e221b836393c1f (CEO) - Description: Updated employee Anand Mohan kathmandu - IP: ::1
+2025-04-06 15:50:50 [INFO]: Action: Update Employee - Performed by: 67eff55ae0e221b836393c1f (CEO) - Description: Updated employee Anand Mohan kathmandu - IP: ::1
+2025-04-06 15:52:58 [INFO]: Action: Employee Creation - Performed by: 67eff55ae0e221b836393c1f (CEO) - Description: Created employee ninisharma - IP: ::1
+2025-04-06 16:05:21 [INFO]: Action: Update Employee - Performed by: 67eff55ae0e221b836393c1f (CEO) - Description: Updated employee ninisharma - IP: ::1
+2025-04-06 18:01:25 [INFO]: Action: Update Employee - Performed by: 67eff55ae0e221b836393c1f (CEO) - Description: Updated employee ninisharma - IP: ::1
+2025-04-06 19:54:42 [INFO]: Action: Update Employee - Performed by: 67eff55ae0e221b836393c1f (CEO) - Description: Updated employee ninisharma - IP: ::1
+2025-04-06 19:56:23 [INFO]: Action: Login - Performed by: zonal (ZEO) - Description: zonal logged in successfully as ZEO - IP: ::1
+2025-04-06 19:57:40 [INFO]: Action: Login - Performed by: schoolAdmin_4563 (schoolAdmin) - Description: schoolAdmin_4563 logged in successfully as schoolAdmin - IP: ::1
+2025-04-06 19:57:45 [INFO]: Action: Password Update - Performed by: schoolAdmin_4563 (schoolAdmin) - Description: User schoolAdmin_4563 updated their password. - IP: ::1

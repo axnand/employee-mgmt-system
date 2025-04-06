@@ -100,11 +100,7 @@ console.log("Token from localStorage:", token);
 
     // Local state for employee details (populated from backend)
     const [employee, setEmployee] = useState(null);
-    useEffect(() => {
-      if (employeeData) {
-        setEmployee(employeeData);
-      }
-    }, [employeeData]);
+    const [postingHistory, setPostingHistory] = useState([]);
 
     // State to control edit and transfer modes
     const [isEditMode, setIsEditMode] = useState(false);
@@ -189,10 +185,18 @@ console.log("Token from localStorage:", token);
         if (!res.ok) {
           throw new Error("Failed to fetch posting history");
         }
-        return res.json();
+        const data = await res.json();
+        console.log("Posting History Data:", data);
+        return data.history || []; 
       },
       refetchOnWindowFocus: false,
     });
+    
+    useEffect(() => {
+      if (employeeData) setEmployee(employeeData);
+      if (postingHistoryData) setPostingHistory(postingHistoryData);
+    }, [employeeData, postingHistoryData]);
+
     
 
     // Loading & error states
@@ -287,6 +291,7 @@ console.log("Token from localStorage:", token);
           {isEditMode && (
             <EmployeeEditForm
               initialData={employee}
+              postingHistoryData={postingHistory}
               onSave={handleSaveEdit}
               onCancel={() => setIsEditMode(false)}
             />
@@ -492,60 +497,74 @@ console.log("Token from localStorage:", token);
       </div>
 
       {/* Last Three Postings */}
-      <div className="mt-8">
-        <h2 className="text-xl font-bold text-primary mb-4">Posting History</h2>
-        {postingLoading ? (
-          <p className="text-gray-600">Loading postings...</p>
-        ) : postingError ? (
-          <p className="text-gray-600">Error loading postings.</p>
-        ) : postingHistoryData && postingHistoryData.length > 0 ? (
-          postingHistoryData.slice(0, 3).map((posting, index) => (
-            <div key={posting._id || index} className="bg-gray-50 p-4 border border-gray-200 rounded-md">
-              <p className="font-semibold text-secondary mb-2 text-[15px]">Posting {index + 1}:</p>
-              <p>
-                <span className="font-semibold text-gray-600 mr-1">Office ID:</span>
-                <span className="text-gray-600 font-medium">{posting.office || "N/A"}</span>
-              </p>
-              <p>
-                <span className="font-semibold text-gray-600 mr-1">Designation:</span>
-                <span className="text-gray-600 font-medium">{posting.designationDuringPosting || "N/A"}</span>
-              </p>
-              <p>
-                <span className="font-semibold text-gray-600 mr-1">Start Date:</span>
-                <span className="text-gray-600 font-medium">
-                  {posting.startDate ? new Date(posting.startDate).toLocaleDateString() : "N/A"}
-                </span>
-              </p>
-              <p>
-                <span className="font-semibold text-gray-600 mr-1">End Date:</span>
-                <span className="text-gray-600 font-medium">
-                  {posting.endDate ? new Date(posting.endDate).toLocaleDateString() : "N/A"}
-                </span>
-              </p>
-              {posting.postingType && (
-                <p>
-                  <span className="font-semibold text-gray-600 mr-1">Type:</span>
-                  <span className="text-gray-600 font-medium">{posting.postingType}</span>
-                </p>
-              )}
-              {posting.reason && (
-                <p>
-                  <span className="font-semibold text-gray-600 mr-1">Reason:</span>
-                  <span className="text-gray-600 font-medium">{posting.reason}</span>
-                </p>
-              )}
-              {posting.remarks && (
-                <p>
-                  <span className="font-semibold text-gray-600 mr-1">Remarks:</span>
-                  <span className="text-gray-600 font-medium">{posting.remarks}</span>
-                </p>
-              )}
-            </div>
-          ))
-        ) : (
-          <p className="text-gray-600">No postings found.</p>
+      {/* Last Three Postings */}
+<div className="mt-8">
+  <h2 className="text-xl font-bold text-primary mb-4">Posting History</h2>
+  {postingLoading ? (
+    <p className="text-gray-600">Loading postings...</p>
+  ) : postingError ? (
+    <p className="text-gray-600">Error loading postings.</p>
+  ) : postingHistoryData && postingHistoryData.length > 0 ? (
+    postingHistoryData.slice(0, 3).map((posting, index) => (
+      <div key={posting._id || index} className="bg-gray-50 p-4 border border-gray-200 rounded-md mb-4">
+        <p className="font-semibold text-secondary mb-2 text-[15px]">Posting {index + 1}:</p>
+        
+        {/* Displaying office details */}
+        <p>
+          <span className="font-semibold text-gray-600 mr-1">Office ID:</span>
+          <span className="text-gray-600 font-medium">{posting.office?.officeId || "N/A"}</span>
+        </p>
+
+        <p>
+          <span className="font-semibold text-gray-600 mr-1">Office Name:</span>
+          <span className="text-gray-600 font-medium">{posting.office?.officeName || "N/A"}</span>
+        </p>
+        <p>
+          <span className="font-semibold text-gray-600 mr-1">Office Type:</span>
+          <span className="text-gray-600 font-medium">{posting.office?.officeType || "N/A"}</span>
+        </p>
+        
+        <p>
+          <span className="font-semibold text-gray-600 mr-1">Designation:</span>
+          <span className="text-gray-600 font-medium">{posting.designationDuringPosting || "N/A"}</span>
+        </p>
+        <p>
+          <span className="font-semibold text-gray-600 mr-1">Start Date:</span>
+          <span className="text-gray-600 font-medium">
+            {posting.startDate ? new Date(posting.startDate).toLocaleDateString() : "N/A"}
+          </span>
+        </p>
+        <p>
+          <span className="font-semibold text-gray-600 mr-1">End Date:</span>
+          <span className="text-gray-600 font-medium">
+            {posting.endDate ? new Date(posting.endDate).toLocaleDateString() : "N/A"}
+          </span>
+        </p>
+        {posting.postingType && (
+          <p>
+            <span className="font-semibold text-gray-600 mr-1">Type:</span>
+            <span className="text-gray-600 font-medium">{posting.postingType}</span>
+          </p>
+        )}
+        {posting.reason && (
+          <p>
+            <span className="font-semibold text-gray-600 mr-1">Reason:</span>
+            <span className="text-gray-600 font-medium">{posting.reason}</span>
+          </p>
+        )}
+        {posting.remarks && (
+          <p>
+            <span className="font-semibold text-gray-600 mr-1">Remarks:</span>
+            <span className="text-gray-600 font-medium">{posting.remarks}</span>
+          </p>
         )}
       </div>
+    ))
+  ) : (
+    <p className="text-gray-600">No postings found.</p>
+  )}
+</div>
+
     </div>
   )}
 

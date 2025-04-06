@@ -1,4 +1,4 @@
-import React from "react";
+import React, {useState, useEffect} from "react";
 
 const staffTypes = ["Teaching", "Non-Teaching"];
 const highestQualificationOptions = ["10TH", "12TH", "GRADUATE", "POSTGRADUATE", "M.PHIL", "PHD"];
@@ -109,14 +109,24 @@ const genderOptions = ["Male", "Female", "Other"];
 
 const maritalStatusOptions = ["Married", "Unmarried"];
 
-export default function EmployeeEditForm({ initialData, onSave, onCancel }) {
-  const [formData, setFormData] = React.useState(initialData || {});
+export default function EmployeeEditForm({ initialData,postingHistoryData, onSave, onCancel }) {
+  const [formData, setFormData] = useState({
+    ...initialData,
+    postingHistory: postingHistoryData || []
+  });
+  
+  
+  console.log("Initial Data:", initialData);
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (initialData) {
-      setFormData(initialData);
+      setFormData({
+        ...initialData,
+        postingHistory: postingHistoryData || [], 
+      });
     }
-  }, [initialData]);
+  }, [initialData, postingHistoryData]);
+  
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -238,10 +248,10 @@ export default function EmployeeEditForm({ initialData, onSave, onCancel }) {
       </div>
 
       {/* Working At */}
-      <div>
+      {/* <div>
         <label className="font-semibold text-gray-600 block mb-1">Working At</label>
         <input type="text" name="workingAt" value={formData.workingAt || ""} onChange={handleChange} className="border border-gray-300 rounded w-full p-2" />
-      </div>
+      </div> */}
 
       {/* Basis of Work */}
       <div>
@@ -390,53 +400,136 @@ export default function EmployeeEditForm({ initialData, onSave, onCancel }) {
         </div>
       </div>
 
-      {/* Previous Postings Section */}
-      <div>
-        <label className="font-semibold text-gray-600 block mb-1">Posting Details</label>
-        {formData.previousPostings && formData.previousPostings.length > 0 && (
-          formData.previousPostings.map((posting, index) => (
-            <div key={index} className="border p-2 rounded mb-2">
-              <input type="text" name="schoolName" placeholder="School Name" value={posting.schoolName} onChange={(e) => {
-                const updatedPosting = { ...posting, schoolName: e.target.value };
-                const updatedPostings = [...(formData.previousPostings || [])];
-                updatedPostings[index] = updatedPosting;
-                setFormData({ ...formData, previousPostings: updatedPostings });
-              }} className="border rounded w-full p-1 mb-1" />
-              <input type="date" name="startDate" placeholder="Start Date" value={posting.startDate ? posting.startDate.substring(0, 10) : ""} onChange={(e) => {
-                const updatedPosting = { ...posting, startDate: e.target.value };
-                const updatedPostings = [...(formData.previousPostings || [])];
-                updatedPostings[index] = updatedPosting;
-                setFormData({ ...formData, previousPostings: updatedPostings });
-              }} className="border rounded w-full p-1 mb-1" />
-              <input type="date" name="endDate" placeholder="End Date" value={posting.endDate ? posting.endDate.substring(0, 10) : ""} onChange={(e) => {
-                const updatedPosting = { ...posting, endDate: e.target.value };
-                const updatedPostings = [...(formData.previousPostings || [])];
-                updatedPostings[index] = updatedPosting;
-                setFormData({ ...formData, previousPostings: updatedPostings });
-              }} className="border rounded w-full p-1 mb-1" />
-              <button onClick={() => {
-                const updatedPostings = formData.previousPostings.filter((_, idx) => idx !== index);
-                setFormData({ ...formData, previousPostings: updatedPostings });
-              }} className="text-red-500 text-xs">Remove</button>
-            </div>
-          ))
-        )}
-        <button onClick={() => {
-          const newPosting = { schoolName: "", startDate: "", endDate: "" };
-          setFormData({ ...formData, previousPostings: [...(formData.previousPostings || []), newPosting] });
-        }} className="bg-blue-500 text-white px-3 py-1 rounded text-sm">
-          Add Posting
-        </button>
-      </div>
+      
+      
+      {/* Posting Details Section */}
+<div>
+  <label className="font-semibold text-gray-600 block mb-1">Posting Details</label>
+  {(formData.postingHistory || []).length > 0 && (formData.postingHistory || []).map((posting, index) => (
+      <div key={index} className="border p-2 rounded mb-2">
+        <input 
+          type="text" 
+          name="officeId" 
+          placeholder="Office ID" 
+          value={posting.office?.officeId || ""} 
+          onChange={(e) => {
+            const updatedPosting = { 
+              ...posting, 
+              office: { ...posting.office, officeId: e.target.value } 
+            };
+            const updatedPostings = (formData.postingHistory || []).map((p, i) =>
+              i === index ? updatedPosting : p
+            );
+            setFormData({ ...formData, postingHistory: updatedPostings });
+          }}
+          
+          className="border rounded w-full p-1 mb-1" 
+        />
+        
+        <input 
+          type="text" 
+          name="officeName" 
+          placeholder="Office Name" 
+          value={posting.office?.officeName || ""} 
+          onChange={(e) => {
+            const updatedPosting = { 
+              ...posting, 
+              office: { ...posting.office, officeName: e.target.value } 
+            };
+            const updatedPostings = (formData.postingHistory || []).map((p, i) =>
+              i === index ? updatedPosting : p
+            );
+            setFormData({ ...formData, postingHistory: updatedPostings });
+          }} 
+          className="border rounded w-full p-1 mb-1" 
+        />
 
-      <div className="mt-4 flex gap-4">
-        <button onClick={() => onSave(formData)} className="font-semibold text-[13px] px-4 py-2 bg-primary text-white rounded transition hover:bg-blue-600">
-          Save
+        <input 
+          type="text" 
+          name="designationDuringPosting" 
+          placeholder="Designation During Posting" 
+          value={posting.designationDuringPosting || ""} 
+          onChange={(e) => {
+            const updatedPosting = { ...posting, designationDuringPosting: e.target.value };
+            const updatedPostings =(formData.postingHistory || []).map((p, i) =>
+              i === index ? updatedPosting : p
+            );
+            setFormData({ ...formData, postingHistory: updatedPostings });
+          }} 
+          className="border rounded w-full p-1 mb-1" 
+        />
+
+        <input 
+          type="date" 
+          name="startDate" 
+          value={posting.startDate ? posting.startDate.substring(0, 10) : ""} 
+          onChange={(e) => {
+            const updatedPosting = { ...posting, startDate: e.target.value };
+            const updatedPostings =(formData.postingHistory || []).map((p, i) =>
+              i === index ? updatedPosting : p
+            );
+            setFormData({ ...formData, postingHistory: updatedPostings });
+          }} 
+          className="border rounded w-full p-1 mb-1" 
+        />
+
+        <input 
+          type="date" 
+          name="endDate" 
+          value={posting.endDate ? posting.endDate.substring(0, 10) : ""} 
+          onChange={(e) => {
+            const updatedPosting = { ...posting, endDate: e.target.value };
+            const updatedPostings =(formData.postingHistory || []).map((p, i) =>
+              i === index ? updatedPosting : p
+            );
+            setFormData({ ...formData, postingHistory: updatedPostings });
+          }} 
+          className="border rounded w-full p-1 mb-1" 
+        />
+
+        <button 
+          onClick={() => {
+            const updatedPostings = (formData.postingHistory || []).filter((_, i) => i !== index);
+            setFormData({ ...formData, postingHistory: updatedPostings });
+          }} 
+          className="text-red-500 text-xs"
+        >
+          Remove
         </button>
-        <button onClick={onCancel} className="font-semibold text-[13px] px-4 py-2 transition bg-gray-300 text-gray-700 rounded hover:bg-gray-400">
-          Cancel
-        </button>
+
       </div>
-    </div>
+    ))
+  }
+
+<button 
+  onClick={() => {
+    const newPosting = { 
+      office: { officeId: "", officeName: "" },
+      designationDuringPosting: "", 
+      startDate: "", 
+      endDate: "" 
+    };
+    const updatedPostings = [...(formData.postingHistory || []), newPosting];
+    setFormData({ ...formData, postingHistory: updatedPostings });
+  }} 
+  className="bg-blue-500 text-white px-3 py-1 rounded text-sm mt-2"
+>
+  Add Posting
+</button>
+
+</div>
+
+
+
+
+            <div className="mt-4 flex gap-4">
+              <button onClick={() => onSave(formData)} className="font-semibold text-[13px] px-4 py-2 bg-primary text-white rounded transition hover:bg-blue-600">
+                Save
+              </button>
+              <button onClick={onCancel} className="font-semibold text-[13px] px-4 py-2 transition bg-gray-300 text-gray-700 rounded hover:bg-gray-400">
+                Cancel
+              </button>
+            </div>
+          </div>
   );
 }

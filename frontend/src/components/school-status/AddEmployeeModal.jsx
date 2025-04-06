@@ -343,7 +343,19 @@ export default function AddEmployeeModal({
     />
   </div>
 
-  {/* TYPE (Staff Type) - already defined */}
+  
+  <div>
+    <label className="font-semibold text-gray-600 block mb-1">Date of Birth</label>
+    <input
+      type="date"
+      name="dateOfBirth"
+      value={newEmployeeData.dateOfBirth || ""}
+      onChange={(e) => setNewEmployeeData({ ...newEmployeeData, dateOfBirth: e.target.value })}
+      className="border border-gray-300 rounded w-full p-2"
+    />
+  </div>
+
+{/* TYPE (Staff Type) - already defined */}
   <div>
     <label htmlFor="staffType" className="block text-sm font-medium text-gray-700 mb-1">
       Select Staff Type
@@ -372,17 +384,6 @@ export default function AddEmployeeModal({
       ))}
     </select>
   </div>
-  <div>
-    <label className="font-semibold text-gray-600 block mb-1">Date of Birth</label>
-    <input
-      type="date"
-      name="dateOfBirth"
-      value={newEmployeeData.dateOfBirth || ""}
-      onChange={(e) => setNewEmployeeData({ ...newEmployeeData, dateOfBirth: e.target.value })}
-      className="border border-gray-300 rounded w-full p-2"
-    />
-  </div>
-
   {/* Name of Sanctioned Posts */}
   <div>
     <label className="font-semibold text-gray-600 block mb-1">Present Designation</label>
@@ -420,7 +421,7 @@ export default function AddEmployeeModal({
     )}
   </div>
 
-  {/* DATE OF BIRTH */}
+  
   
 
   {/* DESIGNATION AT THE TIME OF APPOINTMENT */}
