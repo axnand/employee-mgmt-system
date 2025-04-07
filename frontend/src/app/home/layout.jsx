@@ -15,6 +15,7 @@ import {
   Upload,
   PlusCircleIcon,
   Briefcase,
+  Network,
 
 } from "lucide-react";
 import Link from "next/link";
@@ -49,14 +50,14 @@ export default function DashboardLayout({ children }) {
         icon: <LayoutDashboard className=" h-5 w-5" />,
       },
       {
-        title: "Subordinate Offices",
-        href: "/home/zones",
-        icon: <PlusCircleIcon className=" h-5 w-5" />,
+        title: "My Office",
+        href: "/home/my-office",
+        icon: <Briefcase className=" h-5 w-5" />,
       },
       {
-        title: "Offices",
+        title: "Subordinate Offices",
         href: "/home/offices",
-        icon: <Briefcase className=" h-5 w-5" />,
+        icon: <Network className=" h-5 w-5" />,
       },
       {
         title: "School Status",

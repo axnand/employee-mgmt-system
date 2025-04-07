@@ -18,6 +18,7 @@ export function UserProvider({ children }) {
     const storedUser = localStorage.getItem("user");
     if (storedUser) {
       const parsedUser = JSON.parse(storedUser);
+      console.log("Retrieved user from localStorage:", parsedUser);
       setUser(parsedUser);
       setUserRole(parsedUser.role || "");
     }

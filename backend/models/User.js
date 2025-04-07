@@ -10,17 +10,16 @@ const UserSchema = new mongoose.Schema(
       enum: ["CEO", "ZEO", "schoolAdmin", "staff"]
     },
     password: { type: String, required: true },
-    office: { type: mongoose.Schema.Types.ObjectId, ref: "Office" },
+    office: { type: mongoose.Schema.Types.ObjectId, ref: "Office", default: null },
     employeeId: { type: mongoose.Schema.Types.ObjectId, ref: "Employee" },
     passwordChanged: { type: Boolean, default: false },
-    zoneId: { type: mongoose.Schema.Types.ObjectId, ref: "Zone", default: null }, // For ZEOs
-    districtId: { type: mongoose.Schema.Types.ObjectId, ref: "District", default: null }, // For CEOs
-    schoolId: { type: mongoose.Schema.Types.ObjectId, ref: "School", default: null } // For schoolAdmins
+    zoneId: { type: mongoose.Schema.Types.ObjectId, ref: "Zone", default: null },
+    districtId: { type: mongoose.Schema.Types.ObjectId, ref: "District", default: null },
   },
   { timestamps: true }
 );
 
-// Hash the password before saving the user
+
 UserSchema.pre("save", async function (next) {
   if (!this.isModified("password")) return next();
   try {
@@ -33,7 +32,7 @@ UserSchema.pre("save", async function (next) {
   }
 });
 
-// Compare passwords for authentication
+
 UserSchema.methods.comparePassword = async function (candidatePassword) {
   return await bcrypt.compare(candidatePassword, this.password);
 };

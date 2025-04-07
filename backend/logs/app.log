@@ -147,3 +147,36 @@ Meta: {"errors":{"role":{"name":"ValidatorError","message":"Path `role` is requi
 2025-04-06 22:39:53 [INFO]: Action: Login - Performed by: rohan123 (staff) - Description: rohan123 logged in successfully as staff - IP: ::1
 2025-04-06 22:39:59 [INFO]: Action: Password Update - Performed by: rohan123 (staff) - Description: User rohan123 updated their password. - IP: ::1
 2025-04-07 03:02:51 [INFO]: Action: Login - Performed by: anand (CEO) - Description: anand logged in successfully as CEO - IP: ::1
+2025-04-07 10:40:32 [INFO]: Action: Login - Performed by: ceoUser (CEO) - Description: ceoUser logged in successfully as CEO - IP: ::1
+2025-04-07 10:40:36 [INFO]: Action: Password Update - Performed by: ceoUser (CEO) - Description: User ceoUser updated their password. - IP: ::1
+2025-04-07 12:10:32 [INFO]: Action: Failed Login - Performed by: ceoUser (CEO) - Description: Unsuccessful login attempt - IP: ::1
+2025-04-07 12:10:42 [INFO]: Action: Failed Login - Performed by: ceoUser (CEO) - Description: Unsuccessful login attempt - IP: ::1
+2025-04-07 12:10:43 [INFO]: Action: Failed Login - Performed by: ceoUser (CEO) - Description: Unsuccessful login attempt - IP: ::1
+2025-04-07 12:12:14 [INFO]: Action: Login - Performed by: ceoUser (CEO) - Description: ceoUser logged in successfully as CEO - IP: ::1
+2025-04-07 12:12:19 [INFO]: Action: Password Update - Performed by: ceoUser (CEO) - Description: User ceoUser updated their password. - IP: ::1
+2025-04-07 12:12:21 [INFO]: Action: Password Update - Performed by: ceoUser (CEO) - Description: User ceoUser updated their password. - IP: ::1
+2025-04-07 12:12:39 [INFO]: Action: Failed Login - Performed by: ceoUser (CEO) - Description: Unsuccessful login attempt - IP: ::1
+2025-04-07 12:12:43 [INFO]: Action: Failed Login - Performed by: ceoUser (CEO) - Description: Unsuccessful login attempt - IP: ::1
+2025-04-07 12:13:44 [INFO]: Action: Login - Performed by: ceoUser (CEO) - Description: ceoUser logged in successfully as CEO - IP: ::1
+2025-04-07 12:13:48 [INFO]: Action: Password Update - Performed by: ceoUser (CEO) - Description: User ceoUser updated their password. - IP: ::1
+2025-04-07 12:14:00 [INFO]: Action: Failed Login - Performed by: ceoUser (CEO) - Description: Unsuccessful login attempt - IP: ::1
+2025-04-07 12:18:16 [INFO]: Action: Failed Login - Performed by: ceoUser (CEO) - Description: Unsuccessful login attempt - IP: ::1
+2025-04-07 12:18:19 [INFO]: Action: Failed Login - Performed by: ceoUser (CEO) - Description: Unsuccessful login attempt - IP: ::1
+2025-04-07 12:18:23 [INFO]: Action: Failed Login - Performed by: ceoUser (CEO) - Description: Unsuccessful login attempt - IP: ::1
+2025-04-07 12:18:24 [INFO]: Action: Failed Login - Performed by: ceoUser (CEO) - Description: Unsuccessful login attempt - IP: ::1
+2025-04-07 12:23:39 [INFO]: Action: Login - Performed by: ceoUser (CEO) - Description: ceoUser logged in successfully as CEO - IP: ::1
+2025-04-07 12:23:57 [INFO]: Action: Failed Login - Performed by: ceoUser (CEO) - Description: Unsuccessful login attempt - IP: ::1
+2025-04-07 12:24:26 [INFO]: Action: Failed Login - Performed by: ceoUser (CEO) - Description: Unsuccessful login attempt - IP: ::1
+2025-04-07 12:29:58 [INFO]: Action: Login - Performed by: ceoUser (CEO) - Description: ceoUser logged in successfully as CEO - IP: ::1
+2025-04-07 12:30:14 [INFO]: Action: Failed Login - Performed by: ceoUser (CEO) - Description: Unsuccessful login attempt - IP: ::1
+2025-04-07 12:31:36 [INFO]: Action: Failed Login - Performed by: ceoUser (CEO) - Description: Unsuccessful login attempt - IP: ::1
+2025-04-07 12:31:45 [INFO]: Action: Failed Login - Performed by: ceoUser (CEO) - Description: Unsuccessful login attempt - IP: ::1
+2025-04-07 12:32:11 [INFO]: Action: Failed Login - Performed by: ceoUser (CEO) - Description: Unsuccessful login attempt - IP: ::1
+2025-04-07 12:32:12 [INFO]: Action: Failed Login - Performed by: ceoUser (CEO) - Description: Unsuccessful login attempt - IP: ::1
+2025-04-07 12:32:12 [INFO]: Action: Failed Login - Performed by: ceoUser (CEO) - Description: Unsuccessful login attempt - IP: ::1
+2025-04-07 12:32:22 [INFO]: Action: Failed Login - Performed by: ceoUser (CEO) - Description: Unsuccessful login attempt - IP: ::1
+2025-04-07 16:16:39 [INFO]: Action: Login - Performed by: ceoUser (CEO) - Description: ceoUser logged in successfully as CEO - IP: ::1
+2025-04-07 16:17:02 [INFO]: Action: Login - Performed by: ceoUser (CEO) - Description: ceoUser logged in successfully as CEO - IP: ::1
+2025-04-07 16:51:44 [INFO]: Action: Login - Performed by: ceoUser (CEO) - Description: ceoUser logged in successfully as CEO - IP: ::1
+2025-04-07 19:09:27 [INFO]: Action: Employee Creation - Performed by: 67f3ad06214279a5280946bd (CEO) - Description: Created employee ANand - IP: ::1
+2025-04-07 19:45:15 [INFO]: Action: Employee Creation - Performed by: 67f3ad06214279a5280946bd (CEO) - Description: Created employee nikita - IP: ::1

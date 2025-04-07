@@ -31,9 +31,11 @@ export default function LoginPage() {
         employeeId: data.employeeId || null,
         zoneId: data.zoneId || null,
         districtId: data.districtId || null,
+        officeId: data.officeId || null,
       };
       localStorage.setItem("user", JSON.stringify(userDetails));
 
+      
       setUser(userDetails);
       setUserRole(data.role);
 
@@ -47,6 +49,7 @@ export default function LoginPage() {
       setError(err.message);
     },
   });
+  
 
   const handleLogin = (e) => {
     e.preventDefault();

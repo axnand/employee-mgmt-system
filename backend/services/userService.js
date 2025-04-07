@@ -68,18 +68,27 @@ export const registerStaff = async ({ userName, password, employeeId }, currentU
 };
 
 export const updatePassword = async (userId, newPassword, ip) => {
-  const user = await User.findById(userId);
-  if (!user) throw new Error("User not found");
-  user.password = await bcrypt.hash(newPassword, 10);
-  user.passwordChanged = true;
-  await user.save();
-  await createLog({
-    admin: user.userName,
-    role: user.role,
-    action: "Password Update",
-    school: user.schoolId || "-",
-    description: `User ${user.userName} updated their password.`,
-    ip,
-  });
-  return user;
+  try {
+    const user = await User.findById(userId);
+    
+    if (!user) {
+      throw new Error("User not found");
+    }
+
+    // Hash the new password before saving
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(newPassword, salt);
+
+    user.password = hashedPassword;
+    user.passwordChanged = true;
+
+    await user.save(); // This will trigger the 'pre("save")' hook
+
+    // Optionally, log the password change if needed
+    console.log(`Password updated successfully for user ${user.userName} from IP: ${ip}`);
+
+    return user;
+  } catch (error) {
+    throw new Error(error.message);
+  }
 };

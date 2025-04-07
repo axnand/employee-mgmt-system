@@ -12,7 +12,7 @@ import {
 export const loginUser = async (req, res) => {
   try {
     const { userName, password, loginAs } = req.body;
-    const user = await User.findOne({ userName });
+    const user = await User.findOne({ userName }).populate('office');
     if (!user) {
       return res.status(401).json({ message: "Invalid credentials" });
     }
@@ -35,6 +35,7 @@ export const loginUser = async (req, res) => {
       userId: user._id,
       role: user.role,
       forcePasswordChange: !user.passwordChanged,
+      officeId: user.office?._id || null,
     };
     if (user.role === "schoolAdmin") {
       payload.schoolId = user.schoolId;
@@ -64,6 +65,7 @@ export const loginUser = async (req, res) => {
       role: user.role,
       userId: user._id,
       forcePasswordChange: !user.passwordChanged,
+      officeId: user.office ? user.office._id : null,
       ...(user.role === "schoolAdmin" && { schoolId: user.schoolId }),
       ...(user.role === "staff" && { employeeId: user.employeeId, schoolId: user.schoolId }),
       ...(user.role === "ZEO" && { zoneId: user.zoneId }),

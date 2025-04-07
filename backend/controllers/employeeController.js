@@ -10,80 +10,54 @@ import User from "../models/User.js";
 // import HRA from "../models/HRA.js";
 import EmployeeSalaries from "../models/EmployeeSalary.js";
 import PostingHistory from "../models/PostingHistory.js";
+import Office from "../models/Office.js";
 
 
 export const getEmployees = async (req, res) => {
-  
-
   try {
-    console.log("User role:", req.user.role);
-    let employees;
-    
-    if (req.user.role === "CEO") {
-      // CEO can access all employees
-      employees = await Employee.find({});
-    } else if (req.user.role === "ZEO") {
-      // For ZEO, populate the zone's schools and then get employees
-      const zone = await Zone.findById(req.user.zoneId).populate({
-        path: "schools",
-        populate: { path: "employees" },
-      });
-      employees = zone.schools.reduce((acc, school) => [...acc, ...school.employees], []);
-    } else if (req.user.role === "schoolAdmin") {
-      // For schoolAdmin, find the employees for the given school
-      const school = await School.findById(req.user.schoolId).populate("employees");
-      employees = school ? school.employees : [];
-    } else {
-      return res.status(403).json({ message: "Not authorized to view employees" });
-    }
-    
+    const employees = await Employee.find({});
     res.json(employees);
   } catch (error) {
-    res.status(500).json({ message: "Error fetching employees", error });
+    res.status(500).json({ message: "Error fetching employees", error: error.message });
   }
 };
 
+export const getDdoOfficerDetails = async (ddoOfficerId) => {
+  if (!ddoOfficerId) return null;
+  // Find the employee whose employeeId matches ddoOfficerId
+  const ddoOfficer = await Employee.findOne({ employeeId: ddoOfficerId });
+  return ddoOfficer;
+};
+
+export const getEmployeesByZone = async (req, res) => {
+  try {
+    const zoneId = req.params.zoneId;
+    // Find all offices in the zone
+    const offices = await Office.find({ zone: zoneId });
+    const officeIds = offices.map(o => o._id);
+    const employees = await Employee.find({ office: { $in: officeIds } });
+    res.json(employees);
+  } catch (error) {
+    res.status(500).json({ message: "Error fetching employees by zone", error: error.message });
+  }
+};
+
+export const getEmployeesByOffice = async (req, res) => {
+  try {
+    const officeId = req.params.officeId;
+    const employees = await Employee.find({ office: officeId });
+    res.json(employees);
+  } catch (error) {
+    res.status(500).json({ message: "Error fetching employees by office", error: error.message });
+  }
+};
 export const getEmployeeById = async (req, res) => {
   try {
-    // Fetch the employee by ID from the request
     const employee = await Employee.findById(req.params.id);
-
-    if (!employee) {
-      return res.status(404).json({ message: "Employee not found" });
-    }
-
-    if (req.user.role === "CEO") {
-      // CEO can access any employee
-      return res.json(employee);
-
-    } else if (req.user.role === "ZEO") {
-      const zone = await Zone.findById(req.user.zoneId).populate("schools");
-      const schoolIds = zone.schools.map((school) => school._id.toString());
-
-      if (!schoolIds.includes(employee.school.toString())) {
-        return res.status(403).json({ message: "Not authorized to view this employee" });
-      }
-
-      return res.json(employee);
-
-    } else if (req.user.role === "schoolAdmin") {
-      if (employee.school.toString() !== req.user.schoolId) {
-        return res.status(403).json({ message: "Not authorized to view this employee" });
-      }
-      return res.json(employee);
-
-    } else if (req.user.role === "staff") {
-      // Allow staff to view only their own profile
-      if (employee._id.toString() !== req.user.employeeId) {
-        return res.status(403).json({ message: "Not authorized to view this profile" });
-      }
-      return res.json(employee);
-
-    } else {
-      return res.status(403).json({ message: "Not authorized" });
-    }
+    if (!employee) return res.status(404).json({ message: "Employee not found" });
+    res.json(employee);
   } catch (error) {
-    res.status(500).json({ message: "Error fetching employee", error });
+    res.status(500).json({ message: "Error fetching employee", error: error.message });
   }
 };
 
@@ -93,46 +67,27 @@ export const createEmployee = async (req, res) => {
   const session = await mongoose.startSession();
   session.startTransaction();
   try {
-    // Determine the school ID based on the user's role
-    const schoolId =
-      req.user.role === "schoolAdmin"
-        ? req.user.schoolId
-        : req.body.school;
-
-    if (!schoolId || !mongoose.Types.ObjectId.isValid(schoolId)) {
-      return res.status(400).json({ message: "Valid School ID is required" });
+    const officeId = req.body.office || req.body.officeId;
+    console.log("Office ID:", officeId);
+    if (!officeId || !mongoose.Types.ObjectId.isValid(officeId)) {
+      return res.status(400).json({ message: "Valid Office ID is required" });
     }
-
-    const school = await School.findById(schoolId);
-    if (!school) {
-      return res.status(404).json({ message: "School not found" });
-    }
+    const office = await Office.findById(officeId);
+    if (!office) return res.status(404).json({ message: "Office not found" });
 
     // Create a new employee
-    const newEmployee = await Employee.create(
-      [
-        {
-          ...req.body,
-          school: schoolId,
-        },
-      ],
-      { session }
-    );
+    const newEmployeeData = { ...req.body, office: officeId };
+    const newEmployeeArr = await Employee.create([newEmployeeData], { session });
+    const savedEmployee = newEmployeeArr[0]; // Since Mongoose returns an array when using transactions
 
-    const savedEmployee = newEmployee[0]; // Since Mongoose returns an array when using transactions
-
-    // Push the new employee ID into the school's employees array and save the school
-    school.employees.push(savedEmployee._id);
-    await school.save({ session });
-
-    // Create a User record for the employee
+    
     const newUser = await User.create(
       [
         {
           userName: req.body.credentials?.username || savedEmployee.employeeId,
           role: 'staff',
           password: req.body.credentials?.passwordHash,
-          schoolId,
+          office: officeId,
           employeeId: savedEmployee._id,
           passwordChanged: false,
         },
@@ -140,7 +95,6 @@ export const createEmployee = async (req, res) => {
       { session }
     );
 
-    // Handle Posting History
     if (req.body.postingHistory && Array.isArray(req.body.postingHistory)) {
       const postingRecords = req.body.postingHistory.map((posting) => ({
         employee: savedEmployee._id,
