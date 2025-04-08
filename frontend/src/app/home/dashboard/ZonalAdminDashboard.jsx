@@ -22,15 +22,12 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { useQuery } from "@tanstack/react-query";
+import { useUser } from "@/context/UserContext";
 import axiosClient from "@/api/axiosClient";
 
 // ---------- API FETCH FUNCTIONS ----------
 
-// Fetch all schools (for total schools and student count)
-const fetchSchools = async () => {
-  const res = await axiosClient.get("/schools");
-  return res.data; // expects an array of school objects with numberOfStudents field
-};
+
 
 // Fetch all employees (for total staff and staff distribution)
 const fetchEmployees = async () => {
@@ -45,18 +42,18 @@ const fetchEmployees = async () => {
 
 
 // Fetch all transfers (to compute pending transfers)
-const fetchTransfers = async () => {
-  try {
-    const res = await axiosClient.get("/transfers");
-    console.log("Transfers response:", res.data);
-    return Array.isArray(res.data?.transferRequests)
-      ? res.data.transferRequests
-      : res.data?.transferRequests || [];
-  } catch (error) {
-    console.error("Error fetching transfers:", error);
-    return [];
-  }
-};
+// const fetchTransfers = async () => {
+//   try {
+//     const res = await axiosClient.get("/transfers");
+//     console.log("Transfers response:", res.data);
+//     return Array.isArray(res.data?.transferRequests)
+//       ? res.data.transferRequests
+//       : res.data?.transferRequests || [];
+//   } catch (error) {
+//     console.error("Error fetching transfers:", error);
+//     return [];
+//   }
+// };
 
 
 
@@ -86,25 +83,54 @@ const fetchRetirements = async (days) => {
   return res.data.retirements || []; // Ensure fallback to an empty array
 };
 
+const fetchSchools = async (role, districtId, zoneId, officeId) => {
+  try {
+    let response;
+    if (role === "CEO" && districtId) {
+      response = await axiosClient.get(`/schools/district/${districtId}`);
+    } else if (role === "ZEO" && zoneId) {
+      response = await axiosClient.get(`/schools/zone/${zoneId}`);
+    } else if (role === "schoolAdmin" && officeId) {
+      response = await axiosClient.get(`/schools/office/${officeId}`);
+    } else {
+      throw new Error("Invalid role or missing parameters.");
+    }
+    
+    return response.data;  // Return schools data from the response
+  } catch (error) {
+    console.error("Error fetching schools:", error);
+    throw error;  // Rethrow error to be handled by react-query
+  }
+};
+
+
 
 // ---------- Dashboard Component ----------
 
-export default function AdminDashboardPage() {
+export default function ZonalAdminDashboard() {
   const [filterDays, setFilterDays] = useState(30);
+  const { userRole, user } = useUser();  // Assuming user role and user data are in the context
+  const userDistrictId = user?.districtId;
+  const userZoneId = user?.zoneId;
+  const userOfficeId = user?.officeId;
+
+  const { data: schools = [], error, isLoading } = useQuery({
+    queryKey: ["schools", userRole, userDistrictId, userZoneId, userOfficeId],
+    queryFn: () => fetchSchools(userRole, userDistrictId, userZoneId, userOfficeId),
+  });
+
+
 
   // Use react-query to fetch data from the backend.
-  const { data: schools = [] } = useQuery({
-    queryKey: ["schools"],
-    queryFn: fetchSchools,
-  });
+  
   const { data: employees = [] } = useQuery({
     queryKey: ["employees"],
     queryFn: fetchEmployees,
   });
-  const { data: transfers = [] } = useQuery({
-    queryKey: ["transfers"],
-    queryFn: fetchTransfers,
-  });
+  // const { data: transfers = [] } = useQuery({
+  //   queryKey: ["transfers"],
+  //   queryFn: fetchTransfers,
+  // });
   const { data: enrollmentData = [] } = useQuery({
     queryKey: ["enrollmentTrends"],
     queryFn: fetchEnrollmentTrends,
@@ -128,8 +154,8 @@ export default function AdminDashboardPage() {
   );
   const totalStaff = employees.length;
 
-  const safeTransfers = Array.isArray(transfers) ? transfers : [];
-  const pendingTransfers = safeTransfers.filter((t) => t.status === "pending").length;
+  // const safeTransfers = Array.isArray(transfers) ? transfers : [];
+  // const pendingTransfers = safeTransfers.filter((t) => t.status === "pending").length;
 
 
   // Staff distribution: count based on staffType.
@@ -201,7 +227,7 @@ export default function AdminDashboardPage() {
         </div>
 
         {/* Pending Transfers */}
-        <div className="bg-white shadow-sm rounded-lg p-4 flex flex-col border-l-[3px] border-primary">
+        {/* <div className="bg-white shadow-sm rounded-lg p-4 flex flex-col border-l-[3px] border-primary">
           <div className="flex items-center space-x-2">
             <ArrowLeftRight className="h-5 w-5 text-orange-500" />
             <h3 className="text-[15px] font-semibold text-gray-800">
@@ -214,7 +240,7 @@ export default function AdminDashboardPage() {
           <div className="text-2xl font-bold text-gray-800">
             {pendingTransfers}
           </div>
-        </div>
+        </div> */}
       </div>
 
       {/* Charts Section */}

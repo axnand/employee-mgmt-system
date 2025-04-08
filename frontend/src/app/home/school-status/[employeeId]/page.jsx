@@ -202,9 +202,9 @@ console.log("Token from localStorage:", token);
     // Loading & error states
     if (employeeLoading || !employee) {
       return (
-        <div className="min-h-screen flex items-center justify-center">
-          <p className="text-gray-600">Loading employee details...</p>
-        </div>
+        <div className="flex justify-center items-center h-full">
+              <div className="border-t-transparent border-[#377DFF] w-8 h-8 border-4 border-solid rounded-full animate-spin"></div>
+            </div>
       );
     }
     if (employeeError || !employee) {
@@ -501,7 +501,9 @@ console.log("Token from localStorage:", token);
 <div className="mt-8">
   <h2 className="text-xl font-bold text-primary mb-4">Posting History</h2>
   {postingLoading ? (
-    <p className="text-gray-600">Loading postings...</p>
+    <div className="flex justify-center items-center h-full">
+    <div className="border-t-transparent border-[#377DFF] w-8 h-8 border-4 border-solid rounded-full animate-spin"></div>
+  </div>
   ) : postingError ? (
     <p className="text-gray-600">Error loading postings.</p>
   ) : postingHistoryData && postingHistoryData.length > 0 ? (

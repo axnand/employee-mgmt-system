@@ -153,7 +153,9 @@ export default function TransferHistoryPage() {
   };
 
   if (isLoading) {
-    return <p className="text-center">Loading transfer history...</p>;
+    return <div className="flex justify-center items-center h-full">
+    <div className="border-t-transparent border-[#377DFF] w-8 h-8 border-4 border-solid rounded-full animate-spin"></div>
+  </div>;
   }
   if (error) {
     return <p className="text-center text-red-500">Error loading transfer history</p>;

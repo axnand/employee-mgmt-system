@@ -89,7 +89,9 @@ export default function MainAdminTransfersPage() {
       </div>
       <div className=" bg-white p-6 rounded-lg shadow-sm">
         {isLoading ? (
-          <p>Loading transfer requests...</p>
+          <div className="flex justify-center items-center h-full">
+          <div className="border-t-transparent border-[#377DFF] w-8 h-8 border-4 border-solid rounded-full animate-spin"></div>
+        </div>
         ) : error ? (
           <p className="text-red-500">Error loading transfer requests</p>
         ) : (

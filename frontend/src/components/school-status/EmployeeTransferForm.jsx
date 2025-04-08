@@ -41,7 +41,9 @@ export default function EmployeeTransferForm({ currentSchoolId, onSubmit, onCanc
     onSubmit({ selectedSchool, comment });
   };
 
-  if (isLoading) return <p>Loading schools...</p>;
+  if (isLoading) return <div className="flex justify-center items-center h-full">
+  <div className="border-t-transparent border-[#377DFF] w-8 h-8 border-4 border-solid rounded-full animate-spin"></div>
+</div>;
   if (error) return <p>Error loading schools: {error.message}</p>;
 
   return (

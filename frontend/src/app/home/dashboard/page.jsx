@@ -5,13 +5,14 @@ import { useUser } from '@/context/UserContext'
 import StaffDashboard from './StaffDashboard'
 import AdminDashboardPage from './AdminDashboardPage'
 import SchoolAdminDashboard from './SchoolAdminDashboard'
+import ZonalAdminDashboard from './ZonalAdminDashboard'
 
 function page() {
   const{user , userRole} = useUser();
   return (
     <>
     {userRole === "CEO" && <AdminDashboardPage/>}
-    {userRole === "ZEO" && <AdminDashboardPage/>}
+    {userRole === "ZEO" && <ZonalAdminDashboard/>}
     {userRole === "schoolAdmin" && <SchoolAdminDashboard/>}
     {userRole === "staff" && <StaffDashboard/>}
     </>

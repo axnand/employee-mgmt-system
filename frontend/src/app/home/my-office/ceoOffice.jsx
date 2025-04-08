@@ -9,6 +9,8 @@ import { ToastContainer, toast } from "react-toastify";
 import { Users } from "lucide-react";
 import Link from "next/link"; // Added import for Link
 
+import { MapPin, Phone, Building2, UserCheck, BadgeInfo } from "lucide-react";
+
 export default function CeoOffice() {
   const { user } = useUser();
   const queryClient = useQueryClient();
@@ -131,41 +133,72 @@ export default function CeoOffice() {
 
   console.log("officeInfo:", officeInfo);
 
-  if (!officeInfo) return <div>Loading...</div>;
+  if (!officeInfo) return <div className="flex justify-center items-center h-full">
+  <div className="border-t-transparent border-[#377DFF] w-8 h-8 border-4 border-solid rounded-full animate-spin"></div>
+</div>;
 
   return (
-    <div className="container mx-auto p-6">
+    <div className="container">
       <ToastContainer />
 
-      {/* Office Details */}
-      <div className="bg-white shadow-md rounded-lg p-4 mb-6">
-  <h2 className="text-2xl font-bold mb-2">{officeInfo.officeName}</h2>
-  <p><strong>Office ID:</strong> {officeInfo.officeId}</p>
-  <p><strong>Office Type:</strong> {officeInfo.officeType}</p>
-  <p><strong>Address:</strong> {officeInfo.address}</p>
-  <p><strong>Contact:</strong> {officeInfo.contact}</p>
-  <p><strong>Is DDO:</strong> {officeInfo.isDdo ? "Yes" : "No"}</p>
+      <div className="bg-white border-l-[3px] border-primary p-6 rounded-lg shadow-sm transition duration-300 mb-8 text-sm">
+      <div className="flex items-center gap-3">
+        <Building2 className="w-7 h-7 text-primary" />
+        <h1 className="text-2xl font-bold text-secondary">{officeInfo.officeName}</h1>
+      </div>
 
-  {officeInfo.isDdo && (
-    <>
-      <p><strong>DDO Officer ID:</strong> {officeInfo.ddoOfficerId || "N/A"}</p>
-      <p><strong>DDO Code:</strong> {officeInfo.ddoCode || "N/A"}</p>
-    </>
-  )}
+      <div className="mt-4 space-y-3">
+        <p className="flex items-center text-gray-600">
+          <BadgeInfo className="w-5 h-5 text-secondary mr-2" />
+          <span className="font-semibold text-secondary mr-1">Office ID:</span> {officeInfo.officeId}
+        </p>
 
+        <p className="flex items-center text-gray-600">
+          <BadgeInfo className="w-5 h-5 text-secondary mr-2" />
+          <span className="font-semibold text-secondary mr-1">Office Type:</span> {officeInfo.officeType}
+        </p>
 
+        <p className="flex items-center text-gray-600">
+          <MapPin className="w-5 h-5 text-secondary mr-2" />
+          <span className="font-semibold text-secondary mr-1">Address:</span> {officeInfo.address}
+        </p>
 
-  <button
-    onClick={() => setIsEditing(true)}
-    className="mt-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
-  >
-    Edit Office Details
-  </button>
-</div>
+        <p className="flex items-center text-gray-600">
+          <Phone className="w-5 h-5 text-secondary mr-2" />
+          <span className="font-semibold text-secondary mr-1">Contact:</span> {officeInfo.contact}
+        </p>
+
+        <p className="flex items-center text-gray-600">
+          <UserCheck className="w-5 h-5 text-secondary mr-2" />
+          <span className="font-semibold text-secondary mr-1">Is DDO:</span> {officeInfo.isDdo ? "Yes" : "No"}
+        </p>
+
+        {officeInfo.isDdo && (
+          <>
+            <p className="flex items-center text-gray-600">
+              <BadgeInfo className="w-5 h-5 text-secondary mr-2" />
+              <span className="font-semibold text-secondary mr-1">DDO Officer ID:</span> {officeInfo.ddoOfficerId || "N/A"}
+            </p>
+            <p className="flex items-center text-gray-600">
+              <BadgeInfo className="w-5 h-5 text-secondary mr-2" />
+              <span className="font-semibold text-secondary mr-1">DDO Code:</span> {officeInfo.ddoCode || "N/A"}
+            </p>
+          </>
+        )}
+      </div>
+
+      <button
+        onClick={() => setIsEditing(true)}
+        className="mt-4 px-4 py-2 bg-blue-500 font-medium  text-white rounded hover:bg-blue-600"
+      >
+        Edit Office Details
+      </button>
+    </div>
+
 
 
       {/* Filter Employees Section */}
-      <div className="bg-white shadow-md rounded-lg p-4 mb-8 border-l-[3px] border-primary">
+      <div className="bg-white shadow-sm rounded-lg p-4 mb-8 border-l-[3px] border-primary">
         <h2 className="text-xl font-semibold text-gray-800 mb-4">Filter Employees</h2>
         <div className="flex flex-col md:flex-row md:items-end md:space-x-4">
           <div className="flex-1 mb-4 md:mb-0">

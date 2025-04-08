@@ -145,7 +145,9 @@ export default function OfficeDetails() {
     (designationFilter === "" || emp.presentDesignation === designationFilter)
   );
 
-  if (!officeInfo) return <div>Loading...</div>;
+  if (!officeInfo) return <div className="flex justify-center items-center h-full">
+  <div className="border-t-transparent border-[#377DFF] w-8 h-8 border-4 border-solid rounded-full animate-spin"></div>
+</div>;
 
   return (
     <div className="container mx-auto p-6">

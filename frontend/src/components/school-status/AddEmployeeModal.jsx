@@ -271,10 +271,10 @@ export default function AddEmployeeModal({
 
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 py-10">
-      <div className="bg-white p-6 max-h-full overflow-y-auto w-full max-w-4xl">
-        <h2 className="text-xl font-bold mb-4 text-gray-800">Add New Employee</h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-sm">
+    <div className="fixed inset-0 bg-black bg-opacity-40 text-[13px] font-normal backdrop-blur-sm flex justify-center items-center z-50">
+      <div className="bg-white p-8  shadow-2xl max-w-2xl max-h-[90vh] w-full overflow-y-auto">
+        <h2 className="text-2xl font-semibold text-gray-800 mb-6">Add New Employee</h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-6 text-sm">
           {/* Employee ID */}
           <div>
     <label className="font-semibold text-gray-600 block mb-1">Employee ID</label>
@@ -1003,7 +1003,64 @@ export default function AddEmployeeModal({
             />
           </div>
 
-          <div>
+
+
+
+
+  {/* Credentials */}
+      <div>
+        <label className="font-semibold text-gray-600 block mb-1">Username</label>
+        <input
+          type="text"
+          value={newEmployeeData.credentials?.username || ""}
+          onChange={(e) =>
+            setNewEmployeeData({
+              ...newEmployeeData,
+              credentials: {
+                ...newEmployeeData.credentials,
+                username: e.target.value,
+              },
+            })
+          }
+          className="border border-gray-300 rounded w-full p-2"
+        />
+      </div>
+      <div>
+        <label className="font-semibold text-gray-600 block mb-1">Password</label>
+        <div className="flex flex-col gap-y-2 items-start">
+          <input
+            type="text"
+            value={newEmployeeData.credentials?.passwordHash || ""}
+            onChange={(e) =>
+              setNewEmployeeData({
+                ...newEmployeeData,
+                credentials: {
+                  ...newEmployeeData.credentials,
+                  passwordHash: e.target.value,
+                },
+              })
+            }
+            className="border border-gray-300 rounded w-full p-2"
+          />
+          <button
+            type="button"
+            onClick={() => {
+              const generated = Math.random().toString(36).slice(-8); // generates an 8-character random password
+              setNewEmployeeData({
+                ...newEmployeeData,
+                credentials: {
+                  ...newEmployeeData.credentials,
+                  passwordHash: generated,
+                },
+              });
+            }}
+            className=" bg-blue-500 text-nowrap text-[13px] font-medium text-white px-3 py-1 rounded"
+          >
+            Generate Password
+          </button>
+        </div>
+      </div>
+      <div>
   <label className="font-semibold text-gray-600 block mb-1">
     Posting History
   </label>
@@ -1140,71 +1197,15 @@ export default function AddEmployeeModal({
         postingHistory: [...(newEmployeeData.postingHistory || []), newPosting],
       });
     }}
-    className="bg-blue-500 text-white px-3 py-1 rounded text-sm"
+    className=" bg-blue-500 text-nowrap text-[13px] font-medium text-white px-3 py-1 rounded"
   >
     Add Posting History
   </button>
 </div>
 
-
-
-  {/* Credentials */}
-      <div>
-        <label className="font-semibold text-gray-600 block mb-1">Username</label>
-        <input
-          type="text"
-          value={newEmployeeData.credentials?.username || ""}
-          onChange={(e) =>
-            setNewEmployeeData({
-              ...newEmployeeData,
-              credentials: {
-                ...newEmployeeData.credentials,
-                username: e.target.value,
-              },
-            })
-          }
-          className="border border-gray-300 rounded w-full p-2"
-        />
-      </div>
-      <div>
-        <label className="font-semibold text-gray-600 block mb-1">Password</label>
-        <div className="flex">
-          <input
-            type="text"
-            value={newEmployeeData.credentials?.passwordHash || ""}
-            onChange={(e) =>
-              setNewEmployeeData({
-                ...newEmployeeData,
-                credentials: {
-                  ...newEmployeeData.credentials,
-                  passwordHash: e.target.value,
-                },
-              })
-            }
-            className="border border-gray-300 rounded w-full p-2"
-          />
-          <button
-            type="button"
-            onClick={() => {
-              const generated = Math.random().toString(36).slice(-8); // generates an 8-character random password
-              setNewEmployeeData({
-                ...newEmployeeData,
-                credentials: {
-                  ...newEmployeeData.credentials,
-                  passwordHash: generated,
-                },
-              });
-            }}
-            className="ml-2 bg-blue-500 text-white px-4 py-2 rounded"
-          >
-            Generate Password
-          </button>
-        </div>
-      </div>
-
           
         </div>
-        <div className="mt-4 flex gap-4">
+        <div className="mt-8 flex gap-4">
           <button
             onClick={handleSaveNewEmployee}
             className="font-semibold text-[13px] px-4 py-2 bg-primary text-white rounded transition hover:bg-blue-600"
