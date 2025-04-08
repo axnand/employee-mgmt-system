@@ -10,7 +10,7 @@ const OfficeSchema = new mongoose.Schema({
   parentOffice: { type: mongoose.Schema.Types.ObjectId, ref: "Office" },
   contact: { type: String },
   address: { type: String },
-}, { timestamps: true });
+}, { timestamps : true });
 
 export default mongoose.models.Office || mongoose.model("Office", OfficeSchema);
 

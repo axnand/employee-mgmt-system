@@ -19,6 +19,15 @@ import { ToastContainer, toast } from "react-toastify";
 export default function SchoolDetailsCard({ schoolInfo }) {
   const { userRole, user } = useUser();
   const schoolId = user?.schoolId;
+  const [searchTerm, setSearchTerm] = useState("");
+  const [designationFilter, setDesignationFilter] = useState("");
+  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [newEmployeeData, setNewEmployeeData] = useState({});
+  const [showError, setShowError] = useState(false);
+  const [categoryFilter, setCategoryFilter] = useState("");
+  const [uniqueCategory, setUniqueCategory] = useState([]);
+  const [uniqueDesignations, setUniqueDesignations] = useState([]);
+  const officeId = schoolInfo.office?._id;
   console.log("SchoolInfo",schoolInfo);
   const queryClient = useQueryClient();
   const [isEditing, setIsEditing] = useState(false);
@@ -35,23 +44,89 @@ export default function SchoolDetailsCard({ schoolInfo }) {
   const [employees, setEmployees] = useState(schoolInfo.employees || []);
 
   useEffect(() => {
-    setEmployees(schoolInfo.employees || []);
-  }, [schoolInfo]);
+    if (officeId) {
+      fetchEmployees(officeId);
+    }
+  }, [officeId]);
 
-  console.log("employees:", employees);
+  const fetchEmployees = async (officeId) => {
+    try {
+      const token = localStorage.getItem("token");
+      const response = await fetch(`http://localhost:5000/api/employees/office/${officeId}`, {
+        headers: {
+          "Authorization": `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      });
 
-  // Employee filter states
-  const [searchTerm, setSearchTerm] = useState("");
-  const [designationFilter, setDesignationFilter] = useState("");
-  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
-  const [newEmployeeData, setNewEmployeeData] = useState({});
-  const [categoryFilter, setCategoryFilter] = useState("");
-  const [showError, setShowError] = useState(false);
+      if (!response.ok) {
+        throw new Error("Failed to fetch employees");
+      }
+
+      const data = await response.json();
+      setEmployees(data);
+
+      // Generate unique categories and designations
+      const categories = data.map((emp) => emp.staffType || "Unknown");
+      const designations = data.map((emp) => emp.presentDesignation || "Unknown");
+
+      setUniqueCategory([...new Set(categories)]);
+      setUniqueDesignations([...new Set(designations)]);
+    } catch (error) {
+      console.error("Error fetching employees:", error);
+    }
+  };
+
+  const addEmployeeMutation = useMutation({
+    mutationFn: async (newEmployee) => {
+      const token = localStorage.getItem("token");
+      const response = await fetch(`http://localhost:5000/api/employees`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(newEmployee),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || "Failed to add employee");
+      }
+
+      return response.json();
+    },
+    onSuccess: () => {
+      toast.success("Employee added successfully");
+      fetchEmployees(officeId);
+      setIsAddModalOpen(false);
+      setNewEmployeeData({});
+    },
+    onError: (error) => {
+      toast.error(error.message);
+    },
+  });
+
+  const handleSaveNewEmployee = () => {
+    if (!newEmployeeData.fullName || !newEmployeeData.presentDesignation) {
+      toast.error("Name and Designation are required!");
+      return;
+    }
+
+    addEmployeeMutation.mutate({
+      ...newEmployeeData,
+      office: officeId,
+    });
+  };
+
+
+
+
+
+
 
   // Build unique staff types (using staffType field)
-  const uniqueCategory = Array.from(new Set(employees.map((emp) => emp.staffType)));
-  // Build unique designations (using presentDesignation field)
-  const uniqueDesignations = Array.from(new Set(employees.map((emp) => emp.presentDesignation)));
+
 
   // Filter employees using the proper field names
   const filteredEmployees = employees.filter((emp) => {
@@ -63,64 +138,7 @@ export default function SchoolDetailsCard({ schoolInfo }) {
   });
 
 
-  
 
-  const handleSaveNewEmployee = async () => {
-    console.log("🔹 Submitting Employee Data:", JSON.stringify(newEmployeeData, null, 2));
-
-    if (!newEmployeeData.staffType || !newEmployeeData.presentDesignation) {
-        alert("Error: Staff Type and Present Designation are required!");
-        return;
-    }
-
-    try {
-        const token = localStorage.getItem("token");
-        const response = await fetch("http://localhost:5000/api/employees", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                Authorization: `Bearer ${token}`,
-            },
-            body: JSON.stringify({
-              ...newEmployeeData,
-              staffType: newEmployeeData.staffType ? newEmployeeData.staffType.toLowerCase() : "",
-              presentDesignation: newEmployeeData.presentDesignation || "Unknown",
-              bed: newEmployeeData.bed === "Yes" ? true : false,
-              photograph: "",
-              school: String(schoolInfo._id), // ✅ Ensure it's a string.
-          }),
-          
-        });
-
-        const text = await response.text();
-        console.log("🔹 Raw API response:", text);
-
-        if (!response.ok) {
-            throw new Error(`Server Error: ${response.status} - ${text}`);
-        }
-
-        const data = JSON.parse(text);
-        toast.success("Employee Added Successfully");
-        console.log("✅ Employee Added Successfully:", data);
-    } catch (error) {
-      toast.error("Error Adding Employee", error.message);
-    }
-};
-
-
-  
-  
-
-  const { data: schoolData, refetch } = useQuery({
-    queryKey: ["school", schoolInfo.id], // Assuming school has an id
-    queryFn: async () => {
-      const response = await fetch(`/api/schools/${schoolInfo.id}`);
-      return response.json();
-    },
-    initialData: schoolInfo, // Ensures data is available initially
-  });
-
-  console.log("Filtered employees:", filteredEmployees);
   
   
 
@@ -185,6 +203,12 @@ export default function SchoolDetailsCard({ schoolInfo }) {
           <p className="text-gray-600">
             <span className="font-semibold text-secondary">Sub Scheme:</span>{" "}
             {schoolInfo.subScheme}
+          </p>
+        )}
+        {schoolInfo.numberOfStudents && (
+          <p className="text-gray-600">
+            <span className="font-semibold text-secondary">Number of Students:</span>{" "}
+            {schoolInfo.numberOfStudents}
           </p>
         )}
         {schoolInfo.dateOfEstablishment && (

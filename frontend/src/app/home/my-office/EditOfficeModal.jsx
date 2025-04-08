@@ -75,166 +75,188 @@ export default function EditOfficeModal({ office, isOpen, onClose, onOfficeUpdat
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-30 flex justify-center items-center z-50">
-      <ToastContainer />
-      <div className="bg-white p-6 rounded shadow-lg max-w-lg max-h-[30rem]  w-full overflow-auto">
-        <h2 className="text-xl font-bold mb-4">Edit Office Details</h2>
-        <div className="space-y-4">
-          {/* Office Fields */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700">Office ID</label>
-            <input
-              type="text"
-              name="officeId"
-              value={officeData.officeId || ""}
-              onChange={handleChange}
-              className="w-full border border-gray-300 rounded p-2 mt-1"
-              readOnly
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700">Office Name</label>
-            <input
-              type="text"
-              name="officeName"
-              value={officeData.officeName || ""}
-              onChange={handleChange}
-              className="w-full border border-gray-300 rounded p-2 mt-1"
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700">Office Type</label>
-            <select
-              name="officeType"
-              value={officeData.officeType || ""}
-              onChange={handleChange}
-              className="w-full border border-gray-300 rounded p-2 mt-1"
-            >
-              <option value="Administrative">Administrative</option>
-              <option value="Educational">Educational</option>
-            </select>
-          </div>
+  <ToastContainer />
+  <div className="bg-white p-6 rounded shadow-lg max-w-lg max-h-[30rem] w-full overflow-auto">
+    <h2 className="text-xl font-bold mb-4">Edit Office Details</h2>
+    <div className="space-y-4">
 
-          <div className="flex items-center gap-2">
-            <input
-              type="checkbox"
-              name="isDdo"
-              checked={officeData.isDdo || false}
-              onChange={handleChange}
-              className="w-4 h-4"
-            />
-            <label className="text-gray-700">Has DDO Officer</label>
-          </div>
-
-          {officeData.isDdo && (
-            <>
-              <div>
-                <label className="block text-sm font-medium text-gray-700">DDO Officer ID</label>
-                <input
-                  type="text"
-                  name="ddoOfficer"
-                  value={officeData.ddoOfficer || ""}
-                  onChange={handleChange}
-                  className="w-full border border-gray-300 rounded p-2 mt-1"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700">DDO Code</label>
-                <input
-                  type="text"
-                  name="ddoCode"
-                  value={officeData.ddoCode || ""}
-                  onChange={handleChange}
-                  className="w-full border border-gray-300 rounded p-2 mt-1"
-                />
-              </div>
-            </>
-          )}
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700">Parent Office ID (optional)</label>
-            <input
-              type="text"
-              name="parentOffice"
-              value={officeData.parentOffice || ""}
-              onChange={handleChange}
-              className="w-full border border-gray-300 rounded p-2 mt-1"
-            />
-          </div>
-
-          {/* School Details Section for Educational Offices */}
-          {officeData.officeType === "Educational" && (
-            <div className="border-t pt-4 mt-4">
-              <h3 className="font-bold mb-2">School Details</h3>
-              <div>
-                <label className="block text-sm font-medium text-gray-700">School Name</label>
-                <input
-                  type="text"
-                  name="name"
-                  value={schoolDetails.name || ""}
-                  onChange={handleSchoolChange}
-                  className="w-full border border-gray-300 rounded p-2 mt-1"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700">UDISe ID</label>
-                <input
-                  type="text"
-                  name="udiseId"
-                  value={schoolDetails.udiseId || ""}
-                  onChange={handleSchoolChange}
-                  className="w-full border border-gray-300 rounded p-2 mt-1"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700">Feasibility Zone</label>
-                <input
-                  type="text"
-                  name="feasibilityZone"
-                  value={schoolDetails.feasibilityZone || ""}
-                  onChange={handleSchoolChange}
-                  className="w-full border border-gray-300 rounded p-2 mt-1"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700">Admin Username</label>
-                <input
-                  type="text"
-                  name="adminUserName"
-                  value={schoolDetails.adminUserName || ""}
-                  onChange={handleSchoolChange}
-                  className="w-full border border-gray-300 rounded p-2 mt-1"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700">Admin Password</label>
-                <input
-                  type="text"
-                  name="adminPassword"
-                  value={schoolDetails.adminPassword || ""}
-                  onChange={handleSchoolChange}
-                  className="w-full border border-gray-300 rounded p-2 mt-1"
-                />
-              </div>
-            </div>
-          )}
-        </div>
-
-        <div className="flex justify-end mt-6 gap-4">
-          <button
-            onClick={onClose}
-            className="bg-gray-300 text-gray-700 px-4 py-2 rounded hover:bg-gray-400"
-          >
-            Cancel
-          </button>
-          <button
-            onClick={handleSave}
-            disabled={isSaving}
-            className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
-          >
-            {isSaving ? "Saving..." : "Save"}
-          </button>
-        </div>
+      {/* Office Fields */}
+      <div>
+        <label className="block text-sm font-medium text-gray-700">Office ID</label>
+        <input
+          type="text"
+          name="officeId"
+          value={officeData.officeId || ""}
+          onChange={handleChange}
+          className="w-full border border-gray-300 rounded p-2 mt-1"
+          readOnly
+        />
       </div>
+      <div>
+        <label className="block text-sm font-medium text-gray-700">Office Name</label>
+        <input
+          type="text"
+          name="officeName"
+          value={officeData.officeName || ""}
+          onChange={handleChange}
+          className="w-full border border-gray-300 rounded p-2 mt-1"
+        />
+      </div>
+      <div>
+        <label className="block text-sm font-medium text-gray-700">Office Type</label>
+        <input
+        readOnly
+        type=""
+        name="officeType"
+        value="Administrative"
+        onChange={handleChange}
+        className="w-full border border-gray-300 bg-gray-200 rounded p-2 mt-1"
+      />
+      </div>
+      <div>
+        <label className="block text-sm font-medium text-gray-700">Address</label>
+        <input
+          type="text"
+          name="address"
+          value={officeData.address || ""}
+          onChange={handleChange}
+          className="w-full border border-gray-300 rounded p-2 mt-1"
+        />
+      </div>
+      <div>
+        <label className="block text-sm font-medium text-gray-700">Contact</label>
+        <input
+          type="text"
+          name="contact"
+          value={officeData.contact || ""}
+          onChange={handleChange}
+          className="w-full border border-gray-300 rounded p-2 mt-1"
+        />
+      </div>
+
+      {/* DDO Related Fields */}
+      <div className="flex items-center gap-2">
+        <input
+          type="checkbox"
+          name="isDdo"
+          checked={officeData.isDdo || false}
+          onChange={(e) => handleChange({ target: { name: 'isDdo', value: e.target.checked } })}
+          className="w-4 h-4"
+        />
+        <label className="text-gray-700">Has DDO</label>
+      </div>
+
+      {officeData.isDdo && (
+        <>
+          <div>
+            <label className="block text-sm font-medium text-gray-700">DDO Officer ID</label>
+            <input
+              type="text"
+              name="ddoOfficerId"
+              value={officeData.ddoOfficerId || ""}
+              onChange={handleChange}
+              className="w-full border border-gray-300 rounded p-2 mt-1"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700">DDO Code</label>
+            <input
+              type="text"
+              name="ddoCode"
+              value={officeData.ddoCode || ""}
+              onChange={handleChange}
+              className="w-full border border-gray-300 rounded p-2 mt-1"
+            />
+          </div>
+        </>
+      )}
+
+      <div>
+        <label className="block text-sm font-medium text-gray-700">Parent Office ID (optional)</label>
+        <input
+          type="text"
+          name="parentOffice"
+          value={officeData.parentOffice || ""}
+          onChange={handleChange}
+          className="w-full border border-gray-300 rounded p-2 mt-1"
+        />
+      </div>
+
+      {/* School Details Section for Educational Offices */}
+      {officeData.officeType === "Educational" && (
+        <div className="border-t pt-4 mt-4">
+          <h3 className="font-bold mb-2">School Details</h3>
+          <div>
+            <label className="block text-sm font-medium text-gray-700">School Name</label>
+            <input
+              type="text"
+              name="name"
+              value={schoolDetails.name || ""}
+              onChange={handleSchoolChange}
+              className="w-full border border-gray-300 rounded p-2 mt-1"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700">UDISe ID</label>
+            <input
+              type="text"
+              name="udiseId"
+              value={schoolDetails.udiseId || ""}
+              onChange={handleSchoolChange}
+              className="w-full border border-gray-300 rounded p-2 mt-1"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700">Feasibility Zone</label>
+            <input
+              type="text"
+              name="feasibilityZone"
+              value={schoolDetails.feasibilityZone || ""}
+              onChange={handleSchoolChange}
+              className="w-full border border-gray-300 rounded p-2 mt-1"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700">Admin Username</label>
+            <input
+              type="text"
+              name="adminUserName"
+              value={schoolDetails.adminUserName || ""}
+              onChange={handleSchoolChange}
+              className="w-full border border-gray-300 rounded p-2 mt-1"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700">Admin Password</label>
+            <input
+              type="text"
+              name="adminPassword"
+              value={schoolDetails.adminPassword || ""}
+              onChange={handleSchoolChange}
+              className="w-full border border-gray-300 rounded p-2 mt-1"
+            />
+          </div>
+        </div>
+      )}
     </div>
+
+    <div className="flex justify-end mt-6 gap-4">
+      <button
+        onClick={onClose}
+        className="bg-gray-300 text-gray-700 px-4 py-2 rounded hover:bg-gray-400"
+      >
+        Cancel
+      </button>
+      <button
+        onClick={handleSave}
+        disabled={isSaving}
+        className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+      >
+        {isSaving ? "Saving..." : "Save"}
+      </button>
+    </div>
+  </div>
+</div>
+
   );
 }

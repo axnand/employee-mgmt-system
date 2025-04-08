@@ -56,7 +56,7 @@ export default function DashboardLayout({ children }) {
       },
       {
         title: "Subordinate Offices",
-        href: "/home/offices",
+        href: "/home/subordinate-office",
         icon: <Network className=" h-5 w-5" />,
       },
       {
@@ -88,14 +88,24 @@ export default function DashboardLayout({ children }) {
         icon: <LayoutDashboard className=" h-5 w-5" />,
       },
       {
-        title: "Offices",
-        href: "/home/offices",
+        title: "My Office",
+        href: "/home/my-office",
         icon: <Briefcase className=" h-5 w-5" />,
+      },
+      {
+        title: "Subordinate Offices",
+        href: "/home/subordinate-office",
+        icon: <Network className=" h-5 w-5" />,
       },
       {
         title: "School Status",
         href: "/home/school-status",
         icon: <School className=" h-5 w-5" />,
+      },
+      {
+        title: "Reports",
+        href: "/home/staff-statement",
+        icon: <File className=" h-5 w-5" />,
       },
       {
         title: "Logs",
@@ -136,7 +146,7 @@ export default function DashboardLayout({ children }) {
         ],
       },
       {
-        title: "Staff statement",
+        title: "Reports",
         href: "/home/staff-statement",
         icon: <File className=" h-5 w-5" />,
       },

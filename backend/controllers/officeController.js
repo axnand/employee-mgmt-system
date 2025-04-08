@@ -1,6 +1,8 @@
 import Office from "../models/Office.js";
 import School from "../models/School.js";
 import User from "../models/User.js";
+import Zone from "../models/Zone.js";
+import mongoose from "mongoose";
 
 // A helper function to get full DDO officer details using the ddoOfficerId (employeeId)
 import Employee from "../models/Employee.js";
@@ -47,65 +49,118 @@ export const getOfficeById = async (req, res) => {
 
 // Create a new office
 export const createOffice = async (req, res) => {
-  try {
-    const { officeId, officeName, officeType, ddoOfficer, schools, ddoCode, parentOffice, isDdo } = req.body;
+  console.log("Request body:", req.body);
+  const session = await mongoose.startSession();
+  let transactionCommitted = false;
 
-    // Validate required fields
+  session.startTransaction();
+  try {
+    const { 
+      officeId, 
+      officeName, 
+      officeType, 
+      ddoOfficer, 
+      schools, 
+      ddoCode, 
+      parentOffice, 
+      isDdo, 
+      zone, 
+    } = req.body;
+
     if (!officeId || !officeName || !officeType) {
       return res.status(400).json({ message: "Office ID, name, and type are required" });
     }
 
     let schoolIds = [];
-    if (officeType === "Educational" && schools && schools.length > 0) {
-      // Create each school and associated school admin user if credentials provided
-      for (const schoolData of schools) {
-        const { adminUserName, adminPassword, ...schoolDetails } = schoolData;
-        const newSchool = new School({ ...schoolDetails, office: null });
-        await newSchool.save();
-        schoolIds.push(newSchool._id);
-
-        if (adminUserName && adminPassword) {
-          const newUser = new User({
-            userName: adminUserName,
-            password: adminPassword,
-            role: "schoolAdmin",
-            office: newSchool._id, // Will be updated after office creation
-            schoolId: newSchool._id,
-          });
-          await newUser.save();
-        }
-      }
-    }
 
     const officeData = {
       officeId,
       officeName,
       officeType,
-      ddoOfficerId: ddoOfficer, // ddoOfficer now comes in as a string (employeeId)
+      ddoOfficerId: ddoOfficer,
       ddoCode,
       parentOffice: parentOffice || undefined,
       isDdo,
+      zone: zone,
     };
 
-    // If educational, you might want to store the created school IDs elsewhere
-    // (If needed, update the School model separately)
+    const officeObject = await new Office(officeData).save({ session });
 
-    const newOffice = new Office(officeData);
-    await newOffice.save();
+    // If it's an educational office, we need to create schools and their admins
+    if (officeType === "Educational" && schools && schools.length > 0) {
+      for (const schoolData of schools) {
+        const { adminUserName, adminPassword, ...schoolDetails } = schoolData;
 
-    // Optionally update schools and users with new office reference if applicable
+        // Create School
+        const newSchool = new School({ ...schoolDetails, office: officeObject._id, zone });
+        await newSchool.save({ session });
+        schoolIds.push(newSchool._id);
+
+        if (adminUserName && adminPassword) {
+          // Create User with full information
+          const newUser = new User({
+            userName: adminUserName,
+            password: adminPassword,
+            role: "schoolAdmin",
+            office: officeObject._id,
+            schoolId: newSchool._id,
+            zoneId: zone,
+            passwordChanged: false
+          });
+
+          await newUser.save({ session });
+        }
+      }
+    }
+
+    // Add the new office to the Zone's `offices` array
+    if (zone) {
+      const updatedZone = await Zone.findByIdAndUpdate(
+        zone,
+        { $push: { offices: officeObject._id } },
+        { new: true, useFindAndModify: false, session }
+      );
+
+      if (!updatedZone) {
+        throw new Error("Zone not found. Unable to add office to the zone.");
+      }
+    }
+
+    // Link Schools & Users to the Office
     if (schoolIds.length > 0) {
       await Promise.all([
-        School.updateMany({ _id: { $in: schoolIds } }, { $set: { office: newOffice._id } }),
-        User.updateMany({ schoolId: { $in: schoolIds } }, { $set: { office: newOffice._id } })
+        School.updateMany(
+          { _id: { $in: schoolIds } }, 
+          { $set: { office: officeObject._id } },
+          { session }
+        ),
+        User.updateMany(
+          { schoolId: { $in: schoolIds } }, 
+          { $set: { office: officeObject._id } },
+          { session }
+        )
       ]);
     }
 
-    res.status(201).json({ message: "Office created successfully", office: newOffice });
+    // Commit the transaction
+    await session.commitTransaction();
+    transactionCommitted = true;  // ✅ Mark the transaction as committed
+    res.status(201).json({ message: "Office created successfully", office: officeObject });
+
   } catch (error) {
+    if (!transactionCommitted) {
+      // ✅ Abort transaction only if it hasn't been committed
+      await session.abortTransaction();
+    }
+    console.error("Error creating office:", error.message);
     res.status(500).json({ message: "Error creating office", error: error.message });
+
+  } finally {
+    session.endSession(); // ✅ Always end the session, regardless of success or failure
   }
 };
+
+
 
 // Update an existing office
 export const updateOffice = async (req, res) => {

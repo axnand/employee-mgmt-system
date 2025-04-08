@@ -1,7 +1,0 @@
-2025-04-06 04:19:26 [ERROR]: Failed to create log: Log validation failed: role: Path `role` is required.
-Stack Trace: ValidationError: Log validation failed: role: Path `role` is required.
-    at Document.invalidate (C:\Users\hp\OneDrive\Desktop\projects\EMS\backend\node_modules\mongoose\lib\document.js:3329:32)
-    at C:\Users\hp\OneDrive\Desktop\projects\EMS\backend\node_modules\mongoose\lib\document.js:3090:17
-    at C:\Users\hp\OneDrive\Desktop\projects\EMS\backend\node_modules\mongoose\lib\schemaType.js:1407:9
-    at process.processTicksAndRejections (node:internal/process/task_queues:77:11)
-Meta: {"errors":{"role":{"name":"ValidatorError","message":"Path `role` is required.","properties":{"message":"Path `role` is required.","type":"required","path":"role"},"kind":"required","path":"role"}},"_message":"Log validation failed"}

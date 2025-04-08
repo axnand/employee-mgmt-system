@@ -1,109 +1,123 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { useUser } from "@/context/UserContext";
-import AddEmployeeModal from "@/components/school-status/AddEmployeeModal";
-import EditOfficeModal from "./EditOfficeModal";
+import { useSearchParams, useRouter } from "next/navigation";
+import axiosClient from "@/api/axiosClient";
 import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 import { Users } from "lucide-react";
-import Link from "next/link"; // Added import for Link
+import Link from "next/link";
+import AddEmployeeModal from "@/components/school-status/AddEmployeeModal";
+import EditOfficeModal from "../my-office/EditOfficeModal";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 
-export default function CeoOffice() {
-  const { user } = useUser();
+export default function OfficeDetails() {
+  const searchParams = useSearchParams();
+  const router = useRouter();
+  const officeId = searchParams.get("officeId");
   const queryClient = useQueryClient();
-  const [employees, setEmployees] = useState([]);
+
   const [officeInfo, setOfficeInfo] = useState(null);
+  const [employees, setEmployees] = useState([]);
   const [isEditing, setIsEditing] = useState(false);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [newEmployeeData, setNewEmployeeData] = useState({});
   const [searchTerm, setSearchTerm] = useState("");
-  const [designationFilter, setDesignationFilter] = useState("");
   const [categoryFilter, setCategoryFilter] = useState("");
+  const [designationFilter, setDesignationFilter] = useState("");
   const [uniqueCategory, setUniqueCategory] = useState([]);
   const [uniqueDesignations, setUniqueDesignations] = useState([]);
 
   useEffect(() => {
-    if (user?.officeId) {
-      fetchOfficeDetails(user.officeId);
-      fetchEmployees(user.officeId);
+    if (officeId) {
+      fetchOfficeDetails(officeId);
+      fetchEmployees(officeId);
     }
-  }, [user?.officeId]);
+  }, [officeId]);
+
+  const fetchOfficeAdmin = async (officeId) => {
+    try {
+      const response = await axiosClient.get(`/users/office/${officeId}`);
+      if (response.data.user) {
+        return response.data.user;
+      } else {
+        toast.error("Office Admin not found");
+        return null;
+      }
+    } catch (error) {
+      console.error("Error fetching office admin details:", error);
+      toast.error("Error fetching office admin details");
+      return null;
+    }
+};
+
 
   const fetchOfficeDetails = async (officeId) => {
     try {
       const token = localStorage.getItem("token");
-      const response = await fetch(`http://localhost:5000/api/offices/${officeId}`, {
+      const response = await axiosClient.get(`/offices/${officeId}`, {
         headers: {
-          "Authorization": `Bearer ${token}`,
+          Authorization: `Bearer ${token}`,
           "Content-Type": "application/json",
         },
       });
-
-      if (!response.ok) {
-        throw new Error("Failed to fetch office data");
+      if (response.data.office) {
+        const office = response.data.office;
+        const adminUser = await fetchOfficeAdmin(officeId);
+        console.log("adminUser", adminUser);
+        setOfficeInfo(response.data.office);
+      } else {
+        toast.error("Office not found");
       }
-
-      const data = await response.json();
-      console.log("Office data:", data);
-      setOfficeInfo(data.office);
     } catch (error) {
-      console.error("Error fetching office data:", error);
+      console.error("Error fetching office details:", error);
+      toast.error("Error fetching office details");
     }
   };
 
   const fetchEmployees = async (officeId) => {
     try {
       const token = localStorage.getItem("token");
-      const response = await fetch(`http://localhost:5000/api/employees/office/${officeId}`, {
+      const response = await axiosClient.get(`/employees/office/${officeId}`, {
         headers: {
-          "Authorization": `Bearer ${token}`,
+          Authorization: `Bearer ${token}`,
           "Content-Type": "application/json",
         },
       });
-
-      if (!response.ok) {
-        throw new Error("Failed to fetch employees");
-      }
-
-      const data = await response.json();
-      const empList = data || [];
+      const empList = response.data.employees || [];
       setEmployees(empList);
 
-      // Compute unique staff types (categories)
       const categories = empList.map((emp) => emp.staffType || "Unknown");
       setUniqueCategory([...new Set(categories)]);
 
-      // Compute unique designations
       const designations = empList.map((emp) => emp.presentDesignation || "Unknown");
       setUniqueDesignations([...new Set(designations)]);
     } catch (error) {
       console.error("Error fetching employees:", error);
+      toast.error("Error fetching employees");
     }
   };
 
   const addEmployeeMutation = useMutation({
     mutationFn: async (newEmployee) => {
       const token = localStorage.getItem("token");
-      const response = await fetch(`http://localhost:5000/api/employees`, {
-        method: "POST",
+      const response = await axiosClient.post(`/employees`, newEmployee, {
         headers: {
-          "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
         },
-        body: JSON.stringify(newEmployee),
       });
 
       if (!response.ok) {
         const errorData = await response.json();
         throw new Error(errorData.message || "Failed to add employee");
       }
-
-      return response.json();
+      
+      return response.data;
     },
-    onSuccess: (data) => {
+    onSuccess: () => {
       toast.success("Employee added successfully");
-      fetchEmployees(user.officeId);
+      fetchEmployees(officeId);
       setIsAddModalOpen(false);
       setNewEmployeeData({});
     },
@@ -120,16 +134,16 @@ export default function CeoOffice() {
 
     addEmployeeMutation.mutate({
       ...newEmployeeData,
-      office: user?.officeId || user?.office,
+      office: officeId,
     });
   };
-  const filteredEmployees = employees.filter((emp) => 
-    emp.fullName.toLowerCase().includes(searchTerm.toLowerCase()) &&
-    (designationFilter === "" || emp.presentDesignation === designationFilter) &&
-    (categoryFilter === "" || emp.staffType === categoryFilter)
-  );
 
-  console.log("officeInfo:", officeInfo);
+
+  const filteredEmployees = employees.filter((emp) =>
+    emp.fullName.toLowerCase().includes(searchTerm.toLowerCase()) &&
+    (categoryFilter === "" || emp.staffType === categoryFilter) &&
+    (designationFilter === "" || emp.presentDesignation === designationFilter)
+  );
 
   if (!officeInfo) return <div>Loading...</div>;
 
@@ -139,29 +153,26 @@ export default function CeoOffice() {
 
       {/* Office Details */}
       <div className="bg-white shadow-md rounded-lg p-4 mb-6">
-  <h2 className="text-2xl font-bold mb-2">{officeInfo.officeName}</h2>
-  <p><strong>Office ID:</strong> {officeInfo.officeId}</p>
-  <p><strong>Office Type:</strong> {officeInfo.officeType}</p>
-  <p><strong>Address:</strong> {officeInfo.address}</p>
-  <p><strong>Contact:</strong> {officeInfo.contact}</p>
-  <p><strong>Is DDO:</strong> {officeInfo.isDdo ? "Yes" : "No"}</p>
+            <h2 className="text-2xl font-bold mb-2">{officeInfo.officeName}</h2>
+            <p><strong>Office Type:</strong> {officeInfo.officeType}</p>
+            <p><strong>Address:</strong> {officeInfo.address}</p>
+            <p><strong>Contact:</strong> {officeInfo.contact}</p>
 
-  {officeInfo.isDdo && (
-    <>
-      <p><strong>DDO Officer ID:</strong> {officeInfo.ddoOfficerId || "N/A"}</p>
-      <p><strong>DDO Code:</strong> {officeInfo.ddoCode || "N/A"}</p>
-    </>
-  )}
+            {officeInfo.adminUser && (
+            <div className="mt-4">
+                <h3 className="text-lg font-bold mb-2">Admin Credentials</h3>
+                <p><strong>Username:</strong> {officeInfo.adminUser.userName}</p>
+                <p><strong>Password:</strong> {officeInfo.adminUser.password || "Not Available"}</p>
+            </div>
+            )}
 
-
-
-  <button
-    onClick={() => setIsEditing(true)}
-    className="mt-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
-  >
-    Edit Office Details
-  </button>
-</div>
+            <button
+            onClick={() => setIsEditing(true)}
+            className="mt-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+            >
+            Edit Office Details
+            </button>
+        </div>
 
 
       {/* Filter Employees Section */}
@@ -266,21 +277,15 @@ export default function CeoOffice() {
             <tbody className="bg-white divide-y divide-gray-200">
               {filteredEmployees.map((emp) => (
                 <tr key={emp._id}>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                    {emp.employeeId}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                    {emp.fullName}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                    {emp.presentDesignation}
-                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{emp.employeeId}</td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{emp.fullName}</td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{emp.presentDesignation}</td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm flex items-center gap-x-2">
                     <Link
-                      href={`/home/school-status/${encodeURIComponent(emp._id)}`}
+                      href={`/employee?employeeId=${encodeURIComponent(emp._id)}`}
                       className="py-1 px-3 bg-primary text-white rounded-full font-medium text-xs hover:bg-blue-600 transition"
                     >
-                      View
+                      View Employee
                     </Link>
                   </td>
                 </tr>
@@ -318,3 +323,5 @@ export default function CeoOffice() {
     </div>
   );
 }
+
+

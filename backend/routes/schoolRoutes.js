@@ -3,27 +3,27 @@ import {
   getAllSchools,
   getSchoolById,
   getMySchool,
-  getSchoolStatus,
   createSchool,
   updateSchool,
   deleteSchool,
+  getSchoolsByZoneId,
+  getSchoolsByOfficeId,
+  getSchoolsByDistrictId,
 } from "../controllers/schoolController.js";
-import { protect, authorizeRoles } from "../middleware/authMiddleware.js";
 
 const router = express.Router();
 
-router.get("/status", protect, getSchoolStatus); 
+// General school operations
+router.get("/", getAllSchools);
+router.get("/:id", getSchoolById);
+router.get("/myschool", getMySchool);
+router.post("/", createSchool);
+router.put("/:id", updateSchool);
+router.delete("/:id", deleteSchool);
 
-router.get("/mine", protect, getMySchool); 
-
-router.get("/", protect, authorizeRoles("CEO", "ZEO"), getAllSchools); 
-
-router.get("/:id", protect, getSchoolById); 
-
-router.post("/", protect, authorizeRoles("CEO", "ZEO"), createSchool); 
-
-router.put("/:id", protect, authorizeRoles("CEO", "ZEO", "schoolAdmin"), updateSchool);
-
-router.delete("/:id", protect, authorizeRoles("CEO", "ZEO"), deleteSchool);
+// New specific routes
+router.get("/zone/:zoneId", getSchoolsByZoneId);
+router.get("/office/:officeId", getSchoolsByOfficeId);
+router.get("/district/:districtId", getSchoolsByDistrictId);
 
 export default router;
