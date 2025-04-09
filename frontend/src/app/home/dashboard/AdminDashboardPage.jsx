@@ -27,35 +27,14 @@ import axiosClient from "@/api/axiosClient";
 
 // ---------- API FETCH FUNCTIONS ----------
 
-
-
 // Fetch all employees (for total staff and staff distribution)
 const fetchEmployees = async () => {
   const res = await axiosClient.get("/employees");
   console.log("Employees response:", res.data);
-  // If res.data is an array, return it; if it’s an object with an "employees" key, return that.
+  // If res.data is an array, return it;
+  // if it’s an object with an "employees" key, return that.
   return Array.isArray(res.data) ? res.data : res.data.employees || [];
 };
-
-
-
-
-
-// Fetch all transfers (to compute pending transfers)
-// const fetchTransfers = async () => {
-//   try {
-//     const res = await axiosClient.get("/transfers");
-//     console.log("Transfers response:", res.data);
-//     return Array.isArray(res.data?.transferRequests)
-//       ? res.data.transferRequests
-//       : res.data?.transferRequests || [];
-//   } catch (error) {
-//     console.error("Error fetching transfers:", error);
-//     return [];
-//   }
-// };
-
-
 
 // Fetch enrollment trends (if available; otherwise, use sample data)
 const fetchEnrollmentTrends = async () => {
@@ -77,12 +56,8 @@ const fetchRecentActivities = async () => {
   return res?.data?.logs.slice(0, 3);
 };
 
-// Fetch retirement employees based on filterDays; expects endpoint with query param.
-// const fetchRetirements = async (days) => {
-//   const res = await axiosClient.get(`/employees/retirements?days=${days}`);
-//   return res.data.retirements || []; // Ensure fallback to an empty array
-// };
-
+// Fetch schools based on role and parameters.
+// We ensure that the returned value is always an array.
 const fetchSchools = async (role, districtId, zoneId, officeId) => {
   try {
     let response;
@@ -96,14 +71,19 @@ const fetchSchools = async (role, districtId, zoneId, officeId) => {
       throw new Error("Invalid role or missing parameters.");
     }
     
-    return response.data;  // Return schools data from the response
+    // Ensure we return an array.
+    if (Array.isArray(response.data)) {
+      return response.data;
+    } else if (response.data && Array.isArray(response.data.schools)) {
+      return response.data.schools;
+    } else {
+      return [];
+    }
   } catch (error) {
     console.error("Error fetching schools:", error);
-    throw error;  // Rethrow error to be handled by react-query
+    throw error;
   }
 };
-
-
 
 // ---------- Dashboard Component ----------
 
@@ -119,18 +99,11 @@ export default function ZonalAdminDashboard() {
     queryFn: () => fetchSchools(userRole, userDistrictId, userZoneId, userOfficeId),
   });
 
-
-
   // Use react-query to fetch data from the backend.
-  
   const { data: employees = [] } = useQuery({
     queryKey: ["employees"],
     queryFn: fetchEmployees,
   });
-  // const { data: transfers = [] } = useQuery({
-  //   queryKey: ["transfers"],
-  //   queryFn: fetchTransfers,
-  // });
   const { data: enrollmentData = [] } = useQuery({
     queryKey: ["enrollmentTrends"],
     queryFn: fetchEnrollmentTrends,
@@ -139,29 +112,22 @@ export default function ZonalAdminDashboard() {
     queryKey: ["recentActivities"],
     queryFn: fetchRecentActivities,
   });
-  // const { data: retirementEmployees = [] } = useQuery({
-  //   queryKey: ["retirements", filterDays],
-  //   queryFn: () => fetchRetirements(filterDays),
-  //   keepPreviousData: true,
-  // });
 
   // ---------- Derived Metrics ----------
 
-  const totalSchools = schools.length;
-  const totalStudents = schools.reduce(
+  // Ensure schools is an array before using reduce.
+  const safeSchools = Array.isArray(schools) ? schools : [];
+  const totalSchools = safeSchools.length;
+  const totalStudents = safeSchools.reduce(
     (acc, school) => acc + (school.numberOfStudents || 0),
     0
   );
-  const totalStaff = employees.length;
-
-  // const safeTransfers = Array.isArray(transfers) ? transfers : [];
-  // const pendingTransfers = safeTransfers.filter((t) => t.status === "pending").length;
-
+  const totalStaff = Array.isArray(employees) ? employees.length : 0;
 
   // Staff distribution: count based on staffType.
   const safeEmployees = Array.isArray(employees) ? employees : [];
 
-  const teachingCount = (Array.isArray(employees) ? employees : []).filter(
+  const teachingCount = safeEmployees.filter(
     (emp) => emp.staffType === "teaching"
   ).length;
   const nonTeachingCount = safeEmployees.filter(
@@ -169,8 +135,8 @@ export default function ZonalAdminDashboard() {
   ).length;
   
   const staffData = [
-    { name: "Teaching", value: teachingCount },
-    { name: "Non-Teaching", value: nonTeachingCount },
+    { name: "Teaching", value: teachingCount || 0 },
+    { name: "Non-Teaching", value: nonTeachingCount || 0 },
   ];
   const COLORS = ["#0088FE", "#00C49F"];
 
@@ -226,7 +192,7 @@ export default function ZonalAdminDashboard() {
           </div>
         </div>
 
-        {/* Pending Transfers */}
+        {/* Pending Transfers (Commented out for now) */}
         {/* <div className="bg-white shadow-sm rounded-lg p-4 flex flex-col border-l-[3px] border-primary">
           <div className="flex items-center space-x-2">
             <ArrowLeftRight className="h-5 w-5 text-orange-500" />
@@ -290,48 +256,43 @@ export default function ZonalAdminDashboard() {
 
       {/* Recent Activities */}
       <div className="bg-white shadow-sm rounded-lg p-4 border-l-[3px] border-primary">
-  <h3 className="text-xl font-bold mb-4 text-gray-800">
-    Recent Activities
-  </h3>
-  <div className="divide-y divide-gray-200 mt-2">
-    {recentActivities.map((activity, index) => (
-      <div key={index} className="py-2">
-        {/* Main row: action and time */}
-        <div className="flex items-center justify-between text-sm font-medium text-gray-600">
-          <span>{activity.action}</span>
-          <span className="text-gray-400 text-[13px]">{activity.time}</span>
+        <h3 className="text-xl font-bold mb-4 text-gray-800">
+          Recent Activities
+        </h3>
+        <div className="divide-y divide-gray-200 mt-2">
+          {recentActivities.map((activity, index) => (
+            <div key={index} className="py-2">
+              {/* Main row: action and time */}
+              <div className="flex items-center justify-between text-sm font-medium text-gray-600">
+                <span>{activity.action}</span>
+                <span className="text-gray-400 text-[13px]">{activity.time}</span>
+              </div>
+              {/* Secondary row: additional details (if any) */}
+              {(activity.description || activity.admin || activity.ip) && (
+                <div className="mt-1 text-xs text-gray-500">
+                  {activity.description && <span>{activity.description}</span>}
+                  {activity.admin && (
+                    <span className="ml-2">
+                      {activity.admin}
+                      {activity.role && ` (${activity.role})`}
+                    </span>
+                  )}
+                  {activity.ip && <span className="ml-2">IP: {activity.ip}</span>}
+                </div>
+              )}
+            </div>
+          ))}
         </div>
-        {/* Secondary row: additional details (if any) */}
-        {(activity.description || activity.admin || activity.ip) && (
-          <div className="mt-1 text-xs text-gray-500">
-            {activity.description && <span>{activity.description}</span>}
-            {activity.admin && (
-              <span className="ml-2">
-                {activity.admin}
-                {activity.role && ` (${activity.role})`}
-              </span>
-            )}
-            {activity.ip && <span className="ml-2">IP: {activity.ip}</span>}
-          </div>
-        )}
+        <div className="mt-4 text-right">
+          <Link href="/home/logs" className="text-blue-600 font-semibold hover:underline text-sm">
+            View All Logs
+          </Link>
+        </div>
       </div>
-    ))}
-  </div>
-  <div className="mt-4 text-right">
-    <Link
-      href="/home/logs"
-      className="text-blue-600 font-semibold hover:underline text-sm"
-    >
-      View All Logs
-    </Link>
-  </div>
-</div>
 
-
-
-
-      {/* Retirement Announcements - Employee Retirement Table with Filter */}
-      {/* <div className="bg-white shadow-sm rounded-lg p-4 border-l-[3px] border-primary">
+      {/* Retirement Announcements - Employee Retirement Table with Filter (Commented Out) */}
+      {/*
+      <div className="bg-white shadow-sm rounded-lg p-4 border-l-[3px] border-primary">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4">
           <h3 className="text-xl font-bold text-gray-800 mb-2 sm:mb-0">
             Retirement Announcements
@@ -386,7 +347,8 @@ export default function ZonalAdminDashboard() {
             </tbody>
           </table>
         </div>
-      </div> */}
+      </div>
+      */}
     </div>
   );
 }
