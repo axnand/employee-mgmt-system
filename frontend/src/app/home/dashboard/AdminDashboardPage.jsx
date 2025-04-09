@@ -331,7 +331,7 @@ export default function ZonalAdminDashboard() {
 
 
       {/* Retirement Announcements - Employee Retirement Table with Filter */}
-      <div className="bg-white shadow-sm rounded-lg p-4 border-l-[3px] border-primary">
+      {/* <div className="bg-white shadow-sm rounded-lg p-4 border-l-[3px] border-primary">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4">
           <h3 className="text-xl font-bold text-gray-800 mb-2 sm:mb-0">
             Retirement Announcements
@@ -386,7 +386,7 @@ export default function ZonalAdminDashboard() {
             </tbody>
           </table>
         </div>
-      </div>
+      </div> */}
     </div>
   );
 }
