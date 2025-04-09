@@ -4,7 +4,7 @@ export async function updateEmployeeProfilePicture(employeeId, photoUrl) {
       throw new Error("User not authenticated");
     }
   
-    const response = await fetch(`http://localhost:5000/api/employees/${employeeId}`, {
+    const response = await fetch(`http://13.231.148.125:5000/api/employees/${employeeId}`, {
       method: "PUT",
       headers: {
         "Content-Type": "application/json",

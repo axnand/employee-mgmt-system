@@ -47,7 +47,7 @@ export default function EditOfficeModal({ office, isOpen, onClose, onOfficeUpdat
 
           console.log("Sending Payload:", payload);
 
-      const response = await fetch(`http://localhost:5000/api/offices/${office._id}`, {
+      const response = await fetch(`http://13.231.148.125:5000/api/offices/${office._id}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",

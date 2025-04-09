@@ -78,10 +78,10 @@ const fetchRecentActivities = async () => {
 };
 
 // Fetch retirement employees based on filterDays; expects endpoint with query param.
-const fetchRetirements = async (days) => {
-  const res = await axiosClient.get(`/employees/retirements?days=${days}`);
-  return res.data.retirements || []; // Ensure fallback to an empty array
-};
+// const fetchRetirements = async (days) => {
+//   const res = await axiosClient.get(`/employees/retirements?days=${days}`);
+//   return res.data.retirements || []; // Ensure fallback to an empty array
+// };
 
 const fetchSchools = async (role, districtId, zoneId, officeId) => {
   try {
@@ -139,11 +139,11 @@ export default function ZonalAdminDashboard() {
     queryKey: ["recentActivities"],
     queryFn: fetchRecentActivities,
   });
-  const { data: retirementEmployees = [] } = useQuery({
-    queryKey: ["retirements", filterDays],
-    queryFn: () => fetchRetirements(filterDays),
-    keepPreviousData: true,
-  });
+  // const { data: retirementEmployees = [] } = useQuery({
+  //   queryKey: ["retirements", filterDays],
+  //   queryFn: () => fetchRetirements(filterDays),
+  //   keepPreviousData: true,
+  // });
 
   // ---------- Derived Metrics ----------
 
@@ -331,7 +331,7 @@ export default function ZonalAdminDashboard() {
 
 
       {/* Retirement Announcements - Employee Retirement Table with Filter */}
-      <div className="bg-white shadow-sm rounded-lg p-4 border-l-[3px] border-primary">
+      {/* <div className="bg-white shadow-sm rounded-lg p-4 border-l-[3px] border-primary">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4">
           <h3 className="text-xl font-bold text-gray-800 mb-2 sm:mb-0">
             Retirement Announcements
@@ -386,7 +386,7 @@ export default function ZonalAdminDashboard() {
             </tbody>
           </table>
         </div>
-      </div>
+      </div> */}
     </div>
   );
 }

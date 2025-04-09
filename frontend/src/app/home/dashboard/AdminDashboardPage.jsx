@@ -78,10 +78,10 @@ const fetchRecentActivities = async () => {
 };
 
 // Fetch retirement employees based on filterDays; expects endpoint with query param.
-const fetchRetirements = async (days) => {
-  const res = await axiosClient.get(`/employees/retirements?days=${days}`);
-  return res.data.retirements || []; // Ensure fallback to an empty array
-};
+// const fetchRetirements = async (days) => {
+//   const res = await axiosClient.get(`/employees/retirements?days=${days}`);
+//   return res.data.retirements || []; // Ensure fallback to an empty array
+// };
 
 const fetchSchools = async (role, districtId, zoneId, officeId) => {
   try {
@@ -139,11 +139,11 @@ export default function ZonalAdminDashboard() {
     queryKey: ["recentActivities"],
     queryFn: fetchRecentActivities,
   });
-  const { data: retirementEmployees = [] } = useQuery({
-    queryKey: ["retirements", filterDays],
-    queryFn: () => fetchRetirements(filterDays),
-    keepPreviousData: true,
-  });
+  // const { data: retirementEmployees = [] } = useQuery({
+  //   queryKey: ["retirements", filterDays],
+  //   queryFn: () => fetchRetirements(filterDays),
+  //   keepPreviousData: true,
+  // });
 
   // ---------- Derived Metrics ----------
 

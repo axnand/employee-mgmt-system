@@ -1,4 +1,4 @@
-"use client";
+"use client"; 
 
 import { useState, useEffect } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
@@ -11,8 +11,9 @@ import Link from "next/link";
 import AddEmployeeModal from "@/components/school-status/AddEmployeeModal";
 import EditOfficeModal from "../my-office/EditOfficeModal";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { Suspense } from 'react';
 
-export default function OfficeDetails() {
+function OfficeDetails() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const officeId = searchParams.get("officeId");
@@ -363,6 +364,14 @@ export default function OfficeDetails() {
         />
       )}
     </div>
+  );
+}
+
+export default function ZonePage() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <OfficeDetails />
+    </Suspense>
   );
 }
 

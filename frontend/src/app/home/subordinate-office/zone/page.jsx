@@ -1,4 +1,4 @@
-"use client";
+'use client';
 
 import { useState, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -6,6 +6,7 @@ import axiosClient from "@/api/axiosClient";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { Building2 } from "lucide-react";
+import { Suspense } from 'react';
 
 const ZoneDetails = () => {
   const [zoneDetails, setZoneDetails] = useState(null);
@@ -85,4 +86,12 @@ const ZoneDetails = () => {
   );
 };
 
-export default ZoneDetails;
+
+
+export default function ZonePage() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <ZoneDetails />
+    </Suspense>
+  );
+}

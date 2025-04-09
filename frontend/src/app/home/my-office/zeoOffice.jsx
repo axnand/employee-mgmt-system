@@ -34,7 +34,7 @@ export default function CeoOffice() {
   const fetchOfficeDetails = async (officeId) => {
     try {
       const token = localStorage.getItem("token");
-      const response = await fetch(`http://localhost:5000/api/offices/${officeId}`, {
+      const response = await fetch(`http://13.231.148.125:5000/api/offices/${officeId}`, {
         headers: {
           "Authorization": `Bearer ${token}`,
           "Content-Type": "application/json",
@@ -56,7 +56,7 @@ export default function CeoOffice() {
   const fetchEmployees = async (officeId) => {
     try {
       const token = localStorage.getItem("token");
-      const response = await fetch(`http://localhost:5000/api/employees/office/${officeId}`, {
+      const response = await fetch(`http://13.231.148.125:5000/api/employees/office/${officeId}`, {
         headers: {
           "Authorization": `Bearer ${token}`,
           "Content-Type": "application/json",
@@ -86,7 +86,7 @@ export default function CeoOffice() {
   const addEmployeeMutation = useMutation({
     mutationFn: async (newEmployee) => {
       const token = localStorage.getItem("token");
-      const response = await fetch(`http://localhost:5000/api/employees`, {
+      const response = await fetch(`http://13.231.148.125:5000/api/employees`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

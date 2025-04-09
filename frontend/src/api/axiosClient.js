@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const axiosClient = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_API_BASE_URL, // e.g. "http://localhost:5000/api"
+  baseURL: process.env.NEXT_PUBLIC_API_BASE_URL, // e.g. "http://13.231.148.125:5000/api"
   timeout: 10000, // optional timeout in milliseconds
 });
 

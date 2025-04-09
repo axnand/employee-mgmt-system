@@ -5,7 +5,7 @@ import { useQuery } from "@tanstack/react-query";
 
 const fetchAllSchools = async () => {
   const token = localStorage.getItem("token");
-  const res = await fetch("http://localhost:5000/api/schools", {
+  const res = await fetch("http://13.231.148.125:5000/api/schools", {
     headers: { Authorization: `Bearer ${token}` },
   });
   if (!res.ok) {

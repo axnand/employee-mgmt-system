@@ -44,7 +44,7 @@
     const fetchTransferHistory = async (employeeId) => {
       const token = localStorage.getItem("token");
     
-      const response = await fetch(`http://localhost:5000/api/transferHistory/${employeeId}`, {
+      const response = await fetch(`http://13.231.148.125:5000/api/transferHistory/${employeeId}`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },

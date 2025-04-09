@@ -9,7 +9,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 // Fetch logs from backend endpoint
 const fetchLogs = async () => {
   const token = localStorage.getItem("token");
-  const res = await fetch("http://localhost:5000/api/logs", {
+  const res = await fetch("http://13.231.148.125:5000/api/logs", {
     headers: {
       Authorization: `Bearer ${token}`,
     },
@@ -23,7 +23,7 @@ const fetchLogs = async () => {
 // Fetch system statistics from backend endpoint
 const fetchStats = async () => {
   const token = localStorage.getItem("token");
-  const res = await fetch("http://localhost:5000/api/logs/stats", {
+  const res = await fetch("http://13.231.148.125:5000/api/logs/stats", {
     headers: {
       Authorization: `Bearer ${token}`,
     },
