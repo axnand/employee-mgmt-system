@@ -7,9 +7,11 @@ import LocalLogsPage from './LocalLogs';
 
 function page() {
   const{user , userRole} = useUser();
+  console.log(userRole);
   return (
     <>
-    {userRole === "CEO" || userRole === "ZEO" && <AdminLogs/>}
+    {userRole === "CEO" && <AdminLogs/>}
+    {userRole === "ZEO" && <AdminLogs/>}
     {userRole === "schoolAdmin" && <LocalLogsPage/>}
     </>
     

@@ -23,14 +23,12 @@ const clearDatabase = async () => {
 
 const createCEOUser = async () => {
     try {
-        // Step 1: Create a District
         const newDistrict = await District.create({
             name: 'Sample District'
         });
 
         console.log('✅ District created successfully:', newDistrict);
 
-        // Step 2: Create a CEO Office in that District
         const ceoOffice = await Office.create({
             officeId: 'CEO001',
             officeName: 'CEO Office',
@@ -42,7 +40,7 @@ const createCEOUser = async () => {
 
         console.log('✅ CEO Office created successfully:', ceoOffice);
 
-        // Step 3: Create a CEO User // Encrypt the password for security
+
         const ceoUser = new User({
             userName: 'ceoUser',
             password: 'ceoUser',
@@ -54,7 +52,6 @@ const createCEOUser = async () => {
         await ceoUser.save();
         console.log('✅ CEO User created successfully:', ceoUser);
 
-        // Step 4: Link the Office to the District
         newDistrict.officeId = ceoOffice._id;
         await newDistrict.save();
         console.log('✅ District updated with CEO Office successfully.');
@@ -70,10 +67,8 @@ const resetDatabase = async () => {
         await mongoose.connect(process.env.MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true });
         console.log('✅ Database connected successfully.');
 
-        // Clear the database before seeding
         await clearDatabase();
 
-        // Seed new data
         await createCEOUser();
         
         process.exit();

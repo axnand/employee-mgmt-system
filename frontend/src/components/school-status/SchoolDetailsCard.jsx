@@ -52,7 +52,7 @@ export default function SchoolDetailsCard({ schoolInfo }) {
   const fetchEmployees = async (officeId) => {
     try {
       const token = localStorage.getItem("token");
-      const response = await fetch(`http://13.231.148.125:5000/api/employees/office/${officeId}`, {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/employees/office/${officeId}`, {
         headers: {
           "Authorization": `Bearer ${token}`,
           "Content-Type": "application/json",
@@ -80,7 +80,7 @@ export default function SchoolDetailsCard({ schoolInfo }) {
   const addEmployeeMutation = useMutation({
     mutationFn: async (newEmployee) => {
       const token = localStorage.getItem("token");
-      const response = await fetch(`http://13.231.148.125:5000/api/employees`, {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/employees`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

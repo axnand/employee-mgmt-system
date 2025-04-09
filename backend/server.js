@@ -18,26 +18,12 @@ import cors from 'cors';
 
 dotenv.config();
 
+// Connect to the database
 connectDB();
 
 const app = express();
 app.use(express.json());
-const allowedOrigins = [
-  'http://localhost:3000',
-  'https://employee-mgmt-system-kappa.vercel.app' 
-];
-
-app.use(cors({
-  origin: function (origin, callback) {
-    if (!origin || allowedOrigins.includes(origin)) {
-      callback(null, true);
-    } else {
-      callback(new Error('Not allowed by CORS'));
-    }
-  },
-  credentials: true
-}));
-
+app.use(cors());
 
 // Mount routes
 app.use("/api/auth", authRoutes);

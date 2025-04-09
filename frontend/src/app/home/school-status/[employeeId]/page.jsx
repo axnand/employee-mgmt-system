@@ -19,7 +19,7 @@ console.log("Token from localStorage:", token);
 
   const fetchEmployeeDetails = async (employeeId) => {
     const token = localStorage.getItem("token");
-    const res = await fetch(`http://13.231.148.125:5000/api/employees/${employeeId}`, {
+    const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/employees/${employeeId}`, {
       headers: { Authorization: `Bearer ${token}` },
     });
     if (!res.ok) {
@@ -32,7 +32,7 @@ console.log("Token from localStorage:", token);
     const formData = new FormData();
     formData.append("file", file);
 
-    const res = await fetch("http://13.231.148.125:5000/api/uploads", {  // ✅ Make sure this matches your backend
+    const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/uploads`, {  // ✅ Make sure this matches your backend
       method: "POST",
       body: formData,
     });
@@ -51,7 +51,7 @@ console.log("Token from localStorage:", token);
   // Update employee details via backend (PUT endpoint)
   const updateEmployeeDetails = async ({ employeeId, updatedData }) => {
     const token = localStorage.getItem("token");
-    const res = await fetch(`http://13.231.148.125:5000/api/employees/${employeeId}`, {
+    const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/employees/${employeeId}`, {
       method: "PUT",
       headers: {
         "Content-Type": "application/json",
@@ -178,7 +178,7 @@ console.log("Token from localStorage:", token);
       queryKey: ["postingHistory", employeeId],
       queryFn: async () => {
         const token = localStorage.getItem("token");
-        const res = await fetch(`http://13.231.148.125:5000/api/postingHistory/${employeeId}`, {
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/postingHistory/${employeeId}`, {
           headers: { Authorization: `Bearer ${token}` },
         });
         
