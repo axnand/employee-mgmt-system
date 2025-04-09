@@ -40,8 +40,11 @@ export default function EditSchoolModal({ school, onClose }) {
   }, [school]);
 
   const mutation = useMutation({
-    mutationFn: (data) => updateSchool(school._id, data),
-    onSuccess: () => {
+    mutationFn: (data) => {
+      // Ensure the API request returns the school data
+      return updateSchool(school._id, data); // This will return the updated school object from the API
+    },
+    onSuccess: (data) => {  // `data` here is the response returned by the mutationFn
       queryClient.invalidateQueries({ queryKey: ["school", school._id] });
       onClose();
     },
@@ -49,6 +52,7 @@ export default function EditSchoolModal({ school, onClose }) {
       console.error("Error updating school:", error);
     },
   });
+  
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -60,6 +64,7 @@ export default function EditSchoolModal({ school, onClose }) {
 
   const handleSubmit = (e) => {
     e.preventDefault();
+    console.log("Form Data before mutation:", formData);
     mutation.mutate(formData);
   };
 

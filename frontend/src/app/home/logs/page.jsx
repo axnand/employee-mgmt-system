@@ -9,7 +9,7 @@ function page() {
   const{user , userRole} = useUser();
   return (
     <>
-    {userRole === "CEO" && <AdminLogs/>}
+    {userRole === "CEO" || userRole === "ZEO" && <AdminLogs/>}
     {userRole === "schoolAdmin" && <LocalLogsPage/>}
     </>
     

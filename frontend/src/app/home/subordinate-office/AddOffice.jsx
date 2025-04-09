@@ -5,7 +5,8 @@ import { useRouter } from "next/navigation";
 import { useUser } from "@/context/UserContext";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { createOffice } from "@/api/officeService";
-import { toast } from "react-toastify";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 import ViewOffice from "./ViewOffice"; // Make sure react-toastify is installed
 
 export default function AddOffice() {
@@ -21,6 +22,7 @@ export default function AddOffice() {
   const [ddoOfficer, setDdoOfficer] = useState("");
   const [ddoCode, setDdoCode] = useState("");
   const [parentOffice, setParentOffice] = useState("");
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   // School fields for Educational office
   const [udiseId, setUdiseId] = useState("");
@@ -33,6 +35,7 @@ export default function AddOffice() {
   const [adminPassword, setAdminPassword] = useState("");
 
   const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
 
   const mutation = useMutation({
     mutationFn: createOffice, // Correct usage in v4
@@ -119,37 +122,41 @@ export default function AddOffice() {
   };
 
   return (
-    <div className="max-w-4xl mx-auto p-4">
-      <div>
-      <h1 className="text-2xl font-bold mb-4">Add New Office</h1>
+    <div className="flex flex-col items-end">
+      <ToastContainer />
+      {isModalOpen && (
+      <div className="fixed inset-0 bg-black bg-opacity-40 text-sm font-normal backdrop-blur-sm flex justify-center items-center z-50">
+       <div className="bg-white p-8  shadow-2xl max-w-xl max-h-[90vh] w-full overflow-y-auto">
+      <h1 className="text-2xl font-semibold text-gray-800 mb-6">Add New Office</h1>
       {error && <p className="text-red-500 mb-4">{error}</p>}
-      <form onSubmit={handleSubmit} className="bg-white shadow rounded p-6 space-y-4">
+      {success && <div className="mb-4 text-green-500 text-sm">{success}</div>}
+      <form onSubmit={handleSubmit} className="space-y-4">
       <div>
-          <label className="block text-gray-700">Office ID</label>
+      <label className="block text-sm font-medium text-gray-700">Office ID</label>
           <input
             type="text"
             value={officeId}
             onChange={(e) => setOfficeId(e.target.value)}
-            className="w-full border rounded p-2"
+             className="w-full p-2 border border-gray-300 rounded mt-1"
             required
           />
         </div>
         <div>
-          <label className="block text-gray-700">Office Name</label>
+          <label className="block text-sm font-medium text-gray-700">Office Name</label>
           <input
             type="text"
             value={officeName}
             onChange={(e) => setOfficeName(e.target.value)}
-            className="w-full border rounded p-2"
+             className="w-full p-2 border border-gray-300 rounded mt-1"
             required
           />
         </div>
         <div>
-          <label className="block text-gray-700">Office Type</label>
+          <label className="block text-sm font-medium text-gray-700">Office Type</label>
           <select
             value={officeType}
             onChange={(e) => setOfficeType(e.target.value)}
-            className="w-full border rounded p-2"
+             className="w-full p-2 border border-gray-300 rounded mt-1"
             required
           >
             <option value="Administrative">Administrative</option>
@@ -163,113 +170,113 @@ export default function AddOffice() {
             onChange={(e) => setIsDdo(e.target.checked)}
             className="mr-2"
           />
-          <label className="text-gray-700">Has DDO Officer</label>
+          <label className="text-gray-700">Has DDO</label>
         </div>
         {isDdo && (
           <>
             <div>
-              <label className="block text-gray-700">DDO Officer ID</label>
+              <label className="block text-sm font-medium text-gray-700">DDO Officer ID</label>
               <input
                 type="text"
                 value={ddoOfficer}
                 onChange={(e) => setDdoOfficer(e.target.value)}
-                className="w-full border rounded p-2"
+                 className="w-full p-2 border border-gray-300 rounded mt-1"
               />
             </div>
             <div>
-              <label className="block text-gray-700">DDO Code</label>
+              <label className="block text-sm font-medium text-gray-700">DDO Code</label>
               <input
                 type="text"
                 value={ddoCode}
                 onChange={(e) => setDdoCode(e.target.value)}
-                className="w-full border rounded p-2"
+                 className="w-full p-2 border border-gray-300 rounded mt-1"
               />
             </div>
           </>
         )}
         <div>
-          <label className="block text-gray-700">Parent Office ID (optional)</label>
+          <label className="block text-sm font-medium text-gray-700">Parent Office ID (optional)</label>
           <input
             type="text"
             value={parentOffice}
             onChange={(e) => setParentOffice(e.target.value)}
-            className="w-full border rounded p-2"
+             className="w-full p-2 border border-gray-300 rounded mt-1"
           />
         </div>
         {officeType === "Educational" && (
-          <div className="border p-4 rounded mt-4">
+          <div className=" rounded pt-8">
             <h2 className="text-xl font-semibold mb-2">School Details</h2>
             <div>
-              <label className="block text-gray-700">UDISe ID</label>
+              <label className="block text-sm font-medium text-gray-700">UDISe ID</label>
               <input
                 type="text"
                 value={udiseId}
                 onChange={handleUdiseIdChange}
-                className="w-full border rounded p-2"
+                 className="w-full p-2 border border-gray-300 rounded mt-1"
                 required
               />
             </div>
             <div>
-              <label className="block text-gray-700">School Name</label>
+              <label className="block text-sm font-medium text-gray-700">School Name</label>
               <input
                 type="text"
                 value={schoolName}
                 onChange={(e) => setSchoolName(e.target.value)}
-                className="w-full border rounded p-2"
+                 className="w-full p-2 border border-gray-300 rounded mt-1"
                 required
               />
             </div>
             <div>
-              <label className="block text-gray-700">Scheme</label>
+              <label className="block text-sm font-medium text-gray-700">Scheme</label>
               <input
                 type="text"
                 value={scheme}
                 onChange={(e) => setScheme(e.target.value)}
-                className="w-full border rounded p-2"
+                 className="w-full p-2 border border-gray-300 rounded mt-1"
               />
             </div>
             <div>
-              <label className="block text-gray-700">Sub Scheme</label>
+              <label className="block text-sm font-medium text-gray-700">Sub Scheme</label>
               <input
                 type="text"
                 value={subScheme}
                 onChange={(e) => setSubScheme(e.target.value)}
-                className="w-full border rounded p-2"
+                 className="w-full p-2 border border-gray-300 rounded mt-1"
               />
             </div>
             <div>
-              <label className="block text-gray-700">Feasibility Zone</label>
+              <label className="block text-sm font-medium text-gray-700">Feasibility Zone</label>
               <input
                 type="text"
                 value={feasibilityZone}
                 onChange={(e) => setFeasibilityZone(e.target.value)}
-                className="w-full border rounded p-2"
+                 className="w-full p-2 border border-gray-300 rounded mt-1"
                 required
               />
             </div>
             <div>
-              <label className="block text-gray-700">Admin Username</label>
+              <label className="block text-sm font-medium text-gray-700">Admin Username</label>
               <input
                 type="text"
                 value={adminUserName}
                 onChange={(e) => setAdminUserName(e.target.value)}
-                className="w-full border rounded p-2"
+                 className="w-full p-2 border border-gray-300 rounded mt-1"
               />
             </div>
             <div>
-              <label className="block text-gray-700">Admin Password</label>
-              <div className="flex">
+              <label className="block text-sm font-medium text-gray-700">Admin Password</label>
+              <div className="flex items-center">
                 <input
                   type="text"
                   value={adminPassword}
                   onChange={(e) => setAdminPassword(e.target.value)}
-                  className="w-full border rounded p-2"
+                   className="w-full p-2 border border-gray-300 rounded mt-1"
                   required
                 />
                 <button
                   type="button"
                   onClick={generatePassword}
-                  className="ml-2 px-4 py-2 bg-green-500 text-white rounded"
+                  className="ml-2 px-4 py-2 bg-blue-500 hover:bg-blue-600 transition font-medium text-sm text-nowrap text-white rounded"
                 >
                   Generate Password
                 </button>
@@ -277,12 +284,29 @@ export default function AddOffice() {
             </div>
           </div>
         )}
+        <div className="flex gap-4 pt-4">
         <button type="submit" className="w-full py-2 bg-blue-500 text-white font-semibold rounded-md hover:bg-blue-600">
           Create Office
         </button>
+        <button
+              onClick={() => setIsModalOpen(false)}
+              type="button"
+              className="w-full bg-gray-300 text-black py-2 rounded hover:bg-gray-400 transition"
+            >
+              Cancel
+            </button>
+        </div>
       </form>
       </div>
+      </div>
+      )}
       <ViewOffice />
+      <button
+    onClick={() => setIsModalOpen(true)}
+    className=" bg-blue-600 px-4 text-sm mt-10 font-medium  text-white py-2 rounded hover:bg-blue-700 transition "
+  >
+    Add New Office
+  </button>
     </div>
   );
 }

@@ -21,7 +21,7 @@
     // Dummy employee/user data
     const fetchEmployeeData = async (employeeId) => {
       const token = localStorage.getItem("token");
-      const response = await fetch(`http://localhost:5000/api/employees/${employeeId}`, {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/employees/${employeeId}`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },

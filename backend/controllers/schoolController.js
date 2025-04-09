@@ -101,6 +101,7 @@ export const createSchool = async (req, res) => {
 export const updateSchool = async (req, res) => {
   try {
     const { id } = req.params;
+    console.log("Received update data:", req.body);
     const updatedSchool = await School.findByIdAndUpdate(id, req.body, { new: true })
       .populate("zone");
 

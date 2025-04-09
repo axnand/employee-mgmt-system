@@ -6,34 +6,50 @@ import axiosClient from "@/api/axiosClient";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { useUser } from "@/context/UserContext";
+import { Building2 } from "lucide-react";
 
 const ViewOffice = () => {
-  const [zoneDetails, setZoneDetails] = useState(null);
-  const [offices, setOffices] = useState([]);
-  const {user} = useUser();
-  const router = useRouter();
+    const [zoneDetails, setZoneDetails] = useState(null);
+    const [offices, setOffices] = useState([]);
+    const [filteredOffices, setFilteredOffices] = useState([]);
+    const [searchTerm, setSearchTerm] = useState("");
+    const { user } = useUser();
+    const router = useRouter();
     const zoneId = user?.zoneId;
-
-  useEffect(() => {
-    const fetchZoneDetails = async () => {
-      try {
-        const response = await axiosClient.get(`/zones/${zoneId}`);
-        console.log(response.data);
-        setZoneDetails(response.data.zone);
-        setOffices(response.data.zone.offices);
-      } catch (error) {
-        toast.error("Error fetching zone details");
+  
+    // Fetch Zone Details
+    useEffect(() => {
+      const fetchZoneDetails = async () => {
+        try {
+          const response = await axiosClient.get(`/zones/${zoneId}`);
+          console.log(response.data);
+          setZoneDetails(response.data.zone);
+          setOffices(response.data.zone.offices);
+        } catch (error) {
+          toast.error("Error fetching zone details");
+        }
+      };
+  
+      if (zoneId) {
+        fetchZoneDetails();
       }
+    }, [zoneId]);
+  
+    // Filter Offices based on search term
+    useEffect(() => {
+      if (searchTerm) {
+        const filtered = offices.filter((office) =>
+          office.officeName.toLowerCase().includes(searchTerm.toLowerCase())
+        );
+        setFilteredOffices(filtered);
+      } else {
+        setFilteredOffices(offices);
+      }
+    }, [searchTerm, offices]);
+  
+    const handleViewOffice = (officeId) => {
+      router.push(`/home/office?officeId=${officeId}`);
     };
-
-    if (zoneId) fetchZoneDetails();
-  }, [zoneId]);
-
-  console.log("offices:", offices);
-
-  const handleViewOffice = (officeId) => {
-    router.push(`/home/office?officeId=${officeId}`);
-  };
 
   
 
@@ -42,14 +58,28 @@ const ViewOffice = () => {
 </div>;
 
   return (
-    <div className="container mx-auto p-6">
+    <div className="w-full capitalize">
       <ToastContainer />
-      <h1 className="text-2xl font-bold text-blue-600 mb-4">Zone Details: {zoneDetails.name}</h1>
+      
 
-      <div className="bg-white shadow-md rounded-lg p-4 mb-6">
-        <h2 className="text-xl font-bold mb-4">Offices in {zoneDetails.name}</h2>
-
-        <table className="min-w-full divide-y divide-gray-200">
+      <div className="flex w-full justify-between items-center bg-white border-l-[3px] border-primary p-6 rounded-lg shadow-sm transition duration-300 mb-8 text-sm">
+      <div className="flex items-center gap-3">
+        <Building2 className="w-7 h-7 text-primary" />
+        <h1 className="text-2xl font-bold text-secondary">Zone : {zoneDetails.name}</h1>
+      </div>
+      <div className=" mb-4 md:mb-0">
+        <input
+          type="text"
+          placeholder="Search by Zone Name"
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          className="block  border-gray-300 min-w-52 rounded-md py-2 px-2 text-sm border"
+        />
+        </div>
+        
+      </div>
+      <div className="bg-white rounded-lg overflow-x-auto border">
+      <table className="min-w-full divide-y divide-gray-200">
           <thead className="bg-gray-50">
             <tr>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Office Name</th>
@@ -58,14 +88,14 @@ const ViewOffice = () => {
             </tr>
           </thead>
           <tbody className="bg-white divide-y divide-gray-200">
-            {offices?.map((office) => (
-              <tr key={office._id} className="hover:bg-gray-100">
+            {filteredOffices?.map((office) => (
+              <tr key={office._id} className="">
                 <td className="px-6 py-4 text-sm text-gray-900">{office.officeName}</td>
                 <td className="px-6 py-4 text-sm text-gray-900">{office.officeType}</td>
                 <td className="px-6 py-4 text-sm text-gray-900">
                   <button
                     onClick={() => handleViewOffice(office._id)}
-                    className="text-blue-500 hover:underline"
+                    className="py-1 px-3 bg-primary text-white rounded-full font-medium text-xs hover:bg-blue-600 transition"
                   >
                     View
                   </button>
@@ -74,7 +104,7 @@ const ViewOffice = () => {
             ))}
           </tbody>
         </table>
-      </div>
+        </div>
     </div>
   );
 };

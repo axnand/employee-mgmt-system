@@ -24,7 +24,7 @@ function SchoolStatusPageContent() {
 
   const [schools, setSchools] = useState([]);
   const [filteredSchools, setFilteredSchools] = useState([]);
-  const [selectedSchool, setSelectedSchool] = useState(null);
+  const [selectedSchool, setSelectedSchool] = useState("");
   const [selectedZone, setSelectedZone] = useState(""); 
   const [selectedScheme, setSelectedScheme] = useState("");
   const [isLoading, setIsLoading] = useState(true);
