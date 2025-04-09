@@ -77,3 +77,28 @@ export const getLocalStats = async (req, res) => {
     res.status(500).json({ message: "Error fetching stats", error });
   }
 };
+
+export const getLastLogin = async (req, res) => {
+  try {
+    const { username } = req.params;
+
+    const lastLoginLog = await Log.findOne({
+      admin: username,
+      action: "Login"
+    })
+      .sort({ createdAt: -1 })
+      .exec();
+
+    if (!lastLoginLog) {
+      return res.status(404).json({ message: "No login record found" });
+    }
+
+    res.json({
+      lastLogin: new Date(lastLoginLog.createdAt).toLocaleString(),
+      ip: lastLoginLog.ip,
+    });
+  } catch (error) {
+    console.error("Error fetching last login:", error);
+    res.status(500).json({ message: "Error fetching last login", error });
+  }
+};

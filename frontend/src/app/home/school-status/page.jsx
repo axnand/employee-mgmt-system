@@ -143,7 +143,7 @@ function SchoolStatusPageContent() {
   if (error) return <div className="text-red-500">{error}</div>;
 
   return (
-    <div className="min-h-screen p-4">
+    <div className="min-h-screen ">
       <header className="mb-8">
         <h1 className="text-2xl font-bold text-secondary">School Status Dashboard</h1>
         <p className="mt-2 font-medium text-gray-600">Manage and view school details</p>

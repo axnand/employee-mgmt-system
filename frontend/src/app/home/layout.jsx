@@ -290,7 +290,7 @@ export default function DashboardLayout({ children }) {
   )}
 </ul>
 
-            <div className="mt-3">
+            {/* <div className="mt-3">
               <button
                 onClick={handleLogout}
                 className={`flex w-full gap-x-3 items-center hover:text-white transition py-3 px-3 rounded-md font-medium hover:bg-[#377DFF] ${
@@ -300,16 +300,16 @@ export default function DashboardLayout({ children }) {
                 <LogOut className=" h-5 w-5" />
                 {sidebarOpen && <span>Logout</span>}
               </button>
-            </div>
+            </div> */}
           </div>
         </div>
       </div>
 
       {/* Main Content */}
       <div className="flex-1 flex flex-col overflow-hidden">
-        {/* <div className="flex-none">
+        <div className="flex-none">
           <TopBar />
-        </div> */}
+        </div>
         <main className="flex-1 bg-gray-50 p-6 px-11 overflow-y-auto">
           {isLoading ? (
             <div className="flex justify-center items-center h-full">

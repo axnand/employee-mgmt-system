@@ -14,3 +14,8 @@
 2025-04-10 01:18:45 [INFO]: Action: Login - Performed by: ceoAdmin (CEO) - Description: ceoAdmin logged in successfully as CEO - IP: ::1
 2025-04-10 01:27:18 [INFO]: Action: Login - Performed by: ceoUser (CEO) - Description: ceoUser logged in successfully as CEO - IP: ::1
 2025-04-10 01:27:27 [INFO]: Action: Password Update - Performed by: ceoUser (CEO) - Description: User ceoUser updated their password. - IP: ::1
+2025-04-10 01:58:52 [INFO]: Action: Login - Performed by: zeo_bhalla (ZEO) - Description: zeo_bhalla logged in successfully as ZEO - IP: ::1
+2025-04-10 01:58:56 [INFO]: Action: Password Update - Performed by: zeo_bhalla (ZEO) - Description: User zeo_bhalla updated their password. - IP: ::1
+2025-04-10 02:03:48 [INFO]: Action: Login - Performed by: ceoUser (CEO) - Description: ceoUser logged in successfully as CEO - IP: ::1
+2025-04-10 02:21:03 [INFO]: Action: Login - Performed by: ceoUser (CEO) - Description: ceoUser logged in successfully as CEO - IP: ::1
+2025-04-10 02:29:39 [INFO]: Action: Login - Performed by: ceoUser (CEO) - Description: ceoUser logged in successfully as CEO - IP: ::1

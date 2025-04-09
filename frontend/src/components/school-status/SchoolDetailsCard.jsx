@@ -153,7 +153,7 @@ export default function SchoolDetailsCard({ schoolInfo }) {
   return (
     <div className="min-h-screen capitalize">
       <ToastContainer/>
-      <div className="max-w-7xl mx-auto">
+      <div className="">
         {/* School Information */}
          <div className="bg-white border-l-[3px] border-primary p-6 rounded-lg shadow-sm transition duration-300 mb-8 text-sm">
       <div className="flex items-center gap-3">
