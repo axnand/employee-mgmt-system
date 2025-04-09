@@ -6,6 +6,7 @@ import axiosClient from "@/api/axiosClient";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { Users } from "lucide-react";
+import { MapPin, Phone, Building2, UserCheck, BadgeInfo } from "lucide-react";
 import Link from "next/link";
 import AddEmployeeModal from "@/components/school-status/AddEmployeeModal";
 import EditOfficeModal from "../my-office/EditOfficeModal";
@@ -35,21 +36,21 @@ export default function OfficeDetails() {
     }
   }, [officeId]);
 
-  const fetchOfficeAdmin = async (officeId) => {
-    try {
-      const response = await axiosClient.get(`/users/office/${officeId}`);
-      if (response.data.user) {
-        return response.data.user;
-      } else {
-        toast.error("Office Admin not found");
-        return null;
-      }
-    } catch (error) {
-      console.error("Error fetching office admin details:", error);
-      toast.error("Error fetching office admin details");
-      return null;
-    }
-};
+//   const fetchOfficeAdmin = async (officeId) => {
+//     try {
+//       const response = await axiosClient.get(`/users/office/${officeId}`);
+//       if (response.data.user) {
+//         return response.data.user;
+//       } else {
+//         toast.error("Office Admin not found");
+//         return null;
+//       }
+//     } catch (error) {
+//       console.error("Error fetching office admin details:", error);
+//       toast.error("Error fetching office admin details");
+//       return null;
+//     }
+// };
 
 
   const fetchOfficeDetails = async (officeId) => {
@@ -63,8 +64,8 @@ export default function OfficeDetails() {
       });
       if (response.data.office) {
         const office = response.data.office;
-        const adminUser = await fetchOfficeAdmin(officeId);
-        console.log("adminUser", adminUser);
+        // const adminUser = await fetchOfficeAdmin(officeId);
+        // console.log("adminUser", adminUser);
         setOfficeInfo(response.data.office);
       } else {
         toast.error("Office not found");
@@ -150,30 +151,69 @@ export default function OfficeDetails() {
 </div>;
 
   return (
-    <div className="container mx-auto p-6">
+    <div className="container">
       <ToastContainer />
 
       {/* Office Details */}
-      <div className="bg-white shadow-md rounded-lg p-4 mb-6">
-            <h2 className="text-2xl font-bold mb-2">{officeInfo.officeName}</h2>
-            <p><strong>Office Type:</strong> {officeInfo.officeType}</p>
-            <p><strong>Address:</strong> {officeInfo.address}</p>
-            <p><strong>Contact:</strong> {officeInfo.contact}</p>
+      <div className="bg-white border-l-[3px] border-primary p-6 rounded-lg shadow-sm transition duration-300 mb-8 text-sm">
+      <div className="flex items-center gap-3">
+        <Building2 className="w-7 h-7 text-primary" />
+        <h1 className="text-2xl font-bold text-secondary">{officeInfo.officeName}</h1>
+      </div>
+      <div className="mt-4 space-y-3">
+        <p className="flex items-center text-gray-600">
+          <BadgeInfo className="w-5 h-5 text-secondary mr-2" />
+          <span className="font-semibold text-secondary mr-1">Office ID:</span> {officeInfo.officeId}
+        </p>
 
-            {officeInfo.adminUser && (
+        <p className="flex items-center text-gray-600">
+          <BadgeInfo className="w-5 h-5 text-secondary mr-2" />
+          <span className="font-semibold text-secondary mr-1">Office Type:</span> {officeInfo.officeType}
+        </p>
+
+        <p className="flex items-center text-gray-600">
+          <MapPin className="w-5 h-5 text-secondary mr-2" />
+          <span className="font-semibold text-secondary mr-1">Address:</span> {officeInfo.address}
+        </p>
+
+        <p className="flex items-center text-gray-600">
+          <Phone className="w-5 h-5 text-secondary mr-2" />
+          <span className="font-semibold text-secondary mr-1">Contact:</span> {officeInfo.contact}
+        </p>
+
+        <p className="flex items-center text-gray-600">
+          <UserCheck className="w-5 h-5 text-secondary mr-2" />
+          <span className="font-semibold text-secondary mr-1">Is DDO:</span> {officeInfo.isDdo ? "Yes" : "No"}
+        </p>
+
+        {officeInfo.isDdo && (
+          <>
+            <p className="flex items-center text-gray-600">
+              <BadgeInfo className="w-5 h-5 text-secondary mr-2" />
+              <span className="font-semibold text-secondary mr-1">DDO Officer ID:</span> {officeInfo.ddoOfficerId || "N/A"}
+            </p>
+            <p className="flex items-center text-gray-600">
+              <BadgeInfo className="w-5 h-5 text-secondary mr-2" />
+              <span className="font-semibold text-secondary mr-1">DDO Code:</span> {officeInfo.ddoCode || "N/A"}
+            </p>
+          </>
+        )}
+      </div>
+
+            {/* {officeInfo.adminUser && (
             <div className="mt-4">
                 <h3 className="text-lg font-bold mb-2">Admin Credentials</h3>
                 <p><strong>Username:</strong> {officeInfo.adminUser.userName}</p>
                 <p><strong>Password:</strong> {officeInfo.adminUser.password || "Not Available"}</p>
             </div>
-            )}
+            )} */}
 
-            <button
-            onClick={() => setIsEditing(true)}
-            className="mt-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
-            >
-            Edit Office Details
-            </button>
+        <button
+        onClick={() => setIsEditing(true)}
+        className="mt-4 px-4 py-2 bg-blue-500 font-medium  text-white rounded hover:bg-blue-600"
+      >
+        Edit Office Details
+      </button>
         </div>
 
 

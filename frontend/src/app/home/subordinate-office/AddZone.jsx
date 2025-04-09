@@ -19,6 +19,8 @@ const AddZone = () => {
   // ZEO credentials (auto-generated when zone name is entered)
   const [zeoUserName, setZeoUserName] = useState("");
   const [zeoPassword, setZeoPassword] = useState("");
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
   
   // Zonal Office fields
   const [zonalOfficeId, setZonalOfficeId] = useState("");
@@ -116,19 +118,20 @@ const AddZone = () => {
   };
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100">
-      <ToastContainer />
-      <div className="w-full max-w-md p-8 bg-white rounded shadow-md">
-        <h1 className="text-2xl font-bold mb-6 text-center text-blue-600">
-          Add New Zone
-        </h1>
+    <div className="flex flex-col items-end">
+  <ToastContainer />
+  {isModalOpen && (
+    <div className="fixed inset-0 bg-black bg-opacity-40 text-sm font-normal backdrop-blur-sm flex justify-center items-center z-50">
+       <div className="bg-white p-8  shadow-2xl max-w-xl max-h-[90vh] w-full overflow-y-auto">
+       <h2 className="text-2xl font-semibold text-gray-800 mb-6">Add New Zone</h2>
 
-        {error && <div className="mb-4 text-red-500">{error}</div>}
-        {success && <div className="mb-4 text-green-500">{success}</div>}
+        {error && <div className="mb-4 text-red-500 text-sm">{error}</div>}
+        {success && <div className="mb-4 text-green-500 text-sm">{success}</div>}
 
         <form onSubmit={handleSubmit} className="space-y-4">
+          {/* Zone Info */}
           <div>
-            <label className="block text-gray-700">Zone Name</label>
+            <label className="block text-sm font-medium text-gray-700">Zone Name</label>
             <input
               type="text"
               value={zoneName}
@@ -139,31 +142,32 @@ const AddZone = () => {
             />
           </div>
 
-          {/* ZEO Credentials */}
-          <div>
-            <label className="block text-gray-700">ZEO Username</label>
-            <input
-              type="text"
-              value={zeoUserName}
-              onChange={(e) => setZeoUserName(e.target.value)}
-              className="w-full p-2 border border-gray-300 rounded mt-1"
-            />
-          </div>
-          <div>
-            <label className="block text-gray-700">ZEO Password</label>
-            <input
-              type="text"
-              value={zeoPassword}
-              onChange={(e) => setZeoPassword(e.target.value)}
-              className="w-full p-2 border border-gray-300 rounded mt-1"
-            />
+          <div className="space-y-3 pt-4">
+            <h3 className="text-lg font-semibold mb-2 text-gray-800">ZEO Credentials</h3>
+            <div>
+              <label className="block text-sm font-medium text-gray-700">ZEO Username</label>
+              <input
+                type="text"
+                value={zeoUserName}
+                onChange={(e) => setZeoUserName(e.target.value)}
+                className="w-full p-2 border border-gray-300 rounded mt-1"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700">ZEO Password</label>
+              <input
+                type="text"
+                value={zeoPassword}
+                onChange={(e) => setZeoPassword(e.target.value)}
+                className="w-full p-2 border border-gray-300 rounded mt-1"
+              />
+            </div>
           </div>
 
-          {/* Zonal Office Details */}
-          <div className="border p-4 rounded mt-4">
-            <h2 className="text-xl font-semibold mb-2">Zonal Office Details</h2>
+          <div className="space-y-3 pt-4">
+            <h3 className="text-lg font-semibold mb-2 text-gray-800">Zonal Office Details</h3>
             <div>
-              <label className="block text-gray-700">Office ID</label>
+              <label className="block text-sm font-medium text-gray-700">Office ID</label>
               <input
                 type="text"
                 value={zonalOfficeId}
@@ -174,7 +178,7 @@ const AddZone = () => {
               />
             </div>
             <div>
-              <label className="block text-gray-700">Office Name</label>
+              <label className="block text-sm font-medium text-gray-700">Office Name</label>
               <input
                 type="text"
                 value={zonalOfficeName}
@@ -185,7 +189,7 @@ const AddZone = () => {
               />
             </div>
             <div>
-              <label className="block text-gray-700">Contact</label>
+              <label className="block text-sm font-medium text-gray-700">Contact</label>
               <input
                 type="text"
                 value={officeContact}
@@ -195,7 +199,7 @@ const AddZone = () => {
               />
             </div>
             <div>
-              <label className="block text-gray-700">Address</label>
+              <label className="block text-sm font-medium text-gray-700">Address</label>
               <input
                 type="text"
                 value={officeAddress}
@@ -206,16 +210,39 @@ const AddZone = () => {
             </div>
           </div>
 
-          <button
-            type="submit"
-            className="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700 transition"
-          >
-            Add Zone
-          </button>
+          <div className="flex gap-4 pt-4">
+            <button
+              type="submit"
+              className="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700 transition"
+            >
+              Add Zone
+            </button>
+            <button
+              onClick={() => setIsModalOpen(false)}
+              type="button"
+              className="w-full bg-gray-300 text-black py-2 rounded hover:bg-gray-400 transition"
+            >
+              Cancel
+            </button>
+          </div>
         </form>
       </div>
-      <ViewZones/>
     </div>
+  )}
+
+<ViewZones />
+
+  <button
+    onClick={() => setIsModalOpen(true)}
+    className=" bg-blue-600 px-4 text-sm mt-10 font-medium  text-white py-2 rounded hover:bg-blue-700 transition "
+  >
+    Add New Zone
+  </button>
+
+  
+</div>
+
+
   );
 };
 

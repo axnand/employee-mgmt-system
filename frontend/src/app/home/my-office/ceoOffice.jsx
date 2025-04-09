@@ -138,7 +138,7 @@ export default function CeoOffice() {
 </div>;
 
   return (
-    <div className="container">
+    <div className="container capitalize">
       <ToastContainer />
 
       <div className="bg-white border-l-[3px] border-primary p-6 rounded-lg shadow-sm transition duration-300 mb-8 text-sm">

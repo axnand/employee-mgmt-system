@@ -5,6 +5,7 @@ import axiosClient from "@/api/axiosClient";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { useRouter } from "next/navigation";
+import { Building2 } from "lucide-react";
 
 const ViewZones = () => {
   const [zonalOffices, setZonalOffices] = useState([]);
@@ -44,21 +45,27 @@ const ViewZones = () => {
 console.log("filteredOffices:", filteredOffices);
 
   return (
-    <div className="container mx-auto p-6">
+    <div className="w-full capitalize">
       <ToastContainer />
 
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold text-blue-600">View All Zonal Offices</h1>
+      <div className="flex w-full justify-between items-center bg-white border-l-[3px] border-primary p-6 rounded-lg shadow-sm transition duration-300 mb-8 text-sm">
+      <div className="flex items-center gap-3">
+        <Building2 className="w-7 h-7 text-primary" />
+        <h1 className="text-2xl font-bold text-secondary">View All Zonal Offices</h1>
+        </div>
+        <div className=" mb-4 md:mb-0">
         <input
           type="text"
           placeholder="Search by Zone Name"
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
-          className="border border-gray-300 rounded p-2"
+          className="block  border-gray-300 min-w-52 rounded-md py-2 px-2 text-sm border"
         />
+        </div>
+        
       </div>
 
-      <div className="bg-white shadow-md rounded-lg p-4 overflow-x-auto">
+      <div className="bg-white rounded-lg overflow-x-auto border">
         <table className="min-w-full divide-y divide-gray-200">
           <thead className="bg-gray-50">
             <tr>
@@ -78,7 +85,7 @@ console.log("filteredOffices:", filteredOffices);
           </thead>
           <tbody className="bg-white divide-y divide-gray-200">
             {filteredOffices.map((zone) => (
-              <tr key={zone._id} className="hover:bg-gray-100">
+              <tr key={zone._id} className="">
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                   {zone.name}
                 </td>
@@ -87,25 +94,24 @@ console.log("filteredOffices:", filteredOffices);
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                     {zone.offices?.length > 0 ? (
-                        zone.offices.map((office, index) => (
-                        <div key={index}>
-                            {office._id === zone.myOffice ? (
-                            <span className="font-bold ">
+                        zone.offices
+                        .filter((office) => office._id === zone.myOffice) // Filter for matching office
+                        .map((office, index) => (
+                            <div key={index}>
+                            <span className="">
                                 {office.officeName || "Office Name Not Available"}
                             </span>
-                            ) : (
-                            <span>{office.officeName || "Office Name Not Available"}</span>
-                            )}
-                        </div>
+                            </div>
                         ))
                     ) : (
                         "No offices linked"
                     )}
-                </td>
+                    </td>
+
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                   <button
                     onClick={() => handleViewDetails(zone._id)}
-                    className="text-blue-500 hover:underline"
+                    className="py-1 px-3 bg-primary text-white rounded-full font-medium text-xs hover:bg-blue-600 transition"
                   >
                     View
                   </button>

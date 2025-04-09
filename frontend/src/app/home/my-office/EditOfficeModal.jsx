@@ -40,11 +40,12 @@ export default function EditOfficeModal({ office, isOpen, onClose, onOfficeUpdat
     setIsSaving(true);
     try {
       const token = localStorage.getItem("token");
-      // Prepare the payload: for Educational offices, include school details
       const payload =
         officeData.officeType === "Educational"
           ? { ...officeData, schools: [schoolDetails] }
           : officeData;
+
+          console.log("Sending Payload:", payload);
 
       const response = await fetch(`http://localhost:5000/api/offices/${office._id}`, {
         method: "PUT",
@@ -56,6 +57,7 @@ export default function EditOfficeModal({ office, isOpen, onClose, onOfficeUpdat
       });
 
       const data = await response.json();
+      console.log("Server Response:", data);
       if (response.ok) {
         toast.success("Office details updated successfully!");
         onOfficeUpdate(data.office);

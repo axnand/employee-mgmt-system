@@ -166,11 +166,11 @@ export const createOffice = async (req, res) => {
 export const updateOffice = async (req, res) => {
   try {
     const { officeId } = req.params; // officeId here is the _id of the Office document
-    const { officeName, officeType, ddoOfficer, ddoCode, parentOffice, isDdo } = req.body;
+    const { officeName, officeType, ddoOfficer, ddoCode, parentOffice, isDdo, address, contact } = req.body;
 
     const updatedOffice = await Office.findByIdAndUpdate(
       officeId,
-      { officeName, officeType, ddoOfficerId: ddoOfficer, ddoCode, parentOffice, isDdo },
+      { officeName, officeType, ddoOfficerId: ddoOfficer, ddoCode, parentOffice, isDdo, address, contact },
       { new: true }
     ).populate("parentOffice", "officeName");
 
