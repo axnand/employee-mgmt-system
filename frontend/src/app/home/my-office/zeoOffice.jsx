@@ -23,6 +23,7 @@ export default function CeoOffice() {
   const [categoryFilter, setCategoryFilter] = useState("");
   const [uniqueCategory, setUniqueCategory] = useState([]);
   const [uniqueDesignations, setUniqueDesignations] = useState([]);
+  const [showError, setShowError] = useState(false);
 
   useEffect(() => {
     if (user?.officeId) {
@@ -337,6 +338,8 @@ export default function CeoOffice() {
           newEmployeeData={newEmployeeData}
           setNewEmployeeData={setNewEmployeeData}
           handleSaveNewEmployee={handleSaveNewEmployee}
+          showError={showError}                
+    setShowError={setShowError}  
         />
       )}
 

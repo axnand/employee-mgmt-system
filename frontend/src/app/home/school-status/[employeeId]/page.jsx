@@ -363,6 +363,15 @@ console.log("Token from localStorage:", token);
             <span className="text-gray-600 font-medium">{employee.staffType || "N/A"}</span>
           </p>
           <p>
+  <span className="font-semibold text-gray-600 mr-1">Posted Office:</span>
+  <span className="text-gray-600 font-medium">{employee.postedOffice || "N/A"}</span>
+</p>
+
+<p>
+  <span className="font-semibold text-gray-600 mr-1">Working Office:</span>
+  <span className="text-gray-600 font-medium">{employee.workingOffice || "N/A"}</span>
+</p>
+          <p>
             <span className="font-semibold text-gray-600 mr-1">Present Designation:</span>
             <span className="text-gray-600 font-medium ">{employee.presentDesignation || "N/A"}</span>
           </p>
@@ -475,12 +484,12 @@ console.log("Token from localStorage:", token);
           <p>
             <span className="font-semibold text-gray-600 mr-1">Current Payscale and Level:</span>
             <span className="text-gray-600 font-medium">
-              {employee.currentPayScaleAndLevel || "N/A"}
+              {employee.payScaleAndLevel || "N/A"}
             </span>
           </p>
           <p>
             <span className="font-semibold text-gray-600 mr-1">Current Basic Pay:</span>
-            <span className="text-gray-600 font-medium">{employee.currentBasicPay || "N/A"}</span>
+            <span className="text-gray-600 font-medium">{employee.basicPay || "N/A"}</span>
           </p>
           
           <p>

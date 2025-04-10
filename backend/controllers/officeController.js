@@ -199,3 +199,5 @@ export const deleteOffice = async (req, res) => {
     res.status(500).json({ message: "Error deleting office", error: error.message });
   }
 };
+
+

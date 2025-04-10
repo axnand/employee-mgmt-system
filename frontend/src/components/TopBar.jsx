@@ -167,7 +167,7 @@ const handlePasswordUpdate = async () => {
                   <p className="text-xs text-muted-foreground">Role: {userDetails?.role}</p>
                   <p className="text-xs text-muted-foreground">Office: {officeData?.office.officeName}</p>
                 </div>
-                <div className="border-t">
+                <div className="border-t py-2">
                   <ul>
                     <li>
                       <button

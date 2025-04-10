@@ -19,3 +19,10 @@
 2025-04-10 02:03:48 [INFO]: Action: Login - Performed by: ceoUser (CEO) - Description: ceoUser logged in successfully as CEO - IP: ::1
 2025-04-10 02:21:03 [INFO]: Action: Login - Performed by: ceoUser (CEO) - Description: ceoUser logged in successfully as CEO - IP: ::1
 2025-04-10 02:29:39 [INFO]: Action: Login - Performed by: ceoUser (CEO) - Description: ceoUser logged in successfully as CEO - IP: ::1
+2025-04-10 04:19:07 [INFO]: Action: Password Update - Performed by: ceoUser (CEO) - Description: User ceoUser updated their password. - IP: ::1
+2025-04-10 04:19:32 [INFO]: Action: Login - Performed by: ceoUser (CEO) - Description: ceoUser logged in successfully as CEO - IP: ::1
+2025-04-10 04:36:54 [INFO]: Action: Failed Login - Performed by: zeo_bhalla (ZEO) - Description: Unsuccessful login attempt - IP: ::1
+2025-04-10 04:36:59 [INFO]: Action: Login - Performed by: zeo_bhalla (ZEO) - Description: zeo_bhalla logged in successfully as ZEO - IP: ::1
+2025-04-10 08:45:11 [INFO]: Action: Employee Creation - Performed by: 67f6d84f6c84dc1527cb0a32 (ZEO) - Description: Created employee Anand Mohan Jha - IP: ::1
+2025-04-10 08:58:09 [INFO]: Action: Employee Creation - Performed by: 67f6d84f6c84dc1527cb0a32 (ZEO) - Description: Created employee Anand Mohan Jha - IP: ::1
+2025-04-10 09:24:40 [INFO]: Action: Employee Creation - Performed by: 67f6d84f6c84dc1527cb0a32 (ZEO) - Description: Created employee Anand Mohan Jha - IP: ::1

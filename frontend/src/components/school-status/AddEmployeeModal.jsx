@@ -1,244 +1,13 @@
 "use client";
 
-import React, { useState } from "react";
-
-
-export const staffTypes = ["Teaching", "Non-Teaching"];
-
-export const highestQualificationOptions = [
-  "10TH",
-  "12TH",
-  "GRADUATE",
-  "POSTGRADUATE",
-  "M.PHIL",
-  "PHD"
-];
-
-export const pgSpecializationOptions = [
-  "Master of Arts (MA)",
-  "MA Arabic",
-  "MA Assamese",
-  "MA Bengali",
-  "MA Comparative Literature",
-  "MA Economics",
-  "MA Education",
-  "MA English",
-  "MA Fine Arts",
-  "MA French",
-  "MA Geography",
-  "MA German",
-  "MA Hindi",
-  "MA History",
-  "MA Islamic Studies",
-  "MA Journalism and Mass Communication",
-  "MA Linguistics",
-  "MA Marathi",
-  "MA Music",
-  "MA Persian",
-  "MA Philosophy",
-  "MA Political Science",
-  "MA Psychology",
-  "MA Public Administration",
-  "MA Punjabi",
-  "MA Sanskrit",
-  "MA Sociology",
-  "MA Tamil",
-  "MA Telugu",
-  "MA Urdu",
-  "MA Visual Arts",
-  "Master of Science (MSc)",
-  "MSc Applied Mathematics",
-  "MSc Applied Psychology",
-  "MSc Biochemistry",
-  "MSc Bioinformatics",
-  "MSc Biotechnology",
-  "MSc Botany",
-  "MSc Chemistry",
-  "MSc Computer Science",
-  "MSc Data Science",
-  "MSc Electronics",
-  "MSc Environmental Science",
-  "MSc Food Science & Technology",
-  "MSc Forensic Science",
-  "MSc Geology",
-  "MSc Home Science",
-  "MSc Mathematics",
-  "MSc Medical Physics",
-  "MSc Microbiology",
-  "MSc Nanoscience & Technology",
-  "MSc Physics",
-  "MSc Statistics",
-  "MSc Zoology",
-  "Master of Technology (MTech)",
-  "MTech Artificial Intelligence & Data Science",
-  "MTech Bioprocess Technology",
-  "MTech Civil Engineering",
-  "MTech Computer Science & Engineering",
-  "MTech Electrical Engineering",
-  "MTech Electronics & Communication Engineering",
-  "MTech Environmental Engineering",
-  "MTech Geospatial Technology",
-  "MTech Information Security",
-  "MTech Information Technology",
-  "MTech Material Science & Technology",
-  "MTech Mechanical Engineering",
-  "MTech Nano Research",
-  "MTech Safety, Health & Environmental Technology",
-  "MTech Signal Processing & Communication",
-  "MTech Structural Engineering",
-  "MTech VLSI Design",
-  "Other PG Degrees",
-  "MBA (Master of Business Administration)",
-  "MCom (Master of Commerce)",
-  "MCA (Master of Computer Applications)",
-  "MDes (Master of Design)",
-  "MEd (Master of Education)",
-  "LLM (Master of Laws)",
-  "MLISc (Master of Library and Information Science)",
-  "MPharm (Master of Pharmacy)",
-  "MSW (Master of Social Work)",
-  "MTM (Master of Tourism and Management)"
-];
-
-// Teaching designation options (example list)
-export const teachingPosts = [
-  "HEADMASTER",
-  "HEADMASTER RMSA",
-  "JUNIOR ASSISTANT",
-  "LABORATORY ASSISTANT",
-  "MTS-LABORATORY BEARER",
-  "LECTURER",
-  "LECTURER PHYSICAL EDUCATION",
-  "LIBRARIAN",
-  "LIBRARIAN JUNIOR",
-  "LIBRARIAN SENIOR",
-  "LIBRARY ASSISTANT",
-  "MTS-SAFAIWALA",
-  "SECTION OFFICER",
-  "SENIOR ASSISTANT",
-  "STATISTICAL ASSISTANT",
-  "STATISTICAL OFFICER",
-  "STENOGRAPHER",
-  "STENOGRAPHER JUNIOR",
-  "STENOGRAPHER SENIOR",
-  "TEACHER",
-  "TEACHER 3RD RRET NP",
-  "TEACHER RRET NP",
-  "ZEO",
-  "ZEPO",
-  "TEACHER GRADE II",
-  "TEACHER GRADE III",
-  "TEACHER RET SSA",
-  "TEACHER RRET SSA",
-  "PROGRAMMER",
-  "DATA ENTRY OPERATOR",
-  "ASSISTANT PROGRAMMER",
-  "ASSISTANT ENGINEER",
-  "JUNIOR ENGINEER",
-  "SPECIAL EDUCATION TEACHER",
-  "AUDITOR",
-  "COMPUTER ASSISTANT",
-  "ORDERLY",
-  "Vocational Trainer"
-];
-
-// Non-teaching designation options (example list)
-export const nonTeachingPosts = [
-  "ACCOUNTANT",
-  "ACCOUNTS ASSISTANT",
-  "ASSISTANT DIRECTOR (P & S)",
-  "CHAUFFAUR",
-  "CEO",
-  "DEPO",
-  "DRIVER",
-  "HEAD ASSISTANT",
-  "HEADMASTER",
-  "HEADMASTER RMSA",
-  "JUNIOR ASSISTANT",
-  "LABORATORY ASSISTANT",
-  "MTS-LABORATORY BEARER",
-  "LECTURER",
-  "LECTURER PHYSICAL EDUCATION",
-  "LIBRARIAN",
-  "LIBRARIAN JUNIOR",
-  "LIBRARIAN SENIOR",
-  "LIBRARY ASSISTANT",
-  "MTS-LIBRARY BEARER",
-  "MASTER",
-  "MASTER RMSA",
-  "MULTI TASKING STAFF-MTS",
-  "PHYSICAL EDUCATION MASTER",
-  "PHYSICAL EDUCATION TEACHER",
-  "PRINCIPAL GHSS",
-  "PRINCIPAL HSS",
-  "MTS-SAFAIWALA",
-  "SECTION OFFICER",
-  "SENIOR ASSISTANT",
-  "STATISTICAL ASSISTANT",
-  "STATISTICAL OFFICER",
-  "STENOGRAPHER",
-  "STENOGRAPHER JUNIOR",
-  "STENOGRAPHER SENIOR",
-  "TEACHER",
-  "TEACHER 3RD RRET NP",
-  "TEACHER RRET NP",
-  "ZEO",
-  "ZEPO",
-  "TEACHER GRADE II",
-  "TEACHER GRADE III",
-  "TEACHER RET SSA",
-  "TEACHER RRET SSA",
-  "PROGRAMMER",
-  "DATA ENTRY OPERATOR",
-  "ASSISTANT PROGRAMMER",
-  "ASSISTANT ENGINEER",
-  "JUNIOR ENGINEER",
-  "SPECIAL EDUCATION TEACHER",
-  "AUDITOR",
-  "COMPUTER ASSISTANT",
-  "ORDERLY",
-  "VT",
-  "AAYA"
-];
-
-// Current Payscale and Level options
-export const currentPayscaleOptions = [
-  "SL1 (14800-47100)",
-  "SL2 (15900-50400)",
-  "SL3 (16900-53500)",
-  "LEVEL-1 (18000-56900)",
-  "LEVEL-2 (19900-63200)",
-  "LEVEL-3A (25300-80500)",
-  "LEVEL-3B (25400-81000)",
-  "LEVEL-4 (25500-81100)",
-  "LEVEL-5 (29200-92300)",
-  "LEVEL-6 (35400-112400)",
-  "LEVEL-6A (35500-112600)",
-  "LEVEL-6B (35600-112800)",
-  "LEVEL-6C (35700-113100)",
-  "LEVEL-6D (35800-113200)",
-  "LEVEL-6E (35900-113500)",
-  "LEVEL-6F (40800-129200)",
-  "LEVEL-6G (42300-134300)",
-  "LEVEL-7 (44900-142400)",
-  "LEVEL-8 (47600-151100)",
-  "LEVEL-8A (50700-160600)",
-  "LEVEL-9 (52700-166700)",
-  "LEVEL-10A (56600-179800)",
-  "LEVEL-11 (66700-208700)",
-  "LEVEL-12 (78800-209200)",
-  "LEVEL-13 (123100-215900)",
-  "LEVEL-13A (131100-216600)",
-  "LEVEL-14 (144200-218200)",
-  "LEVEL-15 (182200-224100)",
-  "LEVEL-16 (205400-224400)",
-  "LEVEL-17 (225000)"
-];
+import React, { useState, useEffect } from "react";
+import { staffTypes,highestQualificationOptions,teachingPosts,nonTeachingPosts,pgSpecializationOptions,currentPayscaleOptions,pensionSchemeOptions,basicPayByPayscale } from "@/data/options";
+import Select from "react-select";
+import axiosClient from "@/api/axiosClient";
 
 
 
-// Pension scheme options
-export const pensionSchemeOptions = ["NPS", "OPS", "UPS"];
+
 
 export default function AddEmployeeModal({
   newEmployeeData,
@@ -255,8 +24,13 @@ export default function AddEmployeeModal({
 }) {
   if (!isOpen) return null;
 
-  const staffTypes = ["Teaching", "Non-Teaching"];
   const [posts, setPosts] = useState([]);
+  const [phoneError, setPhoneError] = useState("");
+  const [emailError, setEmailError] = useState("");
+  const [usernameError, setUsernameError] = useState("");
+  const [passwordError, setPasswordError] = useState("");
+  const [offices, setOffices] = useState([]);
+  const [officeOptions, setOfficeOptions] = useState([]);
 
   // (Optional) You can add a function here to return a list of sanctioned posts based on staff type if needed.
   // For this updated schema, we assume "Designation" is provided as a free text or via a select list below.
@@ -267,6 +41,26 @@ export default function AddEmployeeModal({
     if (newEmployeeData.staffType === "Non-Teaching") return nonTeachingPosts;
     return [];
   };
+
+  useEffect(() => {
+    const fetchOffices = async () => {
+      try {
+        const response = await axiosClient.get("/offices");
+        console.log("Fetched Offices:", response.data.offices);
+        const options = response.data.offices.map((office) => ({
+          value: office._id,
+          label: `${office.officeName}`
+        }));
+        setOffices(response.data.offices);
+        setOfficeOptions(options);
+      } catch (err) {
+        console.error("Error fetching offices:", err);
+      }
+    };
+    fetchOffices();
+  }, []);
+
+  console.log("options", officeOptions);
 
 
 
@@ -384,6 +178,28 @@ export default function AddEmployeeModal({
       ))}
     </select>
   </div>
+
+  <div>
+    <label htmlFor="postCategory" className="block text-sm font-medium text-gray-700 mb-1">
+      Select Post Category
+    </label>
+    <select
+      id="postCategory"
+      value={newEmployeeData.postCategory || ""}
+      onChange={(e) => {
+        console.log("Post Category Selected:", e.target.value);
+        setNewEmployeeData({
+          ...newEmployeeData,
+          postCategory: e.target.value,
+        });
+      }}
+      className="block w-full border-gray-300 rounded-md py-2 px-2 text-sm border"
+    >
+      <option value="">Select Post Category</option>
+      <option value="Gazetted">Gazetted</option>
+      <option value="Non-Gazetted">Non-Gazetted</option>
+    </select>
+  </div>
   {/* Name of Sanctioned Posts */}
   <div>
     <label className="font-semibold text-gray-600 block mb-1">Present Designation</label>
@@ -426,7 +242,7 @@ export default function AddEmployeeModal({
 
   {/* DESIGNATION AT THE TIME OF APPOINTMENT */}
   <div>
-    <label className="font-semibold text-gray-600 block mb-1">Designation at the Time of Appointment</label>
+    <label className="font-semibold text-gray-600 block mb-1">Designation at  Appointment</label>
     <select
       name="designationAtFirstAppointment"
       value={newEmployeeData.designationAtFirstAppointment || ""}
@@ -492,43 +308,36 @@ export default function AddEmployeeModal({
               className="border border-gray-300 rounded w-full p-2"
             />
           </div>
-          {/* <div>
-            <label className="font-semibold text-gray-600 block mb-1">Posted Office ID</label>
-            <input
-              type="text"
-              name="postedOffice"
-              value={newEmployeeData.postedOffice || ""}
-              onChange={(e) =>
-                setNewEmployeeData({ ...newEmployeeData, postedOffice: e.target.value })
-              }
-              className="border border-gray-300 rounded w-full p-2"
+          <div>
+            <label className="font-semibold text-gray-600 block mb-1">Posted Office</label>
+            <Select
+              options={officeOptions}
+              value={officeOptions.find(opt => opt.value === newEmployeeData.postedOffice) || null}
+              onChange={(selected) => {
+                const value = selected?.value || "";
+                setNewEmployeeData({ ...newEmployeeData, postedOffice: value });
+                console.log("Updated State After Change:", value);
+              }}
+              
+              
+              placeholder="Search and select office"
+              className="text-sm"
             />
-          </div> */}
+          </div>
 
           {/* Working Office */}
-          {/* <div>
-            <label className="font-semibold text-gray-600 block mb-1">Working Office ID</label>
-            <input
-              type="text"
-              name="workingOffice"
-              value={newEmployeeData.workingOffice || ""}
-              onChange={(e) =>
-                setNewEmployeeData({ ...newEmployeeData, workingOffice: e.target.value })
+          <div>
+            <label className="font-semibold text-gray-600 block mb-1">Working Office</label>
+            <Select
+              options={officeOptions}
+              value={officeOptions.find(opt => opt.value === newEmployeeData.workingOffice) || null}
+              onChange={(selected) =>
+                setNewEmployeeData({ ...newEmployeeData, workingOffice: selected?.value || "" })
               }
-              className="border border-gray-300 rounded w-full p-2"
+              placeholder="Search and select office"
+              className="text-sm"
             />
-          </div> */}
-          {/* Working At */}
-          {/* <div>
-            <label className="font-semibold text-gray-600 block mb-1">Working At</label>
-            <input
-              type="text"
-              name="workingAt"
-              value={newEmployeeData.workingAt || ""}
-              onChange={(e) => setNewEmployeeData({ ...newEmployeeData, workingAt: e.target.value })}
-              className="border border-gray-300 rounded w-full p-2"
-            />
-          </div> */}
+          </div>
           {/* Basis of Work */}
           <div>
             <label className="font-semibold text-gray-600 block mb-1">Basis of Work</label>
@@ -677,9 +486,9 @@ export default function AddEmployeeModal({
   <div>
     <label className="font-semibold text-gray-600 block mb-1">Current Payscale and Level</label>
     <select
-      name="currentPayScaleAndLevel"
-      value={newEmployeeData.currentPayScaleAndLevel || ""}
-      onChange={(e) => setNewEmployeeData({ ...newEmployeeData, currentPayScaleAndLevel: e.target.value })}
+      name="payScaleAndLevel"
+      value={newEmployeeData.payScaleAndLevel || ""}
+      onChange={(e) => setNewEmployeeData({ ...newEmployeeData, payScaleAndLevel: e.target.value })}
       className="border border-gray-300 rounded w-full p-2"
     >
       <option value="">Select Payscale and Level</option>
@@ -693,15 +502,25 @@ export default function AddEmployeeModal({
 
   {/* CURRENT BASIC PAY */}
   <div>
-    <label className="font-semibold text-gray-600 block mb-1">Current Basic Pay</label>
-    <input
-      type="text"
-      name="currentBasicPay"
-      value={newEmployeeData.currentBasicPay || ""}
-      onChange={(e) => setNewEmployeeData({ ...newEmployeeData, currentBasicPay: e.target.value })}
-      className="border border-gray-300 rounded w-full p-2"
-    />
-  </div>
+  <label className="font-semibold text-gray-600 block mb-1">Current Basic Pay</label>
+  <select
+    name="basicPay"
+    value={newEmployeeData.basicPay || ""}
+    onChange={(e) => setNewEmployeeData({ ...newEmployeeData, basicPay: e.target.value })}
+    className="border border-gray-300 rounded w-full p-2"
+    disabled={!newEmployeeData.payScaleAndLevel}
+  >
+    <option value="">Select Basic Pay</option>
+    
+    {
+    (basicPayByPayscale[newEmployeeData.payScaleAndLevel] || []).map((pay, idx) => (
+      <option key={idx} value={pay}>
+        {pay}
+      </option>
+    ))}
+  </select>
+</div>
+
 
   {/* GROSS SALARY */}
   <div>
@@ -987,9 +806,18 @@ export default function AddEmployeeModal({
               type="text"
               name="phoneNo"
               value={newEmployeeData.phoneNo || ""}
-              onChange={(e) => setNewEmployeeData({ ...newEmployeeData, phoneNo: e.target.value })}
-              className="border border-gray-300 rounded w-full p-2"
+              onChange={(e) => {
+                const phone = e.target.value;
+                if (!/^\d{0,10}$/.test(phone)) {
+                  setPhoneError("Phone number must be up to 10 digits only");
+                } else {
+                  setPhoneError("");
+                }
+                setNewEmployeeData({ ...newEmployeeData, phoneNo: phone });
+              }}
+              className={`border rounded w-full p-2 ${phoneError ? "border-red-500" : "border-gray-300"}`}
             />
+            {phoneError && <p className="text-xs text-red-500 mt-1">{phoneError}</p>}
           </div>
           {/* Email */}
           <div>
@@ -998,9 +826,19 @@ export default function AddEmployeeModal({
               type="email"
               name="email"
               value={newEmployeeData.email || ""}
-              onChange={(e) => setNewEmployeeData({ ...newEmployeeData, email: e.target.value })}
-              className="border border-gray-300 rounded w-full p-2"
+              onChange={(e) => {
+                const email = e.target.value;
+                const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                if (email && !emailRegex.test(email)) {
+                  setEmailError("Please enter a valid email address");
+                } else {
+                  setEmailError("");
+                }
+                setNewEmployeeData({ ...newEmployeeData, email });
+              }}
+              className={`border rounded w-full p-2 ${emailError ? "border-red-500" : "border-gray-300"}`}
             />
+            {emailError && <p className="text-xs text-red-500 mt-1">{emailError}</p>}
           </div>
 
 
@@ -1013,35 +851,50 @@ export default function AddEmployeeModal({
         <input
           type="text"
           value={newEmployeeData.credentials?.username || ""}
-          onChange={(e) =>
+          onChange={(e) => {
+            const value = e.target.value;
+            const isValid = /^[a-zA-Z0-9_]*$/.test(value);
+            if (!isValid) {
+              setUsernameError("Username can only contain letters, numbers, and underscores.");
+            } else {
+              setUsernameError("");
+            }
             setNewEmployeeData({
               ...newEmployeeData,
               credentials: {
                 ...newEmployeeData.credentials,
-                username: e.target.value,
+                username: value,
               },
-            })
-          }
-          className="border border-gray-300 rounded w-full p-2"
+            });
+          }}
+          className={`border rounded w-full p-2 ${usernameError ? "border-red-500" : "border-gray-300"}`}
         />
+        {usernameError && <p className="text-xs text-red-500 mt-1">{usernameError}</p>}
       </div>
       <div>
         <label className="font-semibold text-gray-600 block mb-1">Password</label>
         <div className="flex flex-col gap-y-2 items-start">
-          <input
-            type="text"
-            value={newEmployeeData.credentials?.passwordHash || ""}
-            onChange={(e) =>
-              setNewEmployeeData({
-                ...newEmployeeData,
-                credentials: {
-                  ...newEmployeeData.credentials,
-                  passwordHash: e.target.value,
-                },
-              })
+        <input
+          type="text"
+          value={newEmployeeData.credentials?.passwordHash || ""}
+          onChange={(e) => {
+            const password = e.target.value;
+            if (password.length > 0 && password.length < 6) {
+              setPasswordError("Password must be at least 6 characters");
+            } else {
+              setPasswordError("");
             }
-            className="border border-gray-300 rounded w-full p-2"
-          />
+            setNewEmployeeData({
+              ...newEmployeeData,
+              credentials: {
+                ...newEmployeeData.credentials,
+                passwordHash: password,
+              },
+            });
+          }}
+          className={`border rounded w-full p-2 ${passwordError ? "border-red-500" : "border-gray-300"}`}
+        />
+        {passwordError && <p className="text-xs text-red-500 mt-1">{passwordError}</p>}
           <button
             type="button"
             onClick={() => {

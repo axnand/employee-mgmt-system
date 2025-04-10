@@ -206,6 +206,21 @@ export default function EmployeeEditForm({ initialData,postingHistoryData, onSav
         </select>
       </div>
 
+      <div>
+        <label className="font-semibold text-gray-600 block mb-1">Post Category</label>
+        <select name="postCategory" value={formData.postCategory || ""} onChange={(e) => {
+          setFormData((prev) => ({
+            ...prev,
+            postCategory: e.target.value,
+          }));
+        }} className="border border-gray-300 rounded w-full p-2">
+          <option value="">Select Post Category</option>
+          <option value="Gazetted">Gazetted</option>
+          <option value="Non-Gazetted">Non-Gazetted</option>
+        </select>
+      </div>
+
+
       {/* Present Designation */}
       <div>
         <label className="font-semibold text-gray-600 block mb-1">Present Designation</label>

@@ -29,6 +29,7 @@ function OfficeDetails() {
   const [designationFilter, setDesignationFilter] = useState("");
   const [uniqueCategory, setUniqueCategory] = useState([]);
   const [uniqueDesignations, setUniqueDesignations] = useState([]);
+  const [showError, setShowError] = useState(false);
 
   useEffect(() => {
     if (officeId) {
@@ -352,6 +353,8 @@ function OfficeDetails() {
           newEmployeeData={newEmployeeData}
           setNewEmployeeData={setNewEmployeeData}
           handleSaveNewEmployee={handleSaveNewEmployee}
+          showError={showError}                
+    setShowError={setShowError}  
         />
       )}
 

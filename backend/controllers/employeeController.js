@@ -64,6 +64,7 @@ export const getEmployeeById = async (req, res) => {
 
 
 export const createEmployee = async (req, res) => {
+  console.log("Request body:", req.body);
   const session = await mongoose.startSession();
   session.startTransaction();
   try {
