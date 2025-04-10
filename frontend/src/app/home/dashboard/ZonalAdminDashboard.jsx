@@ -205,11 +205,12 @@ export default function ZonalAdminDashboard() {
   // Staff distribution: count based on staffType.
   const safeEmployees = Array.isArray(employees) ? employees : [];
 
-  const teachingCount = (Array.isArray(employees) ? employees : []).filter(
-    (emp) => emp.staffType === "teaching"
+  const teachingCount = employees.filter(
+    (emp) => emp.staffType?.toLowerCase() === "teaching"
   ).length;
-  const nonTeachingCount = safeEmployees.filter(
-    (emp) => emp.staffType === "non-teaching"
+  
+  const nonTeachingCount = employees.filter(
+    (emp) => emp.staffType?.toLowerCase() === "non-teaching"
   ).length;
   
   const staffData = [
