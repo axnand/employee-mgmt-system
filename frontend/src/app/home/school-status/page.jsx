@@ -13,6 +13,7 @@ function SchoolStatusPageContent() {
   const searchParams = useSearchParams();
   const { userRole, user } = useUser();
 
+
   const userDistrictId = user?.districtId;
   const userZoneId = user?.zoneId;
   const userOfficeId = user?.officeId;
@@ -137,9 +138,6 @@ function SchoolStatusPageContent() {
           setIsLoading(false);
           return;
         }
-    
-        // Just in case no conditions match
-        setStatusMessage("Please check your account permissions.");
       } catch (err) {
         if (!err.isHandled) {
           console.error("Unexpected error in fetchSchools:", err);
@@ -153,7 +151,23 @@ function SchoolStatusPageContent() {
     fetchSchools();
   }, [userRole, userDistrictId, userZoneId, userOfficeId]);
 
-  // Handler functions for filtering
+  useEffect(() => {
+  const schoolIdFromUrl = searchParams.get("school");
+
+  if (
+    schoolIdFromUrl &&
+    filteredSchools.length > 0 &&
+    !selectedSchoolId 
+  ) {
+    const matchedSchool = filteredSchools.find(s => s._id === schoolIdFromUrl);
+    if (matchedSchool) {
+      setSelectedSchoolId(schoolIdFromUrl);
+      setSelectedSchool(matchedSchool);
+      setUserSelectedSchool(true);
+    }
+  }
+}, [searchParams, filteredSchools]);
+
   const handleFilter = (filteredList) => {
     setFilteredSchools(filteredList);
   };

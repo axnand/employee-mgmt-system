@@ -24,7 +24,6 @@ export const getEmployees = async (req, res) => {
 
 export const getDdoOfficerDetails = async (ddoOfficerId) => {
   if (!ddoOfficerId) return null;
-  // Find the employee whose employeeId matches ddoOfficerId
   const ddoOfficer = await Employee.findOne({ employeeId: ddoOfficerId });
   return ddoOfficer;
 };
@@ -32,7 +31,6 @@ export const getDdoOfficerDetails = async (ddoOfficerId) => {
 export const getEmployeesByZone = async (req, res) => {
   try {
     const zoneId = req.params.zoneId;
-    // Find all offices in the zone
     const offices = await Office.find({ zone: zoneId });
     const officeIds = offices.map(o => o._id);
     const employees = await Employee.find({ office: { $in: officeIds } });
@@ -85,7 +83,7 @@ export const createEmployee = async (req, res) => {
     const newUser = await User.create(
       [
         {
-          userName: req.body.credentials?.username || savedEmployee.employeeId,
+          userName: req.body.employeeId || savedEmployee.employeeId,
           role: 'staff',
           password: req.body.credentials?.passwordHash,
           office: officeId,

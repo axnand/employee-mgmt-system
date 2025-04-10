@@ -1,4 +1,3 @@
-// models/District.js
 import mongoose from "mongoose";
 
 const DistrictSchema = new mongoose.Schema(

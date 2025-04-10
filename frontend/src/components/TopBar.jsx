@@ -90,7 +90,7 @@ const handlePasswordUpdate = async () => {
 
   return (<>
   {showPasswordModal && (
-  <div className="fixed inset-0 bg-black bg-opacity-40 z-20 flex items-center justify-center">
+  <div className="fixed inset-0 bg-black bg-opacity-40 z-50 flex items-center justify-center">
     <div className="bg-white rounded-lg shadow-lg p-6 w-full max-w-md relative">
       <button
         className="absolute top-3 right-3 text-gray-600 hover:text-gray-900"
@@ -116,7 +116,7 @@ const handlePasswordUpdate = async () => {
   </div>
 )}
 
-    <header className="bg-white shadow-sm">
+    <header className="bg-white shadow-lg">
   <div className="sm:px-6 lg:px-8">
     <div className="flex justify-between items-center h-16">
       <div className="text-xl font-bold text-secondary">
