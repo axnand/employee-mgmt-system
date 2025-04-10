@@ -86,8 +86,10 @@ export const getLastLogin = async (req, res) => {
       admin: username,
       action: "Login"
     })
-      .sort({ createdAt: -1 })
-      .exec();
+    .sort({ createdAt: -1 })
+    .skip(1) 
+    .limit(1) 
+    .exec();
 
     if (!lastLoginLog) {
       return res.status(404).json({ message: "No login record found" });

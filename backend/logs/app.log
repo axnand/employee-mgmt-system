@@ -27,3 +27,6 @@
 2025-04-10 08:58:09 [INFO]: Action: Employee Creation - Performed by: 67f6d84f6c84dc1527cb0a32 (ZEO) - Description: Created employee Anand Mohan Jha - IP: ::1
 2025-04-10 09:24:40 [INFO]: Action: Employee Creation - Performed by: 67f6d84f6c84dc1527cb0a32 (ZEO) - Description: Created employee Anand Mohan Jha - IP: ::1
 2025-04-10 10:13:33 [INFO]: Action: Failed Login - Performed by: ceoUser (CEO) - Description: Unsuccessful login attempt - IP: ::1
+2025-04-10 10:16:43 [INFO]: Action: Login - Performed by: ceoUser (CEO) - Description: ceoUser logged in successfully as CEO - IP: ::1
+2025-04-10 10:17:47 [INFO]: Action: Login - Performed by: zeo_bhalla (ZEO) - Description: zeo_bhalla logged in successfully as ZEO - IP: ::1
+2025-04-10 10:20:21 [INFO]: Action: Login - Performed by: ceoUser (CEO) - Description: ceoUser logged in successfully as CEO - IP: ::1
