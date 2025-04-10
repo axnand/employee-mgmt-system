@@ -290,7 +290,7 @@ export default function DashboardLayout({ children }) {
   )}
 </ul>
 
-            {/* <div className="mt-3">
+            <div className="mt-3">
               <button
                 onClick={handleLogout}
                 className={`flex w-full gap-x-3 items-center hover:text-white transition py-3 px-3 rounded-md font-medium hover:bg-[#377DFF] ${
@@ -300,7 +300,7 @@ export default function DashboardLayout({ children }) {
                 <LogOut className=" h-5 w-5" />
                 {sidebarOpen && <span>Logout</span>}
               </button>
-            </div> */}
+            </div>
           </div>
         </div>
       </div>
