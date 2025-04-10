@@ -1,354 +1,243 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { PieChart, Pie, Cell, ResponsiveContainer } from "recharts";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import {
-  ResponsiveContainer,
-  CartesianGrid,
-  XAxis,
-  YAxis,
-  Tooltip,
-  Legend,
-  LineChart,
-  Line,
-  PieChart,
-  Pie,
-  Cell,
-} from "recharts";
-import {
-  LayoutDashboard,
-  School as SchoolIcon,
-  Users,
-  ArrowLeftRight,
+  Calendar as LucideCalendar,
+  CheckCircle,
+  XCircle,
+  User,
+  Building,
 } from "lucide-react";
 import Link from "next/link";
-import { useQuery } from "@tanstack/react-query";
+import { formatDate } from "@/utils/dateUtils";
+import Calendar from "react-calendar";
+import "react-calendar/dist/Calendar.css";
 import { useUser } from "@/context/UserContext";
-import axiosClient from "@/api/axiosClient";
 
-// ---------- API FETCH FUNCTIONS ----------
+import "@/styles/customCalendar.css"
 
-// Fetch all employees (for total staff and staff distribution)
-const fetchEmployees = async () => {
-  const res = await axiosClient.get("/employees");
-  console.log("Employees response:", res.data);
-  // If res.data is an array, return it;
-  // if it’s an object with an "employees" key, return that.
-  return Array.isArray(res.data) ? res.data : res.data.employees || [];
-};
+// Dummy employee/user data
+const fetchEmployeeData = async (employeeId) => {
+  const token = localStorage.getItem("token");
+  const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/employees/${employeeId}`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
 
-// Fetch enrollment trends (if available; otherwise, use sample data)
-const fetchEnrollmentTrends = async () => {
-  // Replace with your real endpoint if available.
-  return [
-    { year: "2018", students: 1200 },
-    { year: "2019", students: 1300 },
-    { year: "2020", students: 1400 },
-    { year: "2021", students: 1600 },
-    { year: "2022", students: 1800 },
-    { year: "2024", students: 2200 },
-  ];
-};
-
-// Fetch recent activities (logs) for the dashboard
-const fetchRecentActivities = async () => {
-  const res = await axiosClient.get("/logs");
-  // Assume logs are sorted descending by createdAt; take top 3.
-  return res?.data?.logs.slice(0, 3);
-};
-
-// Fetch schools based on role and parameters.
-// We ensure that the returned value is always an array.
-const fetchSchools = async (role, districtId, zoneId, officeId) => {
-  try {
-    let response;
-    if (role === "CEO" && districtId) {
-      response = await axiosClient.get(`/schools/district/${districtId}`);
-    } else if (role === "ZEO" && zoneId) {
-      response = await axiosClient.get(`/schools/zone/${zoneId}`);
-    } else if (role === "schoolAdmin" && officeId) {
-      response = await axiosClient.get(`/schools/office/${officeId}`);
-    } else {
-      throw new Error("Invalid role or missing parameters.");
-    }
-    
-    // Ensure we return an array.
-    if (Array.isArray(response.data)) {
-      return response.data;
-    } else if (response.data && Array.isArray(response.data.schools)) {
-      return response.data.schools;
-    } else {
-      return [];
-    }
-  } catch (error) {
-    console.error("Error fetching schools:", error);
-    throw error;
+  const data = await response.json();
+  console.log("Fetched Data (Inside fetchEmployeeData):", data); // Check the response format here
+  if (!response.ok) {
+    throw new Error("Failed to fetch employee data");
   }
+
+  return data; // Make sure this matches the format expected by your React Query hook
 };
 
-// ---------- Dashboard Component ----------
 
-export default function ZonalAdminDashboard() {
-  const [filterDays, setFilterDays] = useState(30);
-  const { userRole, user } = useUser();  // Assuming user role and user data are in the context
-  const userDistrictId = user?.districtId;
-  const userZoneId = user?.zoneId;
-  const userOfficeId = user?.officeId;
 
-  const { data: schools = [], error, isLoading } = useQuery({
-    queryKey: ["schools", userRole, userDistrictId, userZoneId, userOfficeId],
-    queryFn: () => fetchSchools(userRole, userDistrictId, userZoneId, userOfficeId),
+
+
+
+const fetchTransferHistory = async (employeeId) => {
+  const token = localStorage.getItem("token");
+
+  const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/transferHistory/${employeeId}`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
   });
 
-  // Use react-query to fetch data from the backend.
-  const { data: employees = [] } = useQuery({
-    queryKey: ["employees"],
-    queryFn: fetchEmployees,
-  });
-  const { data: enrollmentData = [] } = useQuery({
-    queryKey: ["enrollmentTrends"],
-    queryFn: fetchEnrollmentTrends,
-  });
-  const { data: recentActivities = [] } = useQuery({
-    queryKey: ["recentActivities"],
-    queryFn: fetchRecentActivities,
-  });
+  if (!response.ok) {
+    throw new Error("Failed to fetch transfer history");
+  }
+  const data = await response.json();
+  setTransferHistory(data.history);
+};
 
-  // ---------- Derived Metrics ----------
 
-  // Ensure schools is an array before using reduce.
-  const safeSchools = Array.isArray(schools) ? schools : [];
-  const totalSchools = safeSchools.length;
-  const totalStudents = safeSchools.reduce(
-    (acc, school) => acc + (school.numberOfStudents || 0),
-    0
-  );
-  const totalStaff = Array.isArray(employees) ? employees.length : 0;
+export default function StaffDashboard() {
+  const [profile, setProfile] = useState({});
 
-  // Staff distribution: count based on staffType.
-  const safeEmployees = Array.isArray(employees) ? employees : [];
+  const [attendanceHistory, setAttendanceHistory] = useState([]);
+  const [transferHistory, setTransferHistory] = useState([]);
+  const [selectedDate, setSelectedDate] = useState(new Date());
+  const { user } = useUser();
+  console.log("User:", user);
+  const employeeId = user?.employeeId;
 
-  const teachingCount = safeEmployees.filter(
-    (emp) => emp.staffType === "teaching"
-  ).length;
-  const nonTeachingCount = safeEmployees.filter(
-    (emp) => emp.staffType === "non-teaching"
-  ).length;
   
-  const staffData = [
-    { name: "Teaching", value: teachingCount || 0 },
-    { name: "Non-Teaching", value: nonTeachingCount || 0 },
-  ];
-  const COLORS = ["#0088FE", "#00C49F"];
+
+  const {
+    data: employeeData,
+    isLoading: employeeLoading,
+    error: employeeError,
+  } = useQuery({
+    queryKey: ["employee", employeeId],
+    queryFn: () => fetchEmployeeData(employeeId),
+    refetchOnWindowFocus: false,
+  });
+  
+  // Using useEffect to ensure state updates when data is available
+  useEffect(() => {
+    if (employeeData) {
+      console.log("Fetched Employee Data (Inside useEffect):", employeeData);
+      setProfile(employeeData); // Ensure this matches the data format
+    }
+  }, [employeeData]);
+  
+  
+    
+  
+
+  const attendanceMap = attendanceHistory.reduce((acc, record) => {
+    acc[record.date] = record.status;
+    return acc;
+  }, {});
+  
+
+  const getTileClassName = ({ date, view }) => {
+    if (view === "month") {
+      // Format date to YYYY-MM-DD
+      const year = date.getFullYear();
+      const month = String(date.getMonth() + 1).padStart(2, "0");
+      const day = String(date.getDate()).padStart(2, "0");
+      const dateString = `${year}-${month}-${day}`;
+
+      const status = attendanceMap[dateString];
+
+      if (status === "Present") return "calendar-present";
+      if (status === "Absent") return "calendar-absent";
+      if (status === "Leave") return "calendar-leave";
+    }
+    return "";
+  };
+  
 
   return (
-    <div className="grid grid-cols-1 gap-4">
-      {/* Top Stats Row */}
-      <div className="grid gap-4 md:grid-cols-4 lg:grid-cols-4">
-        {/* Total Schools */}
-        <div className="bg-white shadow-sm rounded-lg p-4 flex flex-col border-l-[3px] border-primary">
-          <div className="flex items-center space-x-2">
-            <SchoolIcon className="h-5 w-5 text-blue-500" />
-            <h3 className="text-[15px] font-semibold text-gray-800">
-              Total Schools
-            </h3>
-          </div>
-          <p className="text-[13px] pt-1 text-gray-600">
-            Number of schools in the district
-          </p>
-          <div className="text-2xl font-bold text-gray-800">
-            {totalSchools}
-          </div>
-        </div>
+    <div className="min-h-screen bg-gray-50 p-4">
+      <div className="max-w-7xl mx-auto space-y-8">
+        {/* Profile Card */}
+        <div className="bg-white shadow rounded-lg p-6 border-l-4 border-primary">
+<div className="flex items-center gap-4">
+<User className="w-12 h-12 text-blue-500" />
+<div className="space-y-1">
+  <h2 className="text-2xl font-bold text-gray-800">
+    {profile.fullName}
+  </h2>
+  <p className="text-gray-500 text-sm font-medium">
+    Employee ID: {profile.employeeId}
+  </p>
+  <p className="text-gray-500 text-sm font-medium capitalize">
+    Present Designation: {profile.presentDesignation}
+  </p>
+</div>
+</div>
 
-        {/* Total Employees */}
-        <div className="bg-white shadow-sm rounded-lg p-4 flex flex-col border-l-[3px] border-primary">
-          <div className="flex items-center space-x-2">
-            <Users className="h-5 w-5 text-green-500" />
-            <h3 className="text-[15px] font-semibold text-gray-800">
-              Total Employees
-            </h3>
-          </div>
-          <p className="text-[13px] pt-1 text-gray-600">
-            Teaching & Non-Teaching staff
-          </p>
-          <div className="text-2xl font-bold text-gray-800">
-            {totalStaff}
-          </div>
-        </div>
+{/* Multi-column layout for profile details */}
+<div className="mt-8 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 text-sm text-gray-600 font-medium">
+<div className="space-y-3">
+  <p>
+    <strong className="mr-1">Username:</strong> {profile.credentials?.username || "N/A"}
+  </p>
+  <p>
+    <strong className="mr-1">Gender:</strong> {profile.gender || "N/A"}
+  </p>
+  <p>
+    <strong className="mr-1">Marital Status:</strong> {profile.maritalStatus || "N/A"}
+  </p>
+  <p>
+    <strong className="mr-1">Spouse/Parentage:</strong> {profile.parentageOrSpouse || "N/A"}
+  </p>
+  <p>
+    <strong className="mr-1">Date of Birth:</strong> {profile.dateOfBirth ? new Date(profile.dateOfBirth).toLocaleDateString() : "N/A"}
+  </p>
+  <p>
+    <strong className="mr-1">Date of First Appointment:</strong> {profile.dateOfFirstAppointment ? new Date(profile.dateOfFirstAppointment).toLocaleDateString() : "N/A"}
+  </p>
+</div>
 
-        {/* Total Students */}
-        <div className="bg-white shadow-sm rounded-lg p-4 flex flex-col border-l-[3px] border-primary">
-          <div className="flex items-center space-x-2">
-            <LayoutDashboard className="h-5 w-5 text-purple-500" />
-            <h3 className="text-[15px] font-semibold text-gray-800">
-              Total Students
-            </h3>
-          </div>
-          <p className="text-[13px] pt-1 text-gray-600">
-            Current enrollment
-          </p>
-          <div className="text-2xl font-bold text-gray-800">
-            {totalStudents}
-          </div>
-        </div>
+<div className="space-y-3">
+  <p>
+    <strong className="mr-1">Designation at First Appointment:</strong> {profile.designationAtFirstAppointment || "N/A"}
+  </p>
+  <p>
+    <strong className="mr-1">Date of Recent Promotion:</strong> {profile.dateOfRecentPromotion ? new Date(profile.dateOfRecentPromotion).toLocaleDateString() : "N/A"}
+  </p>
+  <p>
+    <strong className="mr-1">Date of Current Posting:</strong> {profile.dateOfCurrentPosting ? new Date(profile.dateOfCurrentPosting).toLocaleDateString() : "N/A"}
+  </p>
+  <p>
+    <strong className="mr-1">Actual Place of Posting:</strong> {profile.actualPlaceOfPosting || "N/A"}
+  </p>
+  <p>
+    <strong className="mr-1">Basis of Work:</strong> {profile.basisOfWork || "N/A"}
+  </p>
+  <p>
+    <strong className="mr-1">Highest Qualification:</strong> {profile.highestQualification || "N/A"}
+  </p>
+</div>
 
-        {/* Pending Transfers (Commented out for now) */}
-        {/* <div className="bg-white shadow-sm rounded-lg p-4 flex flex-col border-l-[3px] border-primary">
-          <div className="flex items-center space-x-2">
-            <ArrowLeftRight className="h-5 w-5 text-orange-500" />
-            <h3 className="text-[15px] font-semibold text-gray-800">
-              Pending Transfers
-            </h3>
-          </div>
-          <p className="text-[13px] pt-1 text-gray-600">
-            Awaiting approval
-          </p>
-          <div className="text-2xl font-bold text-gray-800">
-            {pendingTransfers}
-          </div>
-        </div> */}
-      </div>
+<div className="space-y-3">
+  <p>
+    <strong className="mr-1">Specialization Subject:</strong> {profile.specializationSubject || "N/A"}
+  </p>
+  <p>
+    <strong className="mr-1">B.Ed:</strong> {profile.bed ? "Yes" : "No"}
+  </p>
+  <p>
+    <strong className="mr-1">Pension Scheme:</strong> {profile.pensionScheme || "N/A"}
+  </p>
+  <p>
+    <strong className="mr-1">Phone Number:</strong> {profile.phoneNo || "N/A"}
+  </p>
+  <p>
+    <strong className="mr-1">Email:</strong> {profile.email || "N/A"}
+  </p>
+</div>
+</div>
+</div>
 
-      {/* Charts Section */}
-      <div className="flex gap-x-4 w-full">
-        {/* Enrollment Trends (Line Chart) */}
-        <div className="bg-white shadow-sm rounded-lg p-4 w-3/5">
-          <h3 className="text-xl font-bold mb-6 text-gray-800">
-            Enrollment Trends
+
+        
+
+        {/* Transfer History Timeline */}
+        <div className="bg-white shadow rounded-lg p-6 border-l-4 border-primary font-medium">
+          <h3 className="text-xl font-bold text-gray-800 mb-2">
+            Transfer History
           </h3>
-          <ResponsiveContainer width="100%" height={300}>
-            <LineChart data={enrollmentData}>
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis
-                dataKey="year"
-                tick={{ fontSize: 14, fill: "#0d2745", style: { fontWeight: "600" } }}
-                tickLine={{ stroke: "#377DFF" }}
-              />
-              <YAxis
-                tick={{ fontSize: 14, fill: "#0d2745", style: { fontWeight: "600" } }}
-                tickLine={{ stroke: "#377DFF" }}
-              />
-              <Tooltip contentStyle={{ backgroundColor: "#0a0a0a", color: "#fff", fontSize: "14px" }} itemStyle={{ color: "#377DFF" }} />
-              <Legend wrapperStyle={{ fontSize: "14px", color: "#377DFF" }} />
-              <Line type="monotone" dataKey="students" stroke="#377DFF" strokeWidth={3} dot={{ r: 5 }} activeDot={{ r: 8 }} />
-            </LineChart>
-          </ResponsiveContainer>
-        </div>
-
-        {/* Staff Distribution (Pie Chart) */}
-        <div className="bg-white shadow-sm rounded-lg p-4 w-2/5">
-          <h3 className="text-xl font-bold mb-6 text-gray-800">
-            Staff Distribution
-          </h3>
-          <ResponsiveContainer width="100%" height={300}>
-            <PieChart>
-              <Pie data={staffData} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={80} label>
-                {staffData.map((entry, index) => (
-                  <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                ))}
-              </Pie>
-              <Tooltip contentStyle={{ backgroundColor: "#0a0a0a", color: "#fff", fontSize: "14px" }} itemStyle={{ color: "#fff" }} />
-              <Legend wrapperStyle={{ fontSize: "14px", color: "#377DFF", fontWeight: "500" }} />
-            </PieChart>
-          </ResponsiveContainer>
-        </div>
-      </div>
-
-      {/* Recent Activities */}
-      <div className="bg-white shadow-sm rounded-lg p-4 border-l-[3px] border-primary">
-        <h3 className="text-xl font-bold mb-4 text-gray-800">
-          Recent Activities
-        </h3>
-        <div className="divide-y divide-gray-200 mt-2">
-          {recentActivities.map((activity, index) => (
-            <div key={index} className="py-2">
-              {/* Main row: action and time */}
-              <div className="flex items-center justify-between text-sm font-medium text-gray-600">
-                <span>{activity.action}</span>
-                <span className="text-gray-400 text-[13px]">{activity.time}</span>
-              </div>
-              {/* Secondary row: additional details (if any) */}
-              {(activity.description || activity.admin || activity.ip) && (
-                <div className="mt-1 text-xs text-gray-500">
-                  {activity.description && <span>{activity.description}</span>}
-                  {activity.admin && (
-                    <span className="ml-2">
-                      {activity.admin}
-                      {activity.role && ` (${activity.role})`}
-                    </span>
-                  )}
-                  {activity.ip && <span className="ml-2">IP: {activity.ip}</span>}
+          <p className="text-gray-500 text-sm mb-8">
+            Your transfer requests in a timeline
+          </p>
+          <div className="relative border-l-[3px] border-dashed border-gray-300 ml-6 text-sm">
+            {transferHistory.map((transfer, index) => (
+              <div key={index} className="mb-10 ml-8 flex">
+                <span className="flex absolute -left-[19px] justify-center items-center p-2 rounded-full bg-blue-100 ring-2 ring-primary">
+                  <Building className="w-5 h-5 text-blue-600" />
+                </span>
+                <div className="flex flex-col gap-y-1">
+                  <time className="block mb-2 text-xs font-semibold leading-none text-gray-400">
+                    {transfer.date}
+                  </time>
+                  <h3 className="text-[15px] font-semibold text-gray-900">
+                    {transfer.from} &rarr; {transfer.to}
+                  </h3>
+                  <p className="text-[13px] font-medium text-gray-500">
+                    Status: {transfer.status} | Reason: {transfer.reason}
+                  </p>
                 </div>
-              )}
-            </div>
-          ))}
-        </div>
-        <div className="mt-4 text-right">
-          <Link href="/home/logs" className="text-blue-600 font-semibold hover:underline text-sm">
-            View All Logs
-          </Link>
-        </div>
-      </div>
-
-      {/* Retirement Announcements - Employee Retirement Table with Filter (Commented Out) */}
-      {/*
-      <div className="bg-white shadow-sm rounded-lg p-4 border-l-[3px] border-primary">
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4">
-          <h3 className="text-xl font-bold text-gray-800 mb-2 sm:mb-0">
-            Retirement Announcements
-          </h3>
-          <div className="flex items-center space-x-2">
-            <label htmlFor="filter" className="text-sm text-gray-700">
-              Show retirements in next (days):
-            </label>
-            <input
-              type="number"
-              id="filter"
-              value={filterDays}
-              onChange={(e) => setFilterDays(Number(e.target.value))}
-              className="w-16 border border-gray-300 rounded p-1 text-sm"
-            />
+              </div>
+            ))}
+            {transferHistory.length === 0 && (
+              <div className="mb-10 ml-6 text-gray-500">
+                No transfer records found.
+              </div>
+            )}
           </div>
         </div>
-        <div className="overflow-x-auto">
-          <table className="min-w-full divide-y divide-gray-200">
-            <thead className="bg-gray-100">
-              <tr>
-                <th className="px-4 py-2 text-left text-sm font-medium text-gray-700">Employee ID</th>
-                <th className="px-4 py-2 text-left text-sm font-medium text-gray-700">Name</th>
-                <th className="px-4 py-2 text-left text-sm font-medium text-gray-700">Designation</th>
-                <th className="px-4 py-2 text-left text-sm font-medium text-gray-700">Date of Retirement</th>
-                <th className="px-4 py-2 text-left text-sm font-medium text-gray-700">Actions</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-200">
-              {retirementEmployees.map((emp) => (
-                <tr key={emp.emp_id}>
-                  <td className="px-4 py-2 text-sm text-gray-800">{emp.emp_id}</td>
-                  <td className="px-4 py-2 text-sm text-gray-800">{emp.emp_name}</td>
-                  <td className="px-4 py-2 text-sm text-gray-800">{emp.present_designation}</td>
-                  <td className="px-4 py-2 text-sm text-gray-800">{emp.date_of_retirement}</td>
-                  <td>
-                    <Link href={`/home/school-status/${emp.school_id}/${emp.emp_id}`}>
-                      <button className="py-1 px-3 bg-primary text-white rounded-full font-medium text-xs hover:bg-blue-600 transition">
-                        View
-                      </button>
-                    </Link>
-                  </td>
-                </tr>
-              ))}
-              {retirementEmployees.length === 0 && (
-                <tr>
-                  <td colSpan="5" className="px-4 py-2 text-sm text-gray-700 text-center">
-                    No retirements within the next {filterDays} days.
-                  </td>
-                </tr>
-              )}
-            </tbody>
-          </table>
-        </div>
       </div>
-      */}
     </div>
   );
 }
