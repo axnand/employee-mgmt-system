@@ -25,15 +25,9 @@ import { useQuery } from "@tanstack/react-query";
 import { useUser } from "@/context/UserContext";
 import axiosClient from "@/api/axiosClient";
 
-// ---------- API FETCH FUNCTIONS ----------
-
-
-
-// Fetch all employees (for total staff and staff distribution)
 const fetchEmployees = async () => {
   const res = await axiosClient.get("/employees");
   console.log("Employees response:", res.data);
-  // If res.data is an array, return it; if it’s an object with an "employees" key, return that.
   return Array.isArray(res.data) ? res.data : res.data.employees || [];
 };
 
@@ -57,9 +51,7 @@ const fetchEmployees = async () => {
 
 
 
-// Fetch enrollment trends (if available; otherwise, use sample data)
 const fetchEnrollmentTrends = async () => {
-  // Replace with your real endpoint if available.
   return [
     { year: "2018", students: 1200 },
     { year: "2019", students: 1300 },
@@ -70,10 +62,9 @@ const fetchEnrollmentTrends = async () => {
   ];
 };
 
-// Fetch recent activities (logs) for the dashboard
+
 const fetchRecentActivities = async () => {
   const res = await axiosClient.get("/logs");
-  // Assume logs are sorted descending by createdAt; take top 3.
   return res?.data?.logs.slice(0, 3);
 };
 
@@ -87,29 +78,50 @@ const fetchSchools = async (role, districtId, zoneId, officeId) => {
   try {
     let response;
     if (role === "CEO" && districtId) {
-      response = await axiosClient.get(`/schools/district/${districtId}`);
+      try {
+        response = await axiosClient.get(`/schools/district/${districtId}`);
+      } catch (error) {
+        console.warn(`Error fetching schools for district ${districtId}:`, error.message);
+        return [];
+      }
     } else if (role === "ZEO" && zoneId) {
-      response = await axiosClient.get(`/schools/zone/${zoneId}`);
-    } else if (role === "schoolAdmin" && officeId) {
+      try {
+        response = await axiosClient.get(`/schools/zone/${zoneId}`);
+      } catch (error) {
+        console.warn(`Error fetching schools for zone ${zoneId}:`, error.message);
+        return [];
+      }
+    } else if (role === "schoolAdmin" && officeId) {try {
       response = await axiosClient.get(`/schools/office/${officeId}`);
+    } catch (error) {
+      console.warn(`Error fetching schools for office ${officeId}:`, error.message);
+      return [];
+    }
     } else {
-      throw new Error("Invalid role or missing parameters.");
+      console.warn("Invalid role or missing parameters in fetchSchools.");
+      return [];
     }
     
-    return response.data;  // Return schools data from the response
+    if (Array.isArray(response.data)) {
+      return response.data;
+    } else if (response.data && Array.isArray(response.data.schools)) {
+      return response.data.schools;
+    } else {
+      return [];
+    }
   } catch (error) {
     console.error("Error fetching schools:", error);
-    throw error;  // Rethrow error to be handled by react-query
+    return [];
   }
 };
 
 
 
-// ---------- Dashboard Component ----------
+
 
 export default function ZonalAdminDashboard() {
   const [filterDays, setFilterDays] = useState(30);
-  const { userRole, user } = useUser();  // Assuming user role and user data are in the context
+  const { userRole, user } = useUser(); 
   const userDistrictId = user?.districtId;
   const userZoneId = user?.zoneId;
   const userOfficeId = user?.officeId;
@@ -120,9 +132,6 @@ export default function ZonalAdminDashboard() {
   });
 
 
-
-  // Use react-query to fetch data from the backend.
-  
   const { data: employees = [] } = useQuery({
     queryKey: ["employees"],
     queryFn: fetchEmployees,
@@ -144,15 +153,13 @@ export default function ZonalAdminDashboard() {
   //   queryFn: () => fetchRetirements(filterDays),
   //   keepPreviousData: true,
   // });
-
-  // ---------- Derived Metrics ----------
-
-  const totalSchools = schools.length;
-  const totalStudents = schools.reduce(
+  const safeSchools = Array.isArray(schools) ? schools : [];
+  const totalSchools = safeSchools.length;
+  const totalStudents = safeSchools.reduce(
     (acc, school) => acc + (school.numberOfStudents || 0),
     0
   );
-  const totalStaff = employees.length;
+  const totalStaff = Array.isArray(employees) ? employees.length : 0;
 
   // const safeTransfers = Array.isArray(transfers) ? transfers : [];
   // const pendingTransfers = safeTransfers.filter((t) => t.status === "pending").length;
