@@ -1,11 +1,10 @@
 import axios from "axios";
 
 const axiosClient = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_API_BASE_URL, // e.g. "${process.env.NEXT_PUBLIC_API_BASE_URL}"
-  timeout: 10000, // optional timeout in milliseconds
+  baseURL: process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api", // e.g. "${process.env.NEXT_PUBLIC_API_BASE_URL}"
+  timeout: 10000, 
 });
 
-// Request interceptor to add auth token from localStorage
 axiosClient.interceptors.request.use(
   (config) => {
     if (typeof window !== "undefined") {
@@ -19,28 +18,26 @@ axiosClient.interceptors.request.use(
   (error) => Promise.reject(error)
 );
 
-// Response interceptor to transform errors into friendly messages
 axiosClient.interceptors.response.use(
   (response) => response,
   (error) => {
-    // If the response contains a custom error message, use it
     if (
       error.response &&
-      error.response.data &&
-      error.response.data.message
+      error.response.status === 404 &&
+      error.response.data?.message === "No zones found for the given district."
     ) {
+      const customError = new Error("No zones found for the given district.");
+      customError.isHandled = true; 
+      customError.response = error.response;
+      return Promise.reject(customError);
+    }
+    if (error.response?.status === 401) {
+      return Promise.reject(new Error("Invalid credentials. Please try again."));
+    }
+    if (error.response?.data?.message) {
       return Promise.reject(new Error(error.response.data.message));
     }
-    // Handle 401 errors specifically if needed
-    if (error.response && error.response.status === 401) {
-      return Promise.reject(
-        new Error("Invalid credentials. Please try again.")
-      );
-    }
-    // Otherwise, return a generic error message
-    return Promise.reject(
-      new Error("Something went wrong. Please try again later.")
-    );
+    return Promise.reject(new Error("Something went wrong. Please try again later."));
   }
 );
 
