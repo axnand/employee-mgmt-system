@@ -25,16 +25,18 @@ import { useQuery } from "@tanstack/react-query";
 import { useUser } from "@/context/UserContext";
 import axiosClient from "@/api/axiosClient";
 
-// ---------- API FETCH FUNCTIONS ----------
 
-
-
-// Fetch all employees (for total staff and staff distribution)
 const fetchEmployees = async () => {
-  const res = await axiosClient.get("/employees");
-  console.log("Employees response:", res.data);
-  // If res.data is an array, return it; if it’s an object with an "employees" key, return that.
-  return Array.isArray(res.data) ? res.data : res.data.employees || [];
+  try {
+    const res = await axiosClient.get("/employees");
+    console.log("Employees response:", res.data);
+    // If res.data is an array, return it;
+    // if it's an object with an "employees" key, return that.
+    return Array.isArray(res.data) ? res.data : res.data.employees || [];
+  } catch (error) {
+    console.error("Error fetching employees:", error);
+    return []; // Return empty array on error
+  }
 };
 
 
@@ -72,9 +74,14 @@ const fetchEnrollmentTrends = async () => {
 
 // Fetch recent activities (logs) for the dashboard
 const fetchRecentActivities = async () => {
-  const res = await axiosClient.get("/logs");
-  // Assume logs are sorted descending by createdAt; take top 3.
-  return res?.data?.logs.slice(0, 3);
+  try {
+    const res = await axiosClient.get("/logs");
+    // Assume logs are sorted descending by createdAt; take top 3.
+    return res?.data?.logs?.slice(0, 3) || [];
+  } catch (error) {
+    console.error("Error fetching recent activities:", error);
+    return []; // Return empty array on error
+  }
 };
 
 // Fetch retirement employees based on filterDays; expects endpoint with query param.
@@ -87,19 +94,46 @@ const fetchSchools = async (role, districtId, zoneId, officeId) => {
   try {
     let response;
     if (role === "CEO" && districtId) {
-      response = await axiosClient.get(`/schools/district/${districtId}`);
+      try {
+        response = await axiosClient.get(`/schools/district/${districtId}`);
+      } catch (error) {
+        console.warn(`Error fetching schools for district ${districtId}:`, error.message);
+        // Return empty array instead of throwing error
+        return [];
+      }
     } else if (role === "ZEO" && zoneId) {
-      response = await axiosClient.get(`/schools/zone/${zoneId}`);
+      try {
+        response = await axiosClient.get(`/schools/zone/${zoneId}`);
+      } catch (error) {
+        console.warn(`Error fetching schools for zone ${zoneId}:`, error.message);
+        // Return empty array instead of throwing error
+        return [];
+      }
     } else if (role === "schoolAdmin" && officeId) {
-      response = await axiosClient.get(`/schools/office/${officeId}`);
+      try {
+        response = await axiosClient.get(`/schools/office/${officeId}`);
+      } catch (error) {
+        console.warn(`Error fetching schools for office ${officeId}:`, error.message);
+        // Return empty array instead of throwing error
+        return [];
+      }
     } else {
-      throw new Error("Invalid role or missing parameters.");
+      console.warn("Invalid role or missing parameters in fetchSchools.");
+      return []; // Return empty array instead of throwing error
     }
     
-    return response.data;  // Return schools data from the response
+    // Ensure we return an array.
+    if (Array.isArray(response.data)) {
+      return response.data;
+    } else if (response.data && Array.isArray(response.data.schools)) {
+      return response.data.schools;
+    } else {
+      return [];
+    }
   } catch (error) {
     console.error("Error fetching schools:", error);
-    throw error;  // Rethrow error to be handled by react-query
+    // Return an empty array instead of throwing the error
+    return [];
   }
 };
 
@@ -114,9 +148,14 @@ export default function ZonalAdminDashboard() {
   const userZoneId = user?.zoneId;
   const userOfficeId = user?.officeId;
 
+
   const { data: schools = [], error, isLoading } = useQuery({
     queryKey: ["schools", userRole, userDistrictId, userZoneId, userOfficeId],
     queryFn: () => fetchSchools(userRole, userDistrictId, userZoneId, userOfficeId),
+    onError: (error) => {
+      console.error("Failed to fetch schools:", error);
+    },
+    retry: false,
   });
 
 
@@ -126,18 +165,22 @@ export default function ZonalAdminDashboard() {
   const { data: employees = [] } = useQuery({
     queryKey: ["employees"],
     queryFn: fetchEmployees,
+    // Don't retry on error
+    retry: false,
   });
-  // const { data: transfers = [] } = useQuery({
-  //   queryKey: ["transfers"],
-  //   queryFn: fetchTransfers,
-  // });
+  
   const { data: enrollmentData = [] } = useQuery({
     queryKey: ["enrollmentTrends"],
     queryFn: fetchEnrollmentTrends,
+    // Don't retry on error
+    retry: false,
   });
+  
   const { data: recentActivities = [] } = useQuery({
     queryKey: ["recentActivities"],
     queryFn: fetchRecentActivities,
+    // Don't retry on error
+    retry: false,
   });
   // const { data: retirementEmployees = [] } = useQuery({
   //   queryKey: ["retirements", filterDays],
@@ -147,12 +190,13 @@ export default function ZonalAdminDashboard() {
 
   // ---------- Derived Metrics ----------
 
-  const totalSchools = schools.length;
-  const totalStudents = schools.reduce(
+  const safeSchools = Array.isArray(schools) ? schools : [];
+  const totalSchools = safeSchools.length;
+  const totalStudents = safeSchools.reduce(
     (acc, school) => acc + (school.numberOfStudents || 0),
     0
   );
-  const totalStaff = employees.length;
+  const totalStaff = Array.isArray(employees) ? employees.length : 0;
 
   // const safeTransfers = Array.isArray(transfers) ? transfers : [];
   // const pendingTransfers = safeTransfers.filter((t) => t.status === "pending").length;
@@ -173,6 +217,14 @@ export default function ZonalAdminDashboard() {
     { name: "Non-Teaching", value: nonTeachingCount },
   ];
   const COLORS = ["#0088FE", "#00C49F"];
+
+  if (isLoading) {
+    return (
+      <div className="flex justify-center items-center h-full">
+              <div className="border-t-transparent border-[#377DFF] w-8 h-8 border-4 border-solid rounded-full animate-spin"></div>
+            </div>
+    );
+  }
 
   return (
     <div className="grid grid-cols-1 gap-4">
