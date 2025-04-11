@@ -206,12 +206,12 @@ function OfficeDetails() {
             </div>
             )} */}
 
-        <button
+        {/* <button
         onClick={() => setIsEditing(true)}
         className="mt-4 px-4 py-2 bg-blue-500 font-medium  text-white rounded hover:bg-blue-600"
       >
         Edit Office Details
-      </button>
+      </button> */}
         </div>
 
 
@@ -289,12 +289,12 @@ function OfficeDetails() {
           <h2 className="text-2xl font-semibold text-gray-800 mb-6 flex items-center gap-2">
             <Users className="w-6 h-6 text-primary" /> Employees
           </h2>
-          <button
+          {/* <button
             onClick={() => setIsAddModalOpen(true)}
             className="font-semibold text-[13px] px-4 py-2 bg-primary transition text-white rounded hover:bg-blue-600"
           >
             Add New Employee
-          </button>
+          </button> */}
         </div>
         <div className="bg-white rounded-lg overflow-x-auto border">
           <table className="min-w-full divide-y divide-gray-200">

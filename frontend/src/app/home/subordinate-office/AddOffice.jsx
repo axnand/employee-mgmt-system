@@ -28,12 +28,11 @@ export default function AddOffice() {
   const [udiseId, setUdiseId] = useState("");
   const [schoolName, setSchoolName] = useState(""); 
   const [scheme, setScheme] = useState("");
-  const [subScheme, setSubScheme] = useState("");
   const [feasibilityZone, setFeasibilityZone] = useState("");
 
   const [adminUserName, setAdminUserName] = useState("");
   const [adminPassword, setAdminPassword] = useState("");
-
+  const [officeId, setOfficeId] = useState("");
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
 
@@ -42,6 +41,7 @@ export default function AddOffice() {
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ["offices"] });
       toast.success("Office added successfully!");
+      setOfficeId("");
       setOfficeName("");
       setOfficeType("Administrative");
       setIsDdo(false);
@@ -51,7 +51,6 @@ export default function AddOffice() {
       setUdiseId("");
       setSchoolName("");
       setScheme("");
-      setSubScheme("");
       setFeasibilityZone("");
       setAdminUserName("");
       setAdminPassword("");
@@ -87,7 +86,13 @@ export default function AddOffice() {
       return;
     }
 
+    if (!officeId) {
+      setError("Office ID is required.");
+      return;
+    }
+
     const officeData = {
+      officeId,
       officeName,
       officeType,
       zone: zoneId,
@@ -103,7 +108,6 @@ export default function AddOffice() {
           udiseId,
           name: schoolName,
           scheme,
-          subScheme,
           feasibilityZone,
           adminUserName,    
           adminPassword,
@@ -125,7 +129,18 @@ export default function AddOffice() {
       {error && <p className="text-red-500 mb-4">{error}</p>}
       {success && <div className="mb-4 text-green-500 text-sm">{success}</div>}
       <form onSubmit={handleSubmit} className="space-y-4">
-      
+
+        <div>
+          <label className="block text-sm font-medium text-gray-700">Office ID</label>
+          <input
+            type="text"
+            value={officeId}
+            onChange={(e) => setOfficeId(e.target.value)}
+            className="w-full p-2 border border-gray-300 rounded mt-1"
+            required
+          />
+        </div>
+
         <div>
           <label className="block text-sm font-medium text-gray-700">Office Name</label>
           <input
@@ -213,32 +228,37 @@ export default function AddOffice() {
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700">Scheme</label>
-              <input
-                type="text"
+              <select
                 value={scheme}
                 onChange={(e) => setScheme(e.target.value)}
-                 className="w-full p-2 border border-gray-300 rounded mt-1"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700">Sub Scheme</label>
-              <input
-                type="text"
-                value={subScheme}
-                onChange={(e) => setSubScheme(e.target.value)}
-                 className="w-full p-2 border border-gray-300 rounded mt-1"
-              />
+                className="w-full p-2 border border-gray-300 rounded mt-1"
+              >
+                <option value="">Select Scheme</option>
+                <option value="HS">HS</option>
+                <option value="HSS">HSS</option>
+                <option value="MS">MS</option>
+                <option value="PS">PS</option>
+                <option value="UPS">UPS</option>
+                <option value="LHS">LHS</option>
+                <option value="KGBV">KGBV</option>
+              </select>
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700">Feasibility Zone</label>
-              <input
-                type="text"
+              <select
                 value={feasibilityZone}
                 onChange={(e) => setFeasibilityZone(e.target.value)}
-                 className="w-full p-2 border border-gray-300 rounded mt-1"
+                className="w-full p-2 border border-gray-300 rounded mt-1"
                 required
-              />
+              >
+                <option value="">Select Feasibility Zone</option>
+                <option value="I">I</option>
+                <option value="II">II</option>
+                <option value="III">III</option>
+                <option value="IV">IV</option>
+              </select>
             </div>
+
             <div>
               <label className="block text-sm font-medium text-gray-700">Admin Username</label>
               <input

@@ -55,7 +55,8 @@ export const createOffice = async (req, res) => {
 
   session.startTransaction();
   try {
-    const {
+    const { 
+      officeId, 
       officeName, 
       officeType, 
       ddoOfficer, 
@@ -66,13 +67,14 @@ export const createOffice = async (req, res) => {
       zone, 
     } = req.body;
 
-    if (!officeName || !officeType) {
+    if (!officeId || !officeName || !officeType) {
       return res.status(400).json({ message: "Office ID, name, and type are required" });
     }
 
     let schoolIds = [];
 
     const officeData = {
+      officeId,
       officeName,
       officeType,
       ddoOfficerId: ddoOfficer,
