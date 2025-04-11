@@ -27,13 +27,10 @@ export default function AddEmployeeModal({
   const [posts, setPosts] = useState([]);
   const [phoneError, setPhoneError] = useState("");
   const [emailError, setEmailError] = useState("");
-  const [usernameError, setUsernameError] = useState("");
   const [passwordError, setPasswordError] = useState("");
   const [offices, setOffices] = useState([]);
   const [officeOptions, setOfficeOptions] = useState([]);
 
-  // (Optional) You can add a function here to return a list of sanctioned posts based on staff type if needed.
-  // For this updated schema, we assume "Designation" is provided as a free text or via a select list below.
 
 
   const getSanctionedPosts = () => {
@@ -463,9 +460,9 @@ export default function AddEmployeeModal({
     <label className="font-semibold text-gray-600 block mb-1">Any Other Certification</label>
     <input
       type="text"
-      name="otherCertification"
-      value={newEmployeeData.otherCertification || ""}
-      onChange={(e) => setNewEmployeeData({ ...newEmployeeData, otherCertification: e.target.value })}
+      name="anyOtherCertification"
+      value={newEmployeeData.anyOtherCertification || ""}
+      onChange={(e) => setNewEmployeeData({ ...newEmployeeData, anyOtherCertification: e.target.value })}
       className="border border-gray-300 rounded w-full p-2"
     />
   </div>
@@ -846,31 +843,7 @@ export default function AddEmployeeModal({
 
 
   {/* Credentials */}
-      <div>
-        <label className="font-semibold text-gray-600 block mb-1">Username</label>
-        <input
-          type="text"
-          value={newEmployeeData.credentials?.username || ""}
-          onChange={(e) => {
-            const value = e.target.value;
-            const isValid = /^[a-zA-Z0-9_]*$/.test(value);
-            if (!isValid) {
-              setUsernameError("Username can only contain letters, numbers, and underscores.");
-            } else {
-              setUsernameError("");
-            }
-            setNewEmployeeData({
-              ...newEmployeeData,
-              credentials: {
-                ...newEmployeeData.credentials,
-                username: value,
-              },
-            });
-          }}
-          className={`border rounded w-full p-2 ${usernameError ? "border-red-500" : "border-gray-300"}`}
-        />
-        {usernameError && <p className="text-xs text-red-500 mt-1">{usernameError}</p>}
-      </div>
+      
       <div>
         <label className="font-semibold text-gray-600 block mb-1">Password</label>
         <div className="flex flex-col gap-y-2 items-start">
@@ -921,61 +894,90 @@ export default function AddEmployeeModal({
     newEmployeeData.postingHistory.map((posting, index) => (
       <div key={index} className="border p-2 rounded mb-2">
         {/* Office ID */}
-        <input
-          type="text"
-          name="office"
-          placeholder="Office ID"
-          value={posting.office || ""}
-          onChange={(e) => {
-            const updatedPosting = { ...posting, office: e.target.value };
+        <div>
+        <label className="font-semibold text-gray-600 block mb-1">Posting Office</label>
+        <Select
+          options={officeOptions}
+          value={
+            officeOptions.find(opt => opt.value === posting.office) || null
+          }
+          onChange={(selected) => {
+            const updatedPosting = {
+              ...posting,
+              office: selected?.value || "",
+            };
             const updatedPostings = [...(newEmployeeData.postingHistory || [])];
             updatedPostings[index] = updatedPosting;
-            setNewEmployeeData({ ...newEmployeeData, postingHistory: updatedPostings });
+            setNewEmployeeData({
+              ...newEmployeeData,
+              postingHistory: updatedPostings,
+            });
           }}
-          className="border rounded w-full p-1 mb-1"
+          placeholder="Search and select office"
+          className="text-sm mb-1"
         />
-        {/* Designation During Posting */}
-        <input
-          type="text"
-          name="designationDuringPosting"
-          placeholder="Designation During Posting"
-          value={posting.designationDuringPosting || ""}
-          onChange={(e) => {
-            const updatedPosting = { ...posting, designationDuringPosting: e.target.value };
-            const updatedPostings = [...(newEmployeeData.postingHistory || [])];
-            updatedPostings[index] = updatedPosting;
-            setNewEmployeeData({ ...newEmployeeData, postingHistory: updatedPostings });
-          }}
-          className="border rounded w-full p-1 mb-1"
-        />
-        {/* Start Date */}
-        <input
-          type="date"
-          name="startDate"
-          placeholder="Start Date"
-          value={posting.startDate ? posting.startDate.substring(0, 10) : ""}
-          onChange={(e) => {
-            const updatedPosting = { ...posting, startDate: e.target.value };
-            const updatedPostings = [...(newEmployeeData.postingHistory || [])];
-            updatedPostings[index] = updatedPosting;
-            setNewEmployeeData({ ...newEmployeeData, postingHistory: updatedPostings });
-          }}
-          className="border rounded w-full p-1 mb-1"
-        />
+        </div>
+        <div>
+          <label className="font-semibold text-gray-600 block mb-1">Designation During Posting</label>
+          <Select
+            options={[
+              ...teachingPosts.map((item) => ({ label: item, value: item })),
+              ...nonTeachingPosts.map((item) => ({ label: item, value: item })),
+            ]}
+            value={
+              posting.designationDuringPosting
+                ? { label: posting.designationDuringPosting, value: posting.designationDuringPosting }
+                : null
+            }
+            onChange={(selected) => {
+              const updatedPosting = {
+                ...posting,
+                designationDuringPosting: selected?.value || "",
+              };
+              const updatedPostings = [...(newEmployeeData.postingHistory || [])];
+              updatedPostings[index] = updatedPosting;
+              setNewEmployeeData({
+                ...newEmployeeData,
+                postingHistory: updatedPostings,
+              });
+            }}
+            placeholder="Select Designation"
+            className="text-sm mb-1"
+          />
+        </div>
+        <div>
+          <label className="font-semibold text-gray-600 block mb-1">Start Date</label>
+          <input
+            type="date"
+            name="startDate"
+            placeholder="Start Date"
+            value={posting.startDate ? posting.startDate.substring(0, 10) : ""}
+            onChange={(e) => {
+              const updatedPosting = { ...posting, startDate: e.target.value };
+              const updatedPostings = [...(newEmployeeData.postingHistory || [])];
+              updatedPostings[index] = updatedPosting;
+              setNewEmployeeData({ ...newEmployeeData, postingHistory: updatedPostings });
+            }}
+            className="border rounded text-sm  w-full p-1"
+          />
+        </div>
         {/* End Date */}
-        <input
-          type="date"
-          name="endDate"
-          placeholder="End Date"
-          value={posting.endDate ? posting.endDate.substring(0, 10) : ""}
-          onChange={(e) => {
-            const updatedPosting = { ...posting, endDate: e.target.value };
-            const updatedPostings = [...(newEmployeeData.postingHistory || [])];
-            updatedPostings[index] = updatedPosting;
-            setNewEmployeeData({ ...newEmployeeData, postingHistory: updatedPostings });
-          }}
-          className="border rounded w-full p-1 mb-1"
-        />
+        <div>
+          <label className="font-semibold text-gray-600 block mb-1">End Date</label>
+          <input
+            type="date"
+            name="endDate"
+            placeholder="End Date"
+            value={posting.endDate ? posting.endDate.substring(0, 10) : ""}
+            onChange={(e) => {
+              const updatedPosting = { ...posting, endDate: e.target.value };
+              const updatedPostings = [...(newEmployeeData.postingHistory || [])];
+              updatedPostings[index] = updatedPosting;
+              setNewEmployeeData({ ...newEmployeeData, postingHistory: updatedPostings });
+            }}
+            className="border rounded w-full p-1 mb-1"
+          />
+        </div>
         {/* Posting Type */}
         <select
           name="postingType"

@@ -1,109 +1,9 @@
 import React, {useState, useEffect} from "react";
+import { staffTypes,highestQualificationOptions,teachingPosts,nonTeachingPosts,pgSpecializationOptions,currentPayscaleOptions,pensionSchemeOptions,basicPayByPayscale } from "@/data/options";
+import Select from "react-select";
+import axiosClient from "@/api/axiosClient";
 
-const staffTypes = ["Teaching", "Non-Teaching"];
-const highestQualificationOptions = ["10TH", "12TH", "GRADUATE", "POSTGRADUATE", "M.PHIL", "PHD"];
-const pgSpecializationOptions = [
-  "Master of Arts (MA)",
-  "MA Arabic",
-  "MA Assamese",
-  "MA Bengali",
-  "MA Comparative Literature",
-  "MA Economics",
-  "MA Education",
-  "MA English",
-  "MA Fine Arts",
-  "MA French",
-  "MA Geography",
-  "MA German",
-  "MA Hindi",
-  "MA History",
-  "MA Islamic Studies",
-  "MA Journalism and Mass Communication",
-  "MA Linguistics",
-  "MA Marathi",
-  "MA Music",
-  "MA Persian",
-  "MA Philosophy",
-  "MA Political Science",
-  "MA Psychology",
-  "MA Public Administration",
-  "MA Punjabi",
-  "MA Sanskrit",
-  "MA Sociology",
-  "MA Tamil",
-  "MA Telugu",
-  "MA Urdu",
-  "MA Visual Arts",
-  // ... (add more if needed)
-];
-const teachingDesignationOptions = [
-  "HEADMASTER",
-  "HEADMASTER RMSA",
-  "JUNIOR ASSISTANT",
-  "LABORATORY ASSISTANT",
-  "MTS-LABORATORY BEARER",
-  "LECTURER",
-  "LECTURER PHYSICAL EDUCATION",
-  "LIBRARIAN",
-  "LIBRARIAN JUNIOR",
-  "LIBRARIAN SENIOR",
-  "LIBRARY ASSISTANT",
-  "MTS-SAFAIWALA",
-  "SPECIAL EDUCATION TEACHER",
-  // ... (add more if needed)
-];
-const nonTeachingDesignationOptions = [
-  "ACCOUNTANT",
-  "ACCOUNTS ASSISTANT",
-  "ASSISTANT DIRECTOR (P & S)",
-  "CEO",
-  "DRIVER",
-  "HEAD ASSISTANT",
-  "JUNIOR ASSISTANT",
-  "LABORATORY ASSISTANT",
-  "MTS-LABORATORY BEARER",
-  "SECTION OFFICER",
-  "SENIOR ASSISTANT",
-  "STATISTICAL ASSISTANT",
-  "STATISTICAL OFFICER",
-  "STENOGRAPHER",
-  "STENOGRAPHER JUNIOR",
-  "STENOGRAPHER SENIOR",
-  // ... (add more if needed)
-];
-const currentPayscaleOptions = [
-  "SL1 (14800-47100)",
-  "SL2 (15900-50400)",
-  "SL3 (16900-53500)",
-  "LEVEL-1 (18000-56900)",
-  "LEVEL-2 (19900-63200)",
-  "LEVEL-3A (25300-80500)",
-  "LEVEL-3B (25400-81000)",
-  "LEVEL-4 (25500-81100)",
-  "LEVEL-5 (29200-92300)",
-  "LEVEL-6 (35400-112400)",
-  "LEVEL-6A (35500-112600)",
-  "LEVEL-6B (35600-112800)",
-  "LEVEL-6C (35700-113100)",
-  "LEVEL-6D (35800-113200)",
-  "LEVEL-6E (35900-113500)",
-  "LEVEL-6F (40800-129200)",
-  "LEVEL-6G (42300-134300)",
-  "LEVEL-7 (44900-142400)",
-  "LEVEL-8 (47600-151100)",
-  "LEVEL-8A (50700-160600)",
-  "LEVEL-9 (52700-166700)",
-  "LEVEL-10A (56600-179800)",
-  "LEVEL-11 (66700-208700)",
-  "LEVEL-12 (78800-209200)",
-  "LEVEL-13 (123100-215900)",
-  "LEVEL-13A (131100-216600)",
-  "LEVEL-14 (144200-218200)",
-  "LEVEL-15 (182200-224100)",
-  "LEVEL-16 (205400-224400)",
-  "LEVEL-17 (225000)"
-];
-const pensionSchemeOptions = ["NPS", "OPS"];
+
 
 const genderOptions = ["Male", "Female", "Other"];
 
@@ -114,9 +14,62 @@ export default function EmployeeEditForm({ initialData,postingHistoryData, onSav
     ...initialData,
     postingHistory: postingHistoryData || []
   });
+
+  
+
+  const handleSave = () => {
+    const transformedPostingHistory = (formData.postingHistory || []).map(posting => {
+      // Use posting.office?.officeId if available, or posting.office if it is already an _id.
+      const officeId = posting.office?.officeId || posting.office;
+      const matchedOffice = offices.find(o => String(o._id) === String(officeId));
+      return {
+        ...posting,
+        // Assign the matched office's _id as the office value.
+        office: matchedOffice ? matchedOffice._id : "",
+        postingType: posting.postingType?.toLowerCase() || "",
+      };
+    });
+    
+    // Check if any posting is missing a valid office:
+    const isAnyPostingMissingOffice = transformedPostingHistory.some(p => !p.office);
+    if (isAnyPostingMissingOffice) {
+      alert("One or more postings are missing a valid office selection.");
+      return;
+    }
+  
+    onSave({
+      ...formData,
+      postingHistory: transformedPostingHistory,
+    });
+  };
   
   
-  console.log("Initial Data:", initialData);
+  
+  
+
+  const [officeOptions, setOfficeOptions] = useState([]);
+  const [offices, setOffices] = useState([]);
+
+  
+  console.log("Form Data:", formData);
+
+    useEffect(() => {
+      const fetchOffices = async () => {
+        try {
+          const response = await axiosClient.get("/offices");
+          console.log("Fetched Offices:", response.data.offices);
+          const options = response.data.offices.map((office) => ({
+            value: office._id,
+            label: `${office.officeName}`
+          }));
+          setOffices(response.data.offices);
+          setOfficeOptions(options);
+        } catch (err) {
+          console.error("Error fetching offices:", err);
+        }
+      };
+      fetchOffices();
+    }, []);
 
   useEffect(() => {
     if (initialData) {
@@ -227,8 +180,8 @@ export default function EmployeeEditForm({ initialData,postingHistoryData, onSav
         <select name="presentDesignation" value={formData.presentDesignation || ""} onChange={handleChange} className="border border-gray-300 rounded w-full p-2">
           <option value="">Select Designation</option>
           {formData.staffType === "Teaching"
-            ? teachingDesignationOptions.map((opt, idx) => <option key={idx} value={opt}>{opt}</option>)
-            : nonTeachingDesignationOptions.map((opt, idx) => <option key={idx} value={opt}>{opt}</option>)}
+            ? teachingPosts.map((opt, idx) => <option key={idx} value={opt}>{opt}</option>)
+            : nonTeachingPosts.map((opt, idx) => <option key={idx} value={opt}>{opt}</option>)}
         </select>
       </div>
 
@@ -261,6 +214,35 @@ export default function EmployeeEditForm({ initialData,postingHistoryData, onSav
         <label className="font-semibold text-gray-600 block mb-1">Actual Place of Posting</label>
         <input type="text" name="actualPlaceOfPosting" value={formData.actualPlaceOfPosting || ""} onChange={handleChange} className="border border-gray-300 rounded w-full p-2" />
       </div>
+
+      {/* Posted Office */}
+      <div>
+        <label className="font-semibold text-gray-600 block mb-1">Posted Office</label>
+        <Select
+          options={officeOptions}
+          value={officeOptions.find(opt => opt.value === formData.postedOffice) || null}
+          onChange={(selected) =>
+            setFormData(prev => ({ ...prev, postedOffice: selected?.value || "" }))
+          }
+          placeholder="Search and select office"
+          className="text-sm"
+        />
+      </div>
+
+      {/* Working Office */}
+      <div>
+        <label className="font-semibold text-gray-600 block mb-1">Working Office</label>
+        <Select
+          options={officeOptions}
+          value={officeOptions.find(opt => opt.value === formData.workingOffice) || null}
+          onChange={(selected) =>
+            setFormData(prev => ({ ...prev, workingOffice: selected?.value || "" }))
+          }
+          placeholder="Search and select office"
+          className="text-sm"
+        />
+      </div>
+
 
       {/* Working At */}
       {/* <div>
@@ -376,8 +358,20 @@ export default function EmployeeEditForm({ initialData,postingHistoryData, onSav
       {/* Current Basic Pay */}
       <div>
         <label className="font-semibold text-gray-600 block mb-1">Current Basic Pay</label>
-        <input type="text" name="currentBasicPay" value={formData.currentBasicPay || ""} onChange={handleChange} className="border border-gray-300 rounded w-full p-2" />
+        <select
+          name="basicPay"
+          value={formData.basicPay || ""}
+          onChange={handleChange}
+          className="border border-gray-300 rounded w-full p-2"
+          disabled={!formData.payScaleAndLevel}
+        >
+          <option value="">Select Basic Pay</option>
+          {(basicPayByPayscale[formData.payScaleAndLevel] || []).map((pay, idx) => (
+            <option key={idx} value={pay}>{pay}</option>
+          ))}
+        </select>
       </div>
+
 
       {/* Gross Salary */}
       <div>
@@ -396,11 +390,6 @@ export default function EmployeeEditForm({ initialData,postingHistoryData, onSav
         </select>
       </div>
 
-      {/* Credentials - Username */}
-      <div>
-        <label className="font-semibold text-gray-600 block mb-1">Username</label>
-        <input type="text" name="credentials.username" value={formData.credentials?.username || ""} onChange={(e) => setFormData(prev => ({ ...prev, credentials: { ...prev.credentials, username: e.target.value } }))} className="border border-gray-300 rounded w-full p-2" />
-      </div>
       {/* Credentials - Password */}
       <div>
         <label className="font-semibold text-gray-600 block mb-1">Password</label>
@@ -419,61 +408,96 @@ export default function EmployeeEditForm({ initialData,postingHistoryData, onSav
       
       {/* Posting Details Section */}
 <div>
-  <label className="font-semibold text-gray-600 block mb-1">Posting Details</label>
+  <label className="font-semibold text-gray-600 block mb-1">Posting History</label>
   {(formData.postingHistory || []).length > 0 && (formData.postingHistory || []).map((posting, index) => (
       <div key={index} className="border p-2 rounded mb-2">
-        <input 
-          type="text" 
-          name="officeId" 
-          placeholder="Office ID" 
-          value={posting.office?.officeId || ""} 
+        <div>
+          <label className="font-semibold text-gray-600 block mb-1">Posting Office</label>
+          <Select
+            options={officeOptions}
+            value={
+              posting.office?.officeId
+                ? {
+                    value: posting.office.officeId,
+                    label:
+                      posting.office.officeName ||
+                      officeOptions.find(opt => opt.value === posting.office.officeId)?.label ||
+                      "Unknown Office",
+                  }
+                : null
+            }            
+            onChange={(selected) => {
+              const updatedPosting = {
+                ...posting,
+                office: {
+                  ...posting.office,
+                  officeId: selected?.value || "",
+                  officeName: selected?.label || "" // optional: auto-fill name
+                }
+              };
+              const updatedPostings = (formData.postingHistory || []).map((p, i) =>
+                i === index ? updatedPosting : p
+              );
+              setFormData({ ...formData, postingHistory: updatedPostings });
+            }}
+            placeholder="Search and select office"
+            className="text-sm mb-1"
+          />
+        </div>
+
+        <div>
+          <label className="font-semibold text-gray-600 block mb-1">Designation During Posting</label>
+          <Select
+            options={[
+              ...teachingPosts.map((item) => ({ label: item, value: item })),
+              ...nonTeachingPosts.map((item) => ({ label: item, value: item })),
+            ]}
+            value={
+              posting.designationDuringPosting
+                ? { label: posting.designationDuringPosting, value: posting.designationDuringPosting }
+                : null
+            }
+            onChange={(selected) => {
+              const fakeEvent = {
+                target: {
+                  name: "designationDuringPosting",
+                  value: selected?.value || "",
+                },
+              };
+
+              const updatedPosting = { ...posting, designationDuringPosting: fakeEvent.target.value };
+              const updatedPostings = (formData.postingHistory || []).map((p, i) =>
+                i === index ? updatedPosting : p
+              );
+              setFormData({ ...formData, postingHistory: updatedPostings });
+            }}
+            placeholder="Select Designation"
+            className="text-sm mb-1"
+          />
+        </div>
+        <div>
+        <label className="font-semibold text-gray-600 block mb-1">Posting Type</label>
+        <select
+          name="postingType"
+          value={posting.postingType || ""}
           onChange={(e) => {
-            const updatedPosting = { 
-              ...posting, 
-              office: { ...posting.office, officeId: e.target.value } 
-            };
-            const updatedPostings = (formData.postingHistory || []).map((p, i) =>
+            const updatedPosting = { ...posting, postingType: e.target.value };
+            const updatedPostings = formData.postingHistory.map((p, i) =>
               i === index ? updatedPosting : p
             );
             setFormData({ ...formData, postingHistory: updatedPostings });
           }}
-          
-          className="border rounded w-full p-1 mb-1" 
-        />
-        
-        <input 
-          type="text" 
-          name="officeName" 
-          placeholder="Office Name" 
-          value={posting.office?.officeName || ""} 
-          onChange={(e) => {
-            const updatedPosting = { 
-              ...posting, 
-              office: { ...posting.office, officeName: e.target.value } 
-            };
-            const updatedPostings = (formData.postingHistory || []).map((p, i) =>
-              i === index ? updatedPosting : p
-            );
-            setFormData({ ...formData, postingHistory: updatedPostings });
-          }} 
-          className="border rounded w-full p-1 mb-1" 
-        />
-
-        <input 
-          type="text" 
-          name="designationDuringPosting" 
-          placeholder="Designation During Posting" 
-          value={posting.designationDuringPosting || ""} 
-          onChange={(e) => {
-            const updatedPosting = { ...posting, designationDuringPosting: e.target.value };
-            const updatedPostings =(formData.postingHistory || []).map((p, i) =>
-              i === index ? updatedPosting : p
-            );
-            setFormData({ ...formData, postingHistory: updatedPostings });
-          }} 
-          className="border rounded w-full p-1 mb-1" 
-        />
-
+          className="border rounded w-full p-1 mb-1"
+        >
+          <option value="">Select Posting Type</option>
+          <option value="Transfer">Transfer</option>
+          <option value="Promotion">Promotion</option>
+          <option value="Deputation">Deputation</option>
+          <option value="Initial">Initial</option>
+        </select>
+      </div>
+        <div>
+        <label className="font-semibold text-gray-600 block mb-1">Start Date</label>
         <input 
           type="date" 
           name="startDate" 
@@ -487,7 +511,9 @@ export default function EmployeeEditForm({ initialData,postingHistoryData, onSav
           }} 
           className="border rounded w-full p-1 mb-1" 
         />
-
+        </div>
+        <div>
+        <label className="font-semibold text-gray-600 block mb-1">End Date</label>
         <input 
           type="date" 
           name="endDate" 
@@ -501,14 +527,50 @@ export default function EmployeeEditForm({ initialData,postingHistoryData, onSav
           }} 
           className="border rounded w-full p-1 mb-1" 
         />
+        </div>
 
-        <button 
-          onClick={() => {
-            const updatedPostings = (formData.postingHistory || []).filter((_, i) => i !== index);
-            setFormData({ ...formData, postingHistory: updatedPostings });
-          }} 
-          className="text-red-500 text-xs"
-        >
+        <div>
+          <label className="font-semibold text-gray-600 block mb-1">Reason</label>
+          <input
+            type="text"
+            name="reason"
+            value={posting.reason || ""}
+            onChange={(e) => {
+              const updatedPosting = { ...posting, reason: e.target.value };
+              const updatedPostings = (formData.postingHistory || []).map((p, i) =>
+                i === index ? updatedPosting : p
+              );
+              setFormData({ ...formData, postingHistory: updatedPostings });
+            }}
+            className="border rounded w-full p-1 mb-1"
+          />
+        </div>
+
+        {/* Remarks */}
+        <div>
+          <label className="font-semibold text-gray-600 block mb-1">Remarks</label>
+          <input
+            type="text"
+            name="remarks"
+            value={posting.remarks || ""}
+            onChange={(e) => {
+              const updatedPosting = { ...posting, remarks: e.target.value };
+              const updatedPostings = (formData.postingHistory || []).map((p, i) =>
+                i === index ? updatedPosting : p
+              );
+              setFormData({ ...formData, postingHistory: updatedPostings });
+            }}
+            className="border rounded w-full p-1 mb-1"
+          />
+        </div>
+
+        <button
+        onClick={() => {
+          const updatedPostings = formData.postingHistory.filter((_, i) => i !== index);
+          setFormData({ ...formData, postingHistory: updatedPostings });
+        }}
+        className="text-red-500 text-xs"
+      >
           Remove
         </button>
 
@@ -516,19 +578,22 @@ export default function EmployeeEditForm({ initialData,postingHistoryData, onSav
     ))
   }
 
-<button 
-  onClick={() => {
-    const newPosting = { 
-      office: { officeId: "", officeName: "" },
-      designationDuringPosting: "", 
-      startDate: "", 
-      endDate: "" 
-    };
-    const updatedPostings = [...(formData.postingHistory || []), newPosting];
-    setFormData({ ...formData, postingHistory: updatedPostings });
-  }} 
-  className="bg-blue-500 text-white px-3 py-1 rounded text-sm mt-2"
->
+<button
+    onClick={() => {
+      const newPosting = {
+        office: { officeId: "", officeName: "" },
+        designationDuringPosting: "",
+        startDate: "",
+        endDate: "",
+        postingType: "", 
+        reason: "",
+        remarks: ""
+      };
+      const updatedPostings = [...(formData.postingHistory || []), newPosting];
+      setFormData({ ...formData, postingHistory: updatedPostings });
+    }}
+    className="bg-blue-500 text-white px-3 py-1 rounded text-sm mt-2"
+  >
   Add Posting
 </button>
 
@@ -538,7 +603,7 @@ export default function EmployeeEditForm({ initialData,postingHistoryData, onSav
 
 
             <div className="mt-4 flex gap-4">
-              <button onClick={() => onSave(formData)} className="font-semibold text-[13px] px-4 py-2 bg-primary text-white rounded transition hover:bg-blue-600">
+              <button onClick={handleSave} className="font-semibold text-[13px] px-4 py-2 bg-primary text-white rounded transition hover:bg-blue-600">
                 Save
               </button>
               <button onClick={onCancel} className="font-semibold text-[13px] px-4 py-2 transition bg-gray-300 text-gray-700 rounded hover:bg-gray-400">

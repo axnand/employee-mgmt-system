@@ -15,7 +15,7 @@ export default function AddOffice() {
   const { user } = useUser();
   const zoneId = user?.zoneId;  
   const districtId = user?.districtId; 
-  const [officeId, setOfficeId] = useState("");
+
   const [officeName, setOfficeName] = useState("");
   const [officeType, setOfficeType] = useState("Administrative");
   const [isDdo, setIsDdo] = useState(false);
@@ -42,7 +42,6 @@ export default function AddOffice() {
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ["offices"] });
       toast.success("Office added successfully!");
-      setOfficeId("");
       setOfficeName("");
       setOfficeType("Administrative");
       setIsDdo(false);
@@ -87,13 +86,8 @@ export default function AddOffice() {
       setError("Zone ID is missing. Please contact your administrator.");
       return;
     }
-    if (!officeId) {
-      setError("Office ID is required.");
-      return;
-    }
 
     const officeData = {
-      officeId,
       officeName,
       officeType,
       zone: zoneId,
@@ -131,16 +125,7 @@ export default function AddOffice() {
       {error && <p className="text-red-500 mb-4">{error}</p>}
       {success && <div className="mb-4 text-green-500 text-sm">{success}</div>}
       <form onSubmit={handleSubmit} className="space-y-4">
-      <div>
-      <label className="block text-sm font-medium text-gray-700">Office ID</label>
-          <input
-            type="text"
-            value={officeId}
-            onChange={(e) => setOfficeId(e.target.value)}
-             className="w-full p-2 border border-gray-300 rounded mt-1"
-            required
-          />
-        </div>
+      
         <div>
           <label className="block text-sm font-medium text-gray-700">Office Name</label>
           <input

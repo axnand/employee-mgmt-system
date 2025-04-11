@@ -9,8 +9,7 @@ const PostingHistorySchema = new mongoose.Schema(
     endDate: { type: Date },
     postingType: { 
       type: String, 
-      required: true, 
-      enum: ['Transfer', 'Deputation', 'Attachment', 'Other'] 
+      required: true,
     },
     reason: { type: String },
     remarks: { type: String },

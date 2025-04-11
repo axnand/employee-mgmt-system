@@ -148,10 +148,6 @@ export default function CeoOffice() {
       </div>
 
       <div className="mt-4 space-y-3">
-        <p className="flex items-center text-gray-600">
-          <BadgeInfo className="w-5 h-5 text-secondary mr-2" />
-          <span className="font-semibold text-secondary mr-1">Office ID:</span> {officeInfo.officeId}
-        </p>
 
         <p className="flex items-center text-gray-600">
           <BadgeInfo className="w-5 h-5 text-secondary mr-2" />

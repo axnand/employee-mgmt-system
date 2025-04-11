@@ -41,8 +41,7 @@ export default function EditSchoolModal({ school, onClose }) {
 
   const mutation = useMutation({
     mutationFn: (data) => {
-      // Ensure the API request returns the school data
-      return updateSchool(school._id, data); // This will return the updated school object from the API
+      return updateSchool(school._id, data); 
     },
     onSuccess: (data) => {  // `data` here is the response returned by the mutationFn
       queryClient.invalidateQueries({ queryKey: ["school", school._id] });

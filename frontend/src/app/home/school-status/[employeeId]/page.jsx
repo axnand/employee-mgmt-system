@@ -333,12 +333,6 @@ console.log("Token from localStorage:", token);
             <span className="text-gray-600 font-medium">{employee.parentageOrSpouse || "N/A"}</span>
           </p>
           <p>
-            <span className="font-semibold text-gray-600 mr-1">Username:</span>
-            <span className="text-gray-600 font-medium" style={{ textTransform: 'none' }}>
-              {employee.credentials.username || "N/A"}
-            </span>
-          </p>
-          <p>
             <span className="font-semibold text-gray-600 mr-1">Password:</span>
             <span className="text-gray-600 font-medium" style={{ textTransform: 'none' }}>
               {employee.credentials.passwordHash || "N/A"}
@@ -404,10 +398,6 @@ console.log("Token from localStorage:", token);
           <p>
             <span className="font-semibold text-gray-600 mr-1">Actual Place of Posting:</span>
             <span className="text-gray-600 font-medium">{employee.actualPlaceOfPosting || "N/A"}</span>
-          </p>
-          <p>
-            <span className="font-semibold text-gray-600 mr-1">Working At:</span>
-            <span className="text-gray-600 font-medium">{employee.workingAt || "N/A"}</span>
           </p>
           
           <p>

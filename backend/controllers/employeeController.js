@@ -135,15 +135,52 @@ export const createEmployee = async (req, res) => {
 
 
 export const updateEmployee = async (req, res) => {
+  const session = await mongoose.startSession();
+  session.startTransaction();
   try {
+    const employeeId = req.params.id;
+
+    // 1. Update Employee
     const updatedEmployee = await Employee.findByIdAndUpdate(
-      req.params.id,
+      employeeId,
       req.body,
-      { new: true }
+      { new: true, session }
     );
     if (!updatedEmployee) {
+      await session.abortTransaction();
       return res.status(404).json({ message: "Employee not found" });
     }
+
+
+    if (req.body.postingHistory && Array.isArray(req.body.postingHistory)) {
+
+      await PostingHistory.deleteMany({ employee: employeeId }, { session });
+
+      const newPostings = req.body.postingHistory.map((posting) => {
+        const officeId =
+          typeof posting.office === "object"
+            ? posting.office._id || posting.office.officeId // fallback if somehow still has officeId
+            : posting.office;
+      
+        return {
+          employee: employeeId,
+          office: officeId,
+          designationDuringPosting: posting.designationDuringPosting,
+          startDate: posting.startDate,
+          endDate: posting.endDate,
+          postingType: posting.postingType?.toLowerCase(),
+          reason: posting.reason,
+          remarks: posting.remarks,
+        };
+      });
+      
+
+      if (newPostings.length > 0) {
+        await PostingHistory.insertMany(newPostings, { session });
+      }
+    }
+
+
     await createLog({
       admin: req.user.userId,
       role: req.user.role,
@@ -151,11 +188,18 @@ export const updateEmployee = async (req, res) => {
       description: `Updated employee ${updatedEmployee.fullName}`,
       ip: req.ip,
     });
+
+    await session.commitTransaction();
+    session.endSession();
+
     res.json(updatedEmployee);
   } catch (error) {
-    res.status(500).json({ message: "Error updating employee", error });
+    await session.abortTransaction();
+    session.endSession();
+    res.status(500).json({ message: "Error updating employee", error: error.message });
   }
 };
+
 
 export const deleteEmployee = async (req, res) => {
   try {

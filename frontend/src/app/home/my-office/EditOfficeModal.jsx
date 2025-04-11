@@ -85,17 +85,6 @@ export default function EditOfficeModal({ office, isOpen, onClose, onOfficeUpdat
       {/* Office Fields */}
       <div className="grid gap-4">
         <div>
-          <label className="block text-sm font-medium text-gray-600">Office ID</label>
-          <input
-            type="text"
-            name="officeId"
-            value={officeData.officeId || ""}
-            onChange={handleChange}
-            readOnly
-            className="w-full border border-gray-300 rounded-md px-3 py-2 mt-1 bg-gray-100 cursor-not-allowed"
-          />
-        </div>
-        <div>
           <label className="block text-sm font-medium text-gray-600">Office Name</label>
           <input
             type="text"

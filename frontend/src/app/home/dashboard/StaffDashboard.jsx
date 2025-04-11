@@ -140,9 +140,6 @@ export default function StaffDashboard() {
 <div className="mt-8 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 text-sm text-gray-600 font-medium">
 <div className="space-y-3">
   <p>
-    <strong className="mr-1">Username:</strong> {profile.credentials?.username || "N/A"}
-  </p>
-  <p>
     <strong className="mr-1">Gender:</strong> {profile.gender || "N/A"}
   </p>
   <p>
