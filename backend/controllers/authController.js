@@ -53,7 +53,6 @@ export const loginUser = async (req, res) => {
     const token = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: "1d" });
     await createLog({
       admin: userName,
-      // Map "admin" to "Super Admin" if necessary, otherwise just use the role string
       role: user.role === "admin" ? "Super Admin" : user.role,
       action: "Login",
       description: `${userName} logged in successfully as ${user.role}`,

@@ -17,7 +17,7 @@ const getDdoOfficerDetails = async (ddoOfficerId) => {
 export const getOffices = async (req, res) => {
   try {
     const offices = await Office.find()
-      .select("officeId officeName officeType ddoOfficerId isDdo ddoCode parentOffice contact address")
+      .select(" officeName officeType ddoOfficerId isDdo ddoCode parentOffice contact address")
       .populate("parentOffice", "officeName"); // No 'schools' population since it's not in the schema
     res.json({ offices });
   } catch (error) {
@@ -55,8 +55,7 @@ export const createOffice = async (req, res) => {
 
   session.startTransaction();
   try {
-    const { 
-      officeId, 
+    const {
       officeName, 
       officeType, 
       ddoOfficer, 
@@ -67,14 +66,13 @@ export const createOffice = async (req, res) => {
       zone, 
     } = req.body;
 
-    if (!officeId || !officeName || !officeType) {
+    if ( !officeName || !officeType) {
       return res.status(400).json({ message: "Office ID, name, and type are required" });
     }
 
     let schoolIds = [];
 
     const officeData = {
-      officeId,
       officeName,
       officeType,
       ddoOfficerId: ddoOfficer,

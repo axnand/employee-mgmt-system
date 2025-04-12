@@ -60,3 +60,10 @@
 2025-04-12 21:26:08 [INFO]: Action: Login - Performed by: zeo_test (ZEO) - Description: zeo_test logged in successfully as ZEO - IP: ::1
 2025-04-12 21:31:30 [INFO]: Action: Login - Performed by: zeo_bhalla (ZEO) - Description: zeo_bhalla logged in successfully as ZEO - IP: ::1
 2025-04-12 21:32:14 [INFO]: Action: Login - Performed by: zeo_bhaderwah (ZEO) - Description: zeo_bhaderwah logged in successfully as ZEO - IP: ::1
+2025-04-12 23:57:05 [INFO]: Action: Login - Performed by: ceoUser (CEO) - Description: ceoUser logged in successfully as CEO - IP: ::1
+2025-04-13 00:07:29 [INFO]: Action: Login - Performed by: ceoUser (CEO) - Description: ceoUser logged in successfully as CEO - IP: ::1
+2025-04-13 00:58:22 [INFO]: Action: Login - Performed by: ceoUser (CEO) - Description: ceoUser logged in successfully as CEO - IP: ::1
+2025-04-13 00:58:58 [INFO]: Action: Login - Performed by: zeo_bhalla (ZEO) - Description: zeo_bhalla logged in successfully as ZEO - IP: ::1
+2025-04-13 01:08:11 [INFO]: Action: Login - Performed by: schoolAdmin_20034 (schoolAdmin) - Description: schoolAdmin_20034 logged in successfully as schoolAdmin - IP: ::1
+2025-04-13 01:08:15 [INFO]: Action: Password Update - Performed by: schoolAdmin_20034 (schoolAdmin) - Description: User schoolAdmin_20034 updated their password. - IP: ::1
+2025-04-13 02:06:18 [INFO]: Action: Login - Performed by: schoolAdmin_20034 (schoolAdmin) - Description: schoolAdmin_20034 logged in successfully as schoolAdmin - IP: ::1

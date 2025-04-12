@@ -3,7 +3,6 @@ import mongoose from "mongoose";
 const SchoolSchema = new mongoose.Schema(
   {
     udiseId: { type: String, required: true, unique: true },
-    name: { type: String, required: true },
     principal: { type: String },
     zone: { type: mongoose.Schema.Types.ObjectId, ref: "Zone", default: null },
     office: { type: mongoose.Schema.Types.ObjectId, ref: "Office", default: null },
