@@ -135,20 +135,21 @@ export const getSchoolsByZoneId = async (req, res) => {
   try {
     const { zoneId } = req.params;
 
-    // Fetch all schools associated with the zone
     const schools = await School.find({ zone: zoneId })
       .populate("zone")
       .populate("office");
 
+    // Instead of returning 404, return empty array with 200
     if (!schools.length) {
-      return res.status(404).json({ message: "No schools found for the given zone." });
+      return res.status(200).json([]);
     }
 
-    res.json(schools);
+    res.status(200).json(schools);
   } catch (error) {
     res.status(500).json({ message: "Error fetching schools by zone", error: error.message });
   }
 };
+
 
 // Fetch all schools under a specific Office
 export const getSchoolsByOfficeId = async (req, res) => {
@@ -160,16 +161,16 @@ export const getSchoolsByOfficeId = async (req, res) => {
       .populate("office");
 
     if (!schools.length) {
-      return res.status(404).json({ message: "No schools found for the given office." });
+      return res.status(200).json([]);
     }
 
-    res.json(schools);
+    res.status(200).json(schools);
   } catch (error) {
     res.status(500).json({ message: "Error fetching schools by office", error: error.message });
   }
 };
 
-// Fetch all schools under a specific District
+
 export const getSchoolsByDistrictId = async (req, res) => {
   try {
     const { districtId } = req.params;

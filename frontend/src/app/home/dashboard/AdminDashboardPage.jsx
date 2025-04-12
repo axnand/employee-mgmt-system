@@ -25,9 +25,26 @@ import { useQuery } from "@tanstack/react-query";
 import { useUser } from "@/context/UserContext";
 import axiosClient from "@/api/axiosClient";
 
-const fetchEmployees = async () => {
-  const res = await axiosClient.get("/employees");
-  return Array.isArray(res.data) ? res.data : res.data.employees || [];
+
+const fetchEmployeesByRole = async (role, zoneId, officeId) => {
+  try {
+    if (role === "CEO") {
+      const res = await axiosClient.get("/employees");
+      return Array.isArray(res.data) ? res.data : res.data.employees || [];
+    } else if (role === "ZEO" && zoneId) {
+      const res = await axiosClient.get(`/zones/${zoneId}/employees/count`);
+      console.log("Zone employees response:", res.data);
+      return { count: res.data.count };
+    } else if (role === "schoolAdmin" && officeId) {
+      const res = await axiosClient.get(`/employees/office/${officeId}`);
+      return Array.isArray(res.data) ? res.data : res.data.employees || [];
+    } else {
+      return [];
+    }
+  } catch (err) {
+    console.error("Error fetching employee data:", err);
+    return [];
+  }
 };
 
 
@@ -50,7 +67,9 @@ const fetchEmployees = async () => {
 
 
 
+// Fetch enrollment trends (if available; otherwise, use sample data)
 const fetchEnrollmentTrends = async () => {
+  // Replace with your real endpoint if available.
   return [
     { year: "2018", students: 1200 },
     { year: "2019", students: 1300 },
@@ -61,10 +80,16 @@ const fetchEnrollmentTrends = async () => {
   ];
 };
 
-
+// Fetch recent activities (logs) for the dashboard
 const fetchRecentActivities = async () => {
-  const res = await axiosClient.get("/logs");
-  return res?.data?.logs.slice(0, 3);
+  try {
+    const res = await axiosClient.get("/logs");
+    // Assume logs are sorted descending by createdAt; take top 3.
+    return res?.data?.logs?.slice(0, 3) || [];
+  } catch (error) {
+    console.error("Error fetching recent activities:", error);
+    return []; // Return empty array on error
+  }
 };
 
 // Fetch retirement employees based on filterDays; expects endpoint with query param.
@@ -76,31 +101,28 @@ const fetchRecentActivities = async () => {
 const fetchSchools = async (role, districtId, zoneId, officeId) => {
   try {
     let response;
+
     if (role === "CEO" && districtId) {
-      try {
-        response = await axiosClient.get(`/schools/district/${districtId}`);
-      } catch (error) {
-        console.warn(`Error fetching schools for district ${districtId}:`, error.message);
-        return [];
-      }
+      response = await axiosClient.get(`/schools/district/${districtId}`);
     } else if (role === "ZEO" && zoneId) {
-      try {
-        response = await axiosClient.get(`/schools/zone/${zoneId}`);
-      } catch (error) {
-        console.warn(`Error fetching schools for zone ${zoneId}:`, error.message);
-        return [];
-      }
-    } else if (role === "schoolAdmin" && officeId) {try {
+      response = await axiosClient.get(`/schools/zone/${zoneId}`);
+    } else if (role === "schoolAdmin" && officeId) {
       response = await axiosClient.get(`/schools/office/${officeId}`);
-    } catch (error) {
-      console.warn(`Error fetching schools for office ${officeId}:`, error.message);
-      return [];
-    }
     } else {
       console.warn("Invalid role or missing parameters in fetchSchools.");
       return [];
     }
-    
+
+    // If API returns error with a message like "No schools found for the given zone."
+    if (
+      response.data &&
+      typeof response.data === "object" &&
+      response.data.message?.toLowerCase().includes("no schools found")
+    ) {
+      return [];
+    }
+
+    // Safely handle all data return types
     if (Array.isArray(response.data)) {
       return response.data;
     } else if (response.data && Array.isArray(response.data.schools)) {
@@ -109,79 +131,102 @@ const fetchSchools = async (role, districtId, zoneId, officeId) => {
       return [];
     }
   } catch (error) {
-    console.error("Error fetching schools:", error);
-    return [];
+    console.warn("Error fetching schools:", error?.response?.data?.message || error.message);
+    return []; // fallback safely
   }
 };
 
 
 
 
+// ---------- Dashboard Component ----------
 
 export default function ZonalAdminDashboard() {
   const [filterDays, setFilterDays] = useState(30);
-  const { userRole, user } = useUser(); 
+  const { userRole, user } = useUser();  // Assuming user role and user data are in the context
   const userDistrictId = user?.districtId;
   const userZoneId = user?.zoneId;
   const userOfficeId = user?.officeId;
 
+
   const { data: schools = [], error, isLoading } = useQuery({
     queryKey: ["schools", userRole, userDistrictId, userZoneId, userOfficeId],
     queryFn: () => fetchSchools(userRole, userDistrictId, userZoneId, userOfficeId),
+    onError: (error) => {
+      console.error("Failed to fetch schools:", error);
+    },
+    retry: false,
   });
 
 
-  const { data: employees = [] } = useQuery({
-    queryKey: ["employees"],
-    queryFn: fetchEmployees,
-  });
 
-  console.log("employees", employees);
-  // const { data: transfers = [] } = useQuery({
-  //   queryKey: ["transfers"],
-  //   queryFn: fetchTransfers,
-  // });
+  // Use react-query to fetch data from the backend.
+  
+  const { data: employeeData = [] } = useQuery({
+      queryKey: ["employees", userRole, userZoneId, userOfficeId],
+      queryFn: () => fetchEmployeesByRole(userRole, userZoneId, userOfficeId),
+    });
+  
   const { data: enrollmentData = [] } = useQuery({
     queryKey: ["enrollmentTrends"],
     queryFn: fetchEnrollmentTrends,
+    // Don't retry on error
+    retry: false,
   });
+  
   const { data: recentActivities = [] } = useQuery({
     queryKey: ["recentActivities"],
     queryFn: fetchRecentActivities,
+    // Don't retry on error
+    retry: false,
   });
   // const { data: retirementEmployees = [] } = useQuery({
   //   queryKey: ["retirements", filterDays],
   //   queryFn: () => fetchRetirements(filterDays),
   //   keepPreviousData: true,
   // });
+
+  // ---------- Derived Metrics ----------
+
   const safeSchools = Array.isArray(schools) ? schools : [];
   const totalSchools = safeSchools.length;
   const totalStudents = safeSchools.reduce(
     (acc, school) => acc + (school.numberOfStudents || 0),
     0
   );
-  const totalStaff = Array.isArray(employees) ? employees.length : 0;
+  const totalStaff =
+  userRole === "ZEO" ? employeeData.count || 0 : employeeData.length;
 
   // const safeTransfers = Array.isArray(transfers) ? transfers : [];
   // const pendingTransfers = safeTransfers.filter((t) => t.status === "pending").length;
 
 
   // Staff distribution: count based on staffType.
-  const safeEmployees = Array.isArray(employees) ? employees : [];
+  const safeEmployees =
+  userRole === "ZEO" ? [] : Array.isArray(employeeData) ? employeeData : [];
 
-  const teachingCount = employees.filter(
-    (emp) => emp.staffType?.toLowerCase() === "teaching"
-  ).length;
-  
-  const nonTeachingCount = employees.filter(
-    (emp) => emp.staffType?.toLowerCase() === "non-teaching"
-  ).length;
+const teachingCount = safeEmployees.filter(
+  (emp) => emp.staffType?.toLowerCase() === "teaching"
+).length;
+
+const nonTeachingCount = safeEmployees.filter(
+  (emp) => emp.staffType?.toLowerCase() === "non-teaching"
+).length;
+
   
   const staffData = [
     { name: "Teaching", value: teachingCount },
     { name: "Non-Teaching", value: nonTeachingCount },
   ];
   const COLORS = ["#0088FE", "#00C49F"];
+
+  if (isLoading) {
+    return (
+      <div className="flex justify-center items-center h-full">
+              <div className="border-t-transparent border-[#377DFF] w-8 h-8 border-4 border-solid rounded-full animate-spin"></div>
+            </div>
+    );
+  }
 
   return (
     <div className="grid grid-cols-1 gap-4">
@@ -196,7 +241,7 @@ export default function ZonalAdminDashboard() {
             </h3>
           </div>
           <p className="text-[13px] pt-1 text-gray-600">
-            Number of schools in the district
+            Number of schools 
           </p>
           <div className="text-2xl font-bold text-gray-800">
             {totalSchools}
@@ -283,9 +328,9 @@ export default function ZonalAdminDashboard() {
           <h3 className="text-xl font-bold mb-6 text-gray-800">
             Staff Distribution
           </h3>
-          <ResponsiveContainer width="100%" height={300} >
+          <ResponsiveContainer width="100%" height={300}>
             <PieChart>
-              <Pie data={staffData} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={80} label >
+              <Pie data={staffData} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={80} label>
                 {staffData.map((entry, index) => (
                   <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                 ))}

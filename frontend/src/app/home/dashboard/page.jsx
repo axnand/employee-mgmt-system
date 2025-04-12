@@ -11,12 +11,8 @@ function page() {
   const{user , userRole} = useUser();
   return (
     <>
-    {userRole === "CEO" && <AdminDashboardPage/>}
-    {userRole === "ZEO" && <ZonalAdminDashboard/>}
-    {userRole === "schoolAdmin" && <SchoolAdminDashboard/>}
-    {userRole === "staff" && <StaffDashboard/>}
+    {userRole === "staff" ? <StaffDashboard/>: <AdminDashboardPage/>}
     </>
-    
   )
 }
 

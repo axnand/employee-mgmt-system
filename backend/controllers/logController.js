@@ -86,16 +86,21 @@ export const getLastLogin = async (req, res) => {
       admin: username,
       action: "Login"
     })
-    .sort({ createdAt: -1 })
-    .skip(1) 
-    .limit(1) 
-    .exec();
+      .sort({ createdAt: -1 })
+      .skip(1)
+      .limit(1)
+      .exec();
 
+    // If no login found, return empty object with defaults
     if (!lastLoginLog) {
-      return res.status(404).json({ message: "No login record found" });
+      return res.status(200).json({
+        lastLogin: null,
+        ip: null,
+        message: "No previous login record found"
+      });
     }
 
-    res.json({
+    res.status(200).json({
       lastLogin: new Date(lastLoginLog.createdAt).toLocaleString(),
       ip: lastLoginLog.ip,
     });
@@ -104,3 +109,4 @@ export const getLastLogin = async (req, res) => {
     res.status(500).json({ message: "Error fetching last login", error });
   }
 };
+

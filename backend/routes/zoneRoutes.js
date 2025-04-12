@@ -4,7 +4,8 @@ import {
   createZone,
   updateZone,
   deleteZone,
-  getZoneById
+  getZoneById,
+  getEmployeeCountInZone
 } from "../controllers/zoneController.js";
 import { protect, authorizeRoles } from "../middleware/authMiddleware.js";
 
@@ -14,5 +15,6 @@ router.post("/", protect, authorizeRoles("CEO"), createZone);
 router.put("/:zoneId", protect, authorizeRoles("CEO"), updateZone);
 router.delete("/:zoneId", protect, authorizeRoles("CEO"), deleteZone);
 router.get("/:zoneId", protect, getZoneById);
+router.get("/:zoneId/employees/count", getEmployeeCountInZone);
 
 export default router;

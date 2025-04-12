@@ -4,6 +4,7 @@ import District from "../models/District.js";
 import User from "../models/User.js";
 import Office from "../models/Office.js";
 import mongoose from "mongoose";
+import Employee from "../models/Employee.js";
 
 
 export const getZones = async (req, res) => {
@@ -151,5 +152,24 @@ export const deleteZone = async (req, res) => {
     res.json({ message: "Zone deleted successfully" });
   } catch (error) {
     res.status(500).json({ message: "Error deleting zone", error: error.message });
+  }
+};
+
+export const getEmployeeCountInZone = async (req, res) => {
+  try {
+    const { zoneId } = req.params;
+
+    const zone = await Zone.findById(zoneId).populate("offices");
+
+    if (!zone) return res.status(404).json({ message: "Zone not found" });
+
+    const officeIds = zone.offices.map((office) => office._id);
+
+    const count = await Employee.countDocuments({ office: { $in: officeIds } });
+
+    return res.json({ count });
+  } catch (err) {
+    console.error("Error in getEmployeeCountInZone:", err);
+    res.status(500).json({ message: "Internal server error" });
   }
 };

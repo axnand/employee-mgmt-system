@@ -26,16 +26,24 @@ import { useUser } from "@/context/UserContext";
 import axiosClient from "@/api/axiosClient";
 
 
-const fetchEmployees = async () => {
+const fetchEmployeesByRole = async (role, zoneId, officeId) => {
   try {
-    const res = await axiosClient.get("/employees");
-    console.log("Employees response:", res.data);
-    // If res.data is an array, return it;
-    // if it's an object with an "employees" key, return that.
-    return Array.isArray(res.data) ? res.data : res.data.employees || [];
-  } catch (error) {
-    console.error("Error fetching employees:", error);
-    return []; // Return empty array on error
+    if (role === "CEO") {
+      const res = await axiosClient.get("/employees");
+      return Array.isArray(res.data) ? res.data : res.data.employees || [];
+    } else if (role === "ZEO" && zoneId) {
+      const res = await axiosClient.get(`/zones/${zoneId}/employees/count`);
+      console.log("Zone employees response:", res.data);
+      return { count: res.data.count };
+    } else if (role === "schoolAdmin" && officeId) {
+      const res = await axiosClient.get(`/employees/office/${officeId}`);
+      return Array.isArray(res.data) ? res.data : res.data.employees || [];
+    } else {
+      return [];
+    }
+  } catch (err) {
+    console.error("Error fetching employee data:", err);
+    return [];
   }
 };
 
@@ -93,36 +101,28 @@ const fetchRecentActivities = async () => {
 const fetchSchools = async (role, districtId, zoneId, officeId) => {
   try {
     let response;
+
     if (role === "CEO" && districtId) {
-      try {
-        response = await axiosClient.get(`/schools/district/${districtId}`);
-      } catch (error) {
-        console.warn(`Error fetching schools for district ${districtId}:`, error.message);
-        // Return empty array instead of throwing error
-        return [];
-      }
+      response = await axiosClient.get(`/schools/district/${districtId}`);
     } else if (role === "ZEO" && zoneId) {
-      try {
-        response = await axiosClient.get(`/schools/zone/${zoneId}`);
-      } catch (error) {
-        console.warn(`Error fetching schools for zone ${zoneId}:`, error.message);
-        // Return empty array instead of throwing error
-        return [];
-      }
+      response = await axiosClient.get(`/schools/zone/${zoneId}`);
     } else if (role === "schoolAdmin" && officeId) {
-      try {
-        response = await axiosClient.get(`/schools/office/${officeId}`);
-      } catch (error) {
-        console.warn(`Error fetching schools for office ${officeId}:`, error.message);
-        // Return empty array instead of throwing error
-        return [];
-      }
+      response = await axiosClient.get(`/schools/office/${officeId}`);
     } else {
       console.warn("Invalid role or missing parameters in fetchSchools.");
-      return []; // Return empty array instead of throwing error
+      return [];
     }
-    
-    // Ensure we return an array.
+
+    // If API returns error with a message like "No schools found for the given zone."
+    if (
+      response.data &&
+      typeof response.data === "object" &&
+      response.data.message?.toLowerCase().includes("no schools found")
+    ) {
+      return [];
+    }
+
+    // Safely handle all data return types
     if (Array.isArray(response.data)) {
       return response.data;
     } else if (response.data && Array.isArray(response.data.schools)) {
@@ -131,11 +131,11 @@ const fetchSchools = async (role, districtId, zoneId, officeId) => {
       return [];
     }
   } catch (error) {
-    console.error("Error fetching schools:", error);
-    // Return an empty array instead of throwing the error
-    return [];
+    console.warn("Error fetching schools:", error?.response?.data?.message || error.message);
+    return []; // fallback safely
   }
 };
+
 
 
 
@@ -162,12 +162,10 @@ export default function ZonalAdminDashboard() {
 
   // Use react-query to fetch data from the backend.
   
-  const { data: employees = [] } = useQuery({
-    queryKey: ["employees"],
-    queryFn: fetchEmployees,
-    // Don't retry on error
-    retry: false,
-  });
+  const { data: employeeData = [] } = useQuery({
+      queryKey: ["employees", userRole, userZoneId, userOfficeId],
+      queryFn: () => fetchEmployeesByRole(userRole, userZoneId, userOfficeId),
+    });
   
   const { data: enrollmentData = [] } = useQuery({
     queryKey: ["enrollmentTrends"],
@@ -196,22 +194,25 @@ export default function ZonalAdminDashboard() {
     (acc, school) => acc + (school.numberOfStudents || 0),
     0
   );
-  const totalStaff = Array.isArray(employees) ? employees.length : 0;
+  const totalStaff =
+  userRole === "ZEO" ? employeeData.count || 0 : employeeData.length;
 
   // const safeTransfers = Array.isArray(transfers) ? transfers : [];
   // const pendingTransfers = safeTransfers.filter((t) => t.status === "pending").length;
 
 
   // Staff distribution: count based on staffType.
-  const safeEmployees = Array.isArray(employees) ? employees : [];
+  const safeEmployees =
+  userRole === "ZEO" ? [] : Array.isArray(employeeData) ? employeeData : [];
 
-  const teachingCount = employees.filter(
-    (emp) => emp.staffType?.toLowerCase() === "teaching"
-  ).length;
-  
-  const nonTeachingCount = employees.filter(
-    (emp) => emp.staffType?.toLowerCase() === "non-teaching"
-  ).length;
+const teachingCount = safeEmployees.filter(
+  (emp) => emp.staffType?.toLowerCase() === "teaching"
+).length;
+
+const nonTeachingCount = safeEmployees.filter(
+  (emp) => emp.staffType?.toLowerCase() === "non-teaching"
+).length;
+
   
   const staffData = [
     { name: "Teaching", value: teachingCount },
@@ -240,7 +241,7 @@ export default function ZonalAdminDashboard() {
             </h3>
           </div>
           <p className="text-[13px] pt-1 text-gray-600">
-            Number of schools in the district
+            Number of schools 
           </p>
           <div className="text-2xl font-bold text-gray-800">
             {totalSchools}

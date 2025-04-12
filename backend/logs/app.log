@@ -51,3 +51,12 @@
 2025-04-12 15:27:21 [INFO]: Action: Update Employee - Performed by: 67f6d109106db152ce7959ac (CEO) - Description: Updated employee Ramesh Yadav - IP: ::1
 2025-04-12 15:27:51 [INFO]: Action: Update Employee - Performed by: 67f6d109106db152ce7959ac (CEO) - Description: Updated employee Ramesh Yadav - IP: ::1
 2025-04-12 19:10:34 [INFO]: Action: Employee Creation - Performed by: 67f6d109106db152ce7959ac (CEO) - Description: Created employee nIDHI - IP: ::1
+2025-04-12 19:33:05 [INFO]: Action: Login - Performed by: zeo_bhalla (ZEO) - Description: zeo_bhalla logged in successfully as ZEO - IP: ::1
+2025-04-12 20:35:13 [INFO]: Action: Login - Performed by: zeo_bhaderwah (ZEO) - Description: zeo_bhaderwah logged in successfully as ZEO - IP: ::1
+2025-04-12 20:39:39 [INFO]: Action: Login - Performed by: ceoUser (CEO) - Description: ceoUser logged in successfully as CEO - IP: ::1
+2025-04-12 20:39:39 [INFO]: Action: Login - Performed by: ceoUser (CEO) - Description: ceoUser logged in successfully as CEO - IP: ::1
+2025-04-12 20:40:47 [INFO]: Action: Login - Performed by: zeo_test (ZEO) - Description: zeo_test logged in successfully as ZEO - IP: ::1
+2025-04-12 20:40:55 [INFO]: Action: Password Update - Performed by: zeo_test (ZEO) - Description: User zeo_test updated their password. - IP: ::1
+2025-04-12 21:26:08 [INFO]: Action: Login - Performed by: zeo_test (ZEO) - Description: zeo_test logged in successfully as ZEO - IP: ::1
+2025-04-12 21:31:30 [INFO]: Action: Login - Performed by: zeo_bhalla (ZEO) - Description: zeo_bhalla logged in successfully as ZEO - IP: ::1
+2025-04-12 21:32:14 [INFO]: Action: Login - Performed by: zeo_bhaderwah (ZEO) - Description: zeo_bhaderwah logged in successfully as ZEO - IP: ::1
