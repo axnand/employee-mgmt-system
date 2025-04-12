@@ -5,20 +5,21 @@ import { useSearchParams, useRouter } from "next/navigation";
 import axiosClient from "@/api/axiosClient";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import { Users } from "lucide-react";
+import { ChevronLeft, Users } from "lucide-react";
 import { MapPin, Phone, Building2, UserCheck, BadgeInfo } from "lucide-react";
 import Link from "next/link";
 import AddEmployeeModal from "@/components/school-status/AddEmployeeModal";
 import EditOfficeModal from "../my-office/EditOfficeModal";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Suspense } from 'react';
+import { useUser } from "@/context/UserContext";
 
 function OfficeDetails() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const officeId = searchParams.get("officeId");
   const queryClient = useQueryClient();
-
+  const { user } = useUser();
   const [officeInfo, setOfficeInfo] = useState(null);
   const [employees, setEmployees] = useState([]);
   const [isEditing, setIsEditing] = useState(false);
@@ -150,6 +151,12 @@ function OfficeDetails() {
 
   return (
     <div className="container">
+      <button
+            onClick={() => router.back()}
+            className="mb-6 flex items-center text-[15px] font-semibold rounded-md text-secondary hover:text-primary transition"
+          >
+            <ChevronLeft className="w-4 h-4 mr-1" /> Back
+          </button>
       <ToastContainer />
 
       {/* Office Details */}
@@ -285,12 +292,12 @@ function OfficeDetails() {
           <h2 className="text-2xl font-semibold text-gray-800 mb-6 flex items-center gap-2">
             <Users className="w-6 h-6 text-primary" /> Employees
           </h2>
-          <button
+          {user.role === "CEO" && <button
             onClick={() => setIsAddModalOpen(true)}
             className="font-semibold text-[13px] px-4 py-2 bg-primary transition text-white rounded hover:bg-blue-600"
           >
             Add New Employee
-          </button>
+          </button>}
         </div>
         <div className="bg-white rounded-lg overflow-x-auto border">
           <table className="min-w-full divide-y divide-gray-200">

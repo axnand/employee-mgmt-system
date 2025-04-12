@@ -5,7 +5,6 @@ import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
 export default function EditOfficeModal({ office, isOpen, onClose, onOfficeUpdate }) {
-  // Set initial office data and, if applicable, the first school from the office.schools array
   const [officeData, setOfficeData] = useState(office || {});
   const [schoolDetails, setSchoolDetails] = useState(
     office?.officeType === "Educational" && office.schools?.length > 0
@@ -168,7 +167,7 @@ export default function EditOfficeModal({ office, isOpen, onClose, onOfficeUpdat
         </div>
       )}
 
-      {/* Parent Office */}
+      
       <div>
         <label className="block text-sm font-medium text-gray-600">Parent Office ID (optional)</label>
         <input
@@ -180,7 +179,7 @@ export default function EditOfficeModal({ office, isOpen, onClose, onOfficeUpdat
         />
       </div>
 
-      {/* School Details */}
+      
       {officeData.officeType === "Educational" && (
         <div className="border-t pt-5 mt-5">
           <h3 className="text-lg font-semibold text-gray-700 mb-4">School Details</h3>

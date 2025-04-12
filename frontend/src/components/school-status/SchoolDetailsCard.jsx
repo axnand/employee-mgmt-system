@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import EditSchoolModal from "./EditSchoolModal";
 import { useOutsideClick } from "@/hooks/useOutsideClick";
+import axiosClient from "@/api/axiosClient";
 
 import {
   Users,
@@ -29,6 +30,7 @@ export default function SchoolDetailsCard({ schoolInfo }) {
   const [uniqueDesignations, setUniqueDesignations] = useState([]);
   const officeId = schoolInfo.office?._id;
   console.log("SchoolInfo",schoolInfo);
+  console.log("OfficeId",officeId);
   const queryClient = useQueryClient();
   const [isEditing, setIsEditing] = useState(false);
   const editModalRef = useRef(null);
@@ -39,8 +41,12 @@ export default function SchoolDetailsCard({ schoolInfo }) {
     }
   });
 
-
-  // Use the employees array from the fresh schoolInfo data.
+  
+  const fetchOfficeById = async (officeId) => {
+    const res = await axiosClient.get(`/offices/${officeId}`);
+    return res.data;
+  };
+  
   const [employees, setEmployees] = useState(schoolInfo.employees || []);
 
   useEffect(() => {
@@ -115,7 +121,15 @@ export default function SchoolDetailsCard({ schoolInfo }) {
     });
   };
 
+  const { data: officeDetails } = useQuery({
+    queryKey: ["office", officeId],
+    queryFn: () => fetchOfficeById(officeId),
+    enabled: !!officeId,
+  });
 
+  console.log("OfficeDetails", officeDetails);
+
+  
 
 
 
@@ -154,7 +168,7 @@ export default function SchoolDetailsCard({ schoolInfo }) {
          <div className="bg-white border-l-[3px] border-primary p-6 rounded-lg shadow-sm transition duration-300 mb-8 text-sm">
       <div className="flex items-center gap-3">
         <School className="w-7 h-7 text-primary" />
-        <h1 className="text-2xl font-bold text-secondary">{schoolInfo.name}</h1>
+        <h1 className="text-2xl font-bold text-secondary">{officeDetails?.office.officeName}</h1>
       </div>
       <div className="mt-4 space-y-3">
         <p className="flex items-center text-gray-600">

@@ -1,13 +1,15 @@
 'use client';
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useUser } from "@/context/UserContext";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { createOffice } from "@/api/officeService";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import ViewOffice from "./ViewOffice"; // Make sure react-toastify is installed
+import ViewOffice from "./ViewOffice"; 
+import Select from "react-select";
+import axiosClient from "@/api/axiosClient";
 
 export default function AddOffice() {
   const router = useRouter();
@@ -23,16 +25,14 @@ export default function AddOffice() {
   const [ddoCode, setDdoCode] = useState("");
   const [parentOffice, setParentOffice] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
-
-  // School fields for Educational office
+  const [offices, setOffices] = useState([]);
+  const [officeOptions, setOfficeOptions] = useState([]);
   const [udiseId, setUdiseId] = useState("");
-  const [schoolName, setSchoolName] = useState(""); 
   const [scheme, setScheme] = useState("");
   const [feasibilityZone, setFeasibilityZone] = useState("");
 
   const [adminUserName, setAdminUserName] = useState("");
   const [adminPassword, setAdminPassword] = useState("");
-  const [officeId, setOfficeId] = useState("");
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
 
@@ -41,7 +41,6 @@ export default function AddOffice() {
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ["offices"] });
       toast.success("Office added successfully!");
-      setOfficeId("");
       setOfficeName("");
       setOfficeType("Administrative");
       setIsDdo(false);
@@ -49,7 +48,6 @@ export default function AddOffice() {
       setDdoCode("");
       setParentOffice("");
       setUdiseId("");
-      setSchoolName("");
       setScheme("");
       setFeasibilityZone("");
       setAdminUserName("");
@@ -59,6 +57,24 @@ export default function AddOffice() {
       setError(err.response?.data?.message || "Failed to create office");
     },
   });
+
+  useEffect(() => {
+      const fetchOffices = async () => {
+        try {
+          const response = await axiosClient.get("/offices");
+          console.log("Fetched Offices:", response.data.offices);
+          const options = response.data.offices.map((office) => ({
+            value: office._id,
+            label: `${office.officeName}`
+          }));
+          setOffices(response.data.offices);
+          setOfficeOptions(options);
+        } catch (err) {
+          console.error("Error fetching offices:", err);
+        }
+      };
+      fetchOffices();
+    }, []);
 
   const generatePassword = () => {
     const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*";
@@ -86,13 +102,9 @@ export default function AddOffice() {
       return;
     }
 
-    if (!officeId) {
-      setError("Office ID is required.");
-      return;
-    }
+    
 
     const officeData = {
-      officeId,
       officeName,
       officeType,
       zone: zoneId,
@@ -106,7 +118,6 @@ export default function AddOffice() {
       officeData.schools = [
         {
           udiseId,
-          name: schoolName,
           scheme,
           feasibilityZone,
           adminUserName,    
@@ -130,16 +141,7 @@ export default function AddOffice() {
       {success && <div className="mb-4 text-green-500 text-sm">{success}</div>}
       <form onSubmit={handleSubmit} className="space-y-4">
 
-        <div>
-          <label className="block text-sm font-medium text-gray-700">Office ID</label>
-          <input
-            type="text"
-            value={officeId}
-            onChange={(e) => setOfficeId(e.target.value)}
-            className="w-full p-2 border border-gray-300 rounded mt-1"
-            required
-          />
-        </div>
+        
 
         <div>
           <label className="block text-sm font-medium text-gray-700">Office Name</label>
@@ -196,11 +198,15 @@ export default function AddOffice() {
         )}
         <div>
           <label className="block text-sm font-medium text-gray-700">Parent Office ID (optional)</label>
-          <input
-            type="text"
-            value={parentOffice}
-            onChange={(e) => setParentOffice(e.target.value)}
-             className="w-full p-2 border border-gray-300 rounded mt-1"
+          <Select
+            options={officeOptions}
+            value={officeOptions.find(opt => opt.value === parentOffice) || null}
+            onChange={(selected) => {
+              setParentOffice(selected?.value || "");
+            }}
+            placeholder="Select Parent Office"
+            classNamePrefix="react-select"
+            className="text-sm"
           />
         </div>
         {officeType === "Educational" && (
@@ -212,16 +218,6 @@ export default function AddOffice() {
                 type="text"
                 value={udiseId}
                 onChange={handleUdiseIdChange}
-                 className="w-full p-2 border border-gray-300 rounded mt-1"
-                required
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700">School Name</label>
-              <input
-                type="text"
-                value={schoolName}
-                onChange={(e) => setSchoolName(e.target.value)}
                  className="w-full p-2 border border-gray-300 rounded mt-1"
                 required
               />

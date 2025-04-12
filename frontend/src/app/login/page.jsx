@@ -46,8 +46,14 @@ export default function LoginPage() {
       }
     },
     onError: (err) => {
-      setError(err.message);
+      const errorMessage =
+        err?.response?.data?.message || 
+        err?.message ||                 
+        "Login failed. Please try again.";
+        
+      setError(errorMessage);
     },
+    
   });
   
 

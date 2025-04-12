@@ -226,8 +226,8 @@ console.log("Token from localStorage:", token);
     );
 
     return (
-      <div className="min-h-screen p-4 capitalize">
-        <div className="max-w-7xl mx-auto">
+      <div className="min-h-screen  capitalize">
+        <div className="">
           {/* Back Button */}
           <button
             onClick={() => router.back()}

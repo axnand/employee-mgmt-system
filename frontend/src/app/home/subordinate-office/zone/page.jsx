@@ -5,7 +5,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import axiosClient from "@/api/axiosClient";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import { Building2 } from "lucide-react";
+import { Building2, ChevronLeft } from "lucide-react";
 import { Suspense } from 'react';
 
 const ZoneDetails = () => {
@@ -45,6 +45,12 @@ const ZoneDetails = () => {
 
   return (
     <div className="w-full capitalize">
+      <button
+            onClick={() => router.back()}
+            className="mb-6 flex items-center text-[15px] font-semibold rounded-md text-secondary hover:text-primary transition"
+          >
+            <ChevronLeft className="w-4 h-4 mr-1" /> Back
+          </button>
       <ToastContainer />
       <div className="w-full flex items-center gap-3   bg-white border-l-[3px] border-primary p-6 rounded-lg shadow-sm transition duration-300 mb-8 text-sm">
         <Building2 className="w-7 h-7 text-primary" />
