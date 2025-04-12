@@ -115,10 +115,6 @@ export default function CeoOffice() {
   });
 
   const handleSaveNewEmployee = () => {
-    if (!newEmployeeData.fullName || !newEmployeeData.presentDesignation) {
-      toast.error("Name and Designation are required!");
-      return;
-    }
 
     addEmployeeMutation.mutate({
       ...newEmployeeData,

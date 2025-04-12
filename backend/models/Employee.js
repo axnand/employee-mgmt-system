@@ -22,7 +22,6 @@ const EmployeeSchema = new mongoose.Schema(
     dateOfRetirement: { type: Date },
     dateOfRecentPromotion: { type: Date },
     dateOfCurrentPosting: { type: Date },
-    actualPlaceOfPosting: { type: String },
     basisOfWork: { type: String },
     highestQualification: { type: String },
     specializationSubject: { type: String }, 

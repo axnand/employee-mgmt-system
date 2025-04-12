@@ -45,3 +45,9 @@
 2025-04-11 05:56:56 [INFO]: Action: Update Employee - Performed by: 67f6d109106db152ce7959ac (CEO) - Description: Updated employee Ramesh Yadav - IP: ::1
 2025-04-11 06:35:43 [INFO]: Action: Update Employee - Performed by: 67f6d109106db152ce7959ac (CEO) - Description: Updated employee Ramesh Yadav - IP: ::1
 2025-04-11 07:06:11 [INFO]: Action: Login - Performed by: zeo_bhalla (ZEO) - Description: zeo_bhalla logged in successfully as ZEO - IP: ::1
+2025-04-11 14:52:45 [INFO]: Action: Login - Performed by: ceoUser (CEO) - Description: ceoUser logged in successfully as CEO - IP: ::1
+2025-04-11 14:54:00 [INFO]: Action: Login - Performed by: ceoUser (CEO) - Description: ceoUser logged in successfully as CEO - IP: ::1
+2025-04-12 15:21:54 [INFO]: Action: Login - Performed by: ceoUser (CEO) - Description: ceoUser logged in successfully as CEO - IP: ::1
+2025-04-12 15:27:21 [INFO]: Action: Update Employee - Performed by: 67f6d109106db152ce7959ac (CEO) - Description: Updated employee Ramesh Yadav - IP: ::1
+2025-04-12 15:27:51 [INFO]: Action: Update Employee - Performed by: 67f6d109106db152ce7959ac (CEO) - Description: Updated employee Ramesh Yadav - IP: ::1
+2025-04-12 19:10:34 [INFO]: Action: Employee Creation - Performed by: 67f6d109106db152ce7959ac (CEO) - Description: Created employee nIDHI - IP: ::1

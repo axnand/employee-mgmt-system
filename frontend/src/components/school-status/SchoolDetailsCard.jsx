@@ -108,10 +108,6 @@ export default function SchoolDetailsCard({ schoolInfo }) {
   });
 
   const handleSaveNewEmployee = () => {
-    if (!newEmployeeData.fullName || !newEmployeeData.presentDesignation) {
-      toast.error("Name and Designation are required!");
-      return;
-    }
 
     addEmployeeMutation.mutate({
       ...newEmployeeData,
