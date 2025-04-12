@@ -509,13 +509,6 @@ console.log("Token from localStorage:", token);
     postingHistoryData.slice(0, 3).map((posting, index) => (
       <div key={posting._id || index} className="bg-gray-50 p-4 border border-gray-200 rounded-md mb-4">
         <p className="font-semibold text-secondary mb-2 text-[15px]">Posting {index + 1}:</p>
-        
-        {/* Displaying office details */}
-        <p>
-          <span className="font-semibold text-gray-600 mr-1">Office ID:</span>
-          <span className="text-gray-600 font-medium">{posting.office?.officeId || "N/A"}</span>
-        </p>
-
         <p>
           <span className="font-semibold text-gray-600 mr-1">Office Name:</span>
           <span className="text-gray-600 font-medium">{posting.office?.officeName || "N/A"}</span>

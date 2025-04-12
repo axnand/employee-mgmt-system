@@ -2,12 +2,16 @@
 import React, { useState, useEffect } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { updateSchool } from "@/api/schoolService";
+import axiosClient from "@/api/axiosClient";
+import { toast } from "react-toastify";
 
 export default function EditSchoolModal({ school, onClose }) {
+  const officeId = school.office._id || "";
   const queryClient = useQueryClient();
+
   const [formData, setFormData] = useState({
     udiseId: "",
-    name: "",
+    schoolName: "",
     address: "",
     principal: "",
     contact: "",
@@ -24,7 +28,7 @@ export default function EditSchoolModal({ school, onClose }) {
     if (school) {
       setFormData({
         udiseId: school.udiseId || "",
-        name: school.name || "",
+        schoolName: school.office?.officeName || "",
         address: school.address || "",
         principal: school.principal || "",
         contact: school.contact || "",
@@ -40,12 +44,34 @@ export default function EditSchoolModal({ school, onClose }) {
   }, [school]);
 
   const mutation = useMutation({
-    mutationFn: (data) => {
-      return updateSchool(school._id, data); 
+    mutationFn: async () => {
+      const schoolPayload = {
+        udiseId: formData.udiseId,
+        name: formData.schoolName,
+        address: formData.address,
+        principal: formData.principal,
+        contact: formData.contact,
+        isPMShiriSchool: formData.isPMShiriSchool,
+        feasibilityZone: formData.feasibilityZone,
+        scheme: formData.scheme,
+        subScheme: formData.subScheme,
+        dateOfUpgrade: formData.dateOfUpgrade,
+        dateOfEstablishment: formData.dateOfEstablishment,
+        numberOfStudents: formData.numberOfStudents,
+      };
+
+      await updateSchool(school._id, schoolPayload);
+
+      if (formData.schoolName !== school.office?.officeName) {
+        await axiosClient.put(`/offices/${officeId}`, {
+          officeName: formData.schoolName,
+        });
+      }
     },
-    onSuccess: (data) => {  // `data` here is the response returned by the mutationFn
+    onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["school", school._id] });
       onClose();
+      toast.success("School details updated successfully");
     },
     onError: (error) => {
       console.error("Error updating school:", error);
@@ -63,8 +89,7 @@ export default function EditSchoolModal({ school, onClose }) {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    console.log("Form Data before mutation:", formData);
-    mutation.mutate(formData);
+    mutation.mutate();
   };
 
   return (
@@ -87,8 +112,8 @@ export default function EditSchoolModal({ school, onClose }) {
             <label className="block text-gray-700">School Name</label>
             <input
               type="text"
-              name="name"
-              value={formData.name}
+              name="schoolName"
+              value={formData.schoolName}
               onChange={handleChange}
               className="w-full border rounded p-2"
               required
