@@ -85,7 +85,6 @@ function SchoolStatusPageContent() {
         if (userRoleIsCEO && userDistrictId) {
           try {
             const response = await axiosClient.get(`/schools/district/${userDistrictId}`);
-            // Fetch zones for CEO
             const zonesResponse = await axiosClient.get(`/zones?district=${userDistrictId}`);
             if (zonesResponse.data?.zones) {
               setZoneOptions(zonesResponse.data.zones);
@@ -94,8 +93,6 @@ function SchoolStatusPageContent() {
             if (response?.data?.length > 0) {
               setSchools(response.data);
               setFilteredSchools(response.data);
-              
-              // Extract unique schemes
               const schemes = response.data.map(s => s.scheme).filter(Boolean);
               setSchemeOptions([...new Set(schemes)]);
             } else {
@@ -122,8 +119,6 @@ function SchoolStatusPageContent() {
             if (response?.data?.length > 0) {
               setSchools(response.data);
               setFilteredSchools(response.data);
-              
-              // Extract unique schemes
               const schemes = response.data.map(s => s.scheme).filter(Boolean);
               setSchemeOptions([...new Set(schemes)]);
             } else {
@@ -181,7 +176,6 @@ function SchoolStatusPageContent() {
     );
     setFilteredSchools(filtered);
     
-    // Reset selected school when zone changes
     setSelectedSchool("");
     setSelectedSchoolId("");
     setUserSelectedSchool(false);
@@ -195,8 +189,6 @@ function SchoolStatusPageContent() {
       !scheme || school.scheme === scheme
     );
     setFilteredSchools(filtered);
-    
-    // Reset selected school when scheme changes
     setSelectedSchool("");
     setSelectedSchoolId("");
     setUserSelectedSchool(false);
@@ -207,7 +199,6 @@ function SchoolStatusPageContent() {
     setSelectedSchoolId(schoolId);
     
     if (!schoolId) {
-      // If no school is selected (e.g., "Select School" option)
       setSelectedSchool("");
       setUserSelectedSchool(false);
       return;
@@ -216,7 +207,7 @@ function SchoolStatusPageContent() {
     const selectedSchoolObject = filteredSchools.find(school => school._id === schoolId);
     if (selectedSchoolObject) {
       setSelectedSchool(selectedSchoolObject);
-      setUserSelectedSchool(true); // User has explicitly selected a school
+      setUserSelectedSchool(true);
       router.push(`/home/school-status?school=${schoolId}`);
     }
   };
@@ -254,14 +245,14 @@ function SchoolStatusPageContent() {
           schemeOptions={schemeOptions}
           selectedZone={selectedZone} 
           selectedScheme={selectedScheme}
-          selectedSchool={selectedSchoolId} // Pass selectedSchoolId instead of selectedSchool object
+          selectedSchool={selectedSchoolId}
           onZoneChange={handleZoneChange}
           onSchemeChange={handleSchemeChange}
           onSchoolChange={handleSchoolSelect}
         />
       )}
 
-      {/* Only show the card when a school is explicitly selected or for school admin users */}
+     
       {(userRoleIsSchoolAdmin || userSelectedSchool) && selectedSchool && (
         <SchoolDetailsCard schoolInfo={selectedSchool} />
       )}

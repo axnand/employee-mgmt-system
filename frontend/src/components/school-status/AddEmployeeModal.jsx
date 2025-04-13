@@ -17,11 +17,11 @@ export default function AddEmployeeModal({
   onClose,
   showError,
   setShowError,
-  schoolInfo, // Selected school information
-  setEmployees, // Function to update the employees list
-  setIsAddModalOpen, // Function to control modal open state
+  schoolInfo,
+  setEmployees, 
+  setIsAddModalOpen, 
   queryClient,
-  handleSaveNewEmployee // react-query client for refetching data
+  handleSaveNewEmployee 
 }) {
   if (!isOpen) return null;
 
@@ -123,7 +123,6 @@ export default function AddEmployeeModal({
       <div className="bg-white p-8  shadow-2xl max-w-2xl max-h-[90vh] w-full overflow-y-auto">
         <h2 className="text-2xl font-semibold text-gray-800 mb-6">Add New Employee</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-6 text-sm">
-          {/* Employee ID */}
           <div>
     <label className="font-semibold text-gray-600 block mb-1">Employee ID</label>
     <input
@@ -138,8 +137,6 @@ export default function AddEmployeeModal({
     />
     {requiredErrors.employeeId && <p className="text-red-500 text-xs mt-1">{requiredErrors.employeeId}</p>}
   </div>
-
-  {/* FULL NAME */}
   <div>
     <label className="font-semibold text-gray-600 block mb-1">Full Name</label>
     <input
@@ -154,8 +151,6 @@ export default function AddEmployeeModal({
     />
     {requiredErrors.fullName && <p className="text-red-500 text-xs mt-1">{requiredErrors.fullName}</p>}
   </div>
-
-  {/* GENDER */}
   <div>
   <label className="font-semibold text-gray-600 block mb-1">Gender</label>
   <select
@@ -174,9 +169,6 @@ export default function AddEmployeeModal({
   </select>
   {requiredErrors.gender && <p className="text-red-500 text-xs mt-1">{requiredErrors.gender}</p>}
 </div>
-
-
-  {/* MARITAL STATUS */}
   <div>
   <label className="font-semibold text-gray-600 block mb-1">Marital Status</label>
   <select
@@ -195,9 +187,6 @@ export default function AddEmployeeModal({
   </select>
   {requiredErrors.maritalStatus && <p className="text-red-500 text-xs mt-1">{requiredErrors.maritalStatus}</p>}
 </div>
-
-
-  {/* PARENTAGE/SPOUSE */}
   <div>
   <label className="font-semibold text-gray-600 block mb-1">Parentage/Spouse</label>
   <input
@@ -231,7 +220,6 @@ export default function AddEmployeeModal({
 </div>
 
 
-{/* TYPE (Staff Type) - already defined */}
 <div>
   <label htmlFor="staffType" className="block text-sm font-medium text-gray-700 mb-1">Select Staff Type</label>
   <select
@@ -275,8 +263,6 @@ export default function AddEmployeeModal({
   </select>
   {requiredErrors.postCategory && <p className="text-red-500 text-xs mt-1">{requiredErrors.postCategory}</p>}
 </div>
-
-  {/* Name of Sanctioned Posts */}
   <div>
   <label className="font-semibold text-gray-600 block mb-1">Present Designation</label>
   <select
@@ -305,10 +291,6 @@ export default function AddEmployeeModal({
 </div>
 
 
-  
-  
-
-  {/* DESIGNATION AT THE TIME OF APPOINTMENT */}
   <div>
   <label className="font-semibold text-gray-600 block mb-1">Designation at Appointment</label>
   <select
@@ -330,8 +312,6 @@ export default function AddEmployeeModal({
   )}
 </div>
 
-
-          {/* Date of First Appointment */}
           <div>
   <label className="font-semibold text-gray-600 block mb-1">Date of First Appointment</label>
   <input
@@ -349,7 +329,6 @@ export default function AddEmployeeModal({
   )}
 </div>
 
-          {/* Date of Retirement */}
           <div>
   <label className="font-semibold text-gray-600 block mb-1">Date of Retirement</label>
   <input
@@ -367,7 +346,6 @@ export default function AddEmployeeModal({
   )}
 </div>
 
-          {/* Date of Recent Promotion */}
           <div>
   <label className="font-semibold text-gray-600 block mb-1">Date of Recent Promotion</label>
   <input
@@ -406,26 +384,6 @@ export default function AddEmployeeModal({
 </div>
 
 
-          {/* Working Office */}
-          <div>
-  <label className="font-semibold text-gray-600 block mb-1">Working Office</label>
-  <Select
-    options={officeOptions}
-    value={officeOptions.find(opt => opt.value === newEmployeeData.workingOffice) || null}
-    onChange={(selected) => {
-      setNewEmployeeData({ ...newEmployeeData, workingOffice: selected?.value || "" });
-      setRequiredErrors(prev => ({ ...prev, workingOffice: "" }));
-    }}
-    placeholder="Search and select office"
-    classNamePrefix="react-select"
-    className={`text-sm ${requiredErrors.workingOffice ? "border border-red-500 rounded" : ""}`}
-  />
-  {requiredErrors.workingOffice && (
-    <p className="text-red-500 text-xs mt-1">{requiredErrors.workingOffice}</p>
-  )}
-</div>
-
-          {/* Basis of Work */}
           <div>
   <label className="font-semibold text-gray-600 block mb-1">Basis of Work</label>
   <select
@@ -450,7 +408,6 @@ export default function AddEmployeeModal({
 </div>
 
 
-          {/* Highest Qualification */}
           <div>
   <label className="font-semibold text-gray-600 block mb-1">Highest Qualification</label>
   <select
@@ -477,7 +434,7 @@ export default function AddEmployeeModal({
 </div>
 
 
-  {/* SPECIALIZATION SUBJECT */}
+
   {newEmployeeData.highestQualification && newEmployeeData.highestQualification !== "10TH" && newEmployeeData.highestQualification !== "12TH" && (
   <div>
     <label className="font-semibold text-gray-600 block mb-1">

@@ -72,7 +72,6 @@ export default function SchoolDetailsCard({ schoolInfo }) {
       const data = await response.json();
       setEmployees(data);
 
-      // Generate unique categories and designations
       const categories = data.map((emp) => emp.staffType || "Unknown");
       const designations = data.map((emp) => emp.presentDesignation || "Unknown");
 
@@ -129,16 +128,6 @@ export default function SchoolDetailsCard({ schoolInfo }) {
 
   console.log("OfficeDetails", officeDetails);
 
-  
-
-
-
-
-
-  // Build unique staff types (using staffType field)
-
-
-  // Filter employees using the proper field names
   const filteredEmployees = employees.filter((emp) => {
     const matchesSearch = emp.fullName.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesCategory = categoryFilter === "" || emp.staffType === categoryFilter;
@@ -164,7 +153,6 @@ export default function SchoolDetailsCard({ schoolInfo }) {
     <div className="min-h-screen capitalize">
       <ToastContainer/>
       <div className="">
-        {/* School Information */}
          <div className="bg-white border-l-[3px] border-primary p-6 rounded-lg shadow-sm transition duration-300 mb-8 text-sm">
       <div className="flex items-center gap-3">
         <School className="w-7 h-7 text-primary" />
@@ -251,8 +239,6 @@ export default function SchoolDetailsCard({ schoolInfo }) {
         />
       )}
     </div>
-
-        {/* Employee Filter */}
         <div className="bg-white p-6 rounded-lg shadow-sm mb-8 border-l-[3px] border-primary">
           <h2 className="text-xl font-semibold text-gray-800 mb-4">Filter Employees</h2>
           <div className="flex flex-col md:flex-row md:items-end md:space-x-4">
@@ -307,8 +293,6 @@ export default function SchoolDetailsCard({ schoolInfo }) {
             </div>
           </div>
         </div>
-
-        {/* Summary Cards */}
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 mb-6">
           <div className="bg-white shadow-sm rounded-lg p-4 flex flex-col border-l-[3px] border-primary">
             <div className="flex items-center space-x-2">
@@ -319,8 +303,6 @@ export default function SchoolDetailsCard({ schoolInfo }) {
             <div className="text-2xl font-bold">{employees.length}</div>
           </div>
         </div>
-
-        {/* Employee Table */}
         <div className="bg-white p-6 rounded-lg shadow mb-8">
           <div className="flex justify-between items-center">
             <h2 className="text-2xl font-semibold text-gray-800 mb-6 flex items-center gap-2">
@@ -384,8 +366,6 @@ export default function SchoolDetailsCard({ schoolInfo }) {
           </div>
         </div>
       </div>
-
-      {/* Add New Employee Modal */}
       {isAddModalOpen && (
          <AddEmployeeModal
          newEmployeeData={newEmployeeData}
@@ -395,10 +375,10 @@ export default function SchoolDetailsCard({ schoolInfo }) {
          handleSaveNewEmployee={handleSaveNewEmployee}
          showError={showError}
          setShowError={setShowError}
-         schoolInfo={schoolInfo}               // Pass schoolInfo here
-         setEmployees={setEmployees}           // Pass employees updater
-         setIsAddModalOpen={setIsAddModalOpen}   // Pass modal control function
-         queryClient={queryClient}             // Pass react-query client if needed
+         schoolInfo={schoolInfo}            
+         setEmployees={setEmployees}           
+         setIsAddModalOpen={setIsAddModalOpen}   
+         queryClient={queryClient}            
        />
       )}
     </div>
