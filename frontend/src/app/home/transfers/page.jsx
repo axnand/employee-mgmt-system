@@ -2,14 +2,13 @@
 import React from 'react'
 import { useUser } from '@/context/UserContext'
 
-import TransfersPage from './AdminTransfer';
-import LocalTransfersPage from './LocalTransfer';
+import AdminTransfer from './AdminTransfer';
 
 function page() {
   const{user , userRole} = useUser();
   return (
     <>
-    {userRole === "admin" && <TransfersPage/>}
+    {userRole === "CEO" && <AdminTransfer/>}
     
     </>
     

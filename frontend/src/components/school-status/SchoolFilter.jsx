@@ -97,7 +97,7 @@ export default function SchoolFilter({
             <option value="">Select a School</option>
             {schools.map((school) => (
               <option key={school.id || school._id} value={school.id || String(school._id)}>
-                {school.name}
+                {school.office.officeName}
               </option>
             ))}
           </select>

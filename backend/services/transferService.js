@@ -1,54 +1,85 @@
 import TransferRequest from "../models/TransferRequest.js";
 import TransferRemark from "../models/TransferRemark.js";
-import School from "../models/School.js";
+import Office from "../models/Office.js";
 import { createLog } from "./logService.js";
+import mongoose from "mongoose";
 
 export const createTransferRequest = async (
-  { employeeId, fromSchoolId, toSchoolId, requestedBy, comment },
+  {
+    employee,
+    fromOffice,
+    toOffice,
+    transferType,
+    transferDate,
+    transferReason,
+    transferOrderNo,
+    transferOrderDate,
+    transferOrder,
+  },
   currentUser,
   ip
 ) => {
-  const existingRequest = await TransferRequest.findOne({
-    employee: employeeId,
-    status: "Pending",
-  });
+  const session = await mongoose.startSession();
+  session.startTransaction();
 
-  if (existingRequest) {
-    throw new Error("A pending transfer request for this employee already exists");
+  try {
+    const existingRequest = await TransferRequest.findOne({
+      employee,
+      status: "Pending",
+    }).session(session);
+
+    if (existingRequest) {
+      throw new Error("A pending transfer request for this employee already exists");
+    }
+
+    const transferRequest = await TransferRequest.create(
+      [{
+        employee,
+        fromOffice,
+        toOffice,
+        transferType,
+        transferDate,
+        transferReason,
+        transferOrderNo,
+        transferOrderDate,
+        transferOrder,
+        requestedBy: currentUser.userId,
+        status: "Pending",
+      }],
+      { session }
+    );
+
+    await TransferRemark.create(
+      [{
+        transfer: transferRequest[0]._id,
+        remarkType: "RequestCreation",
+        remarkText: transferReason || "No remarks provided",
+        addedBy: currentUser.userId,
+      }],
+      { session }
+    );
+
+    await createLog({
+      admin: currentUser.userId,
+      role: currentUser.role,
+      action: "Employee Transfer Request",
+      description: `Initiated transfer request for employee ${employee}. Reason: ${transferReason}`,
+      ip,
+      session,
+    });
+
+    await session.commitTransaction();
+    session.endSession();
+
+    return transferRequest[0];
+  } catch (err) {
+    await session.abortTransaction();
+    session.endSession();
+    throw err;
   }
-
-  const fromSchool = await School.findById(fromSchoolId);
-  if (!fromSchool) throw new Error("Source school not found");
-
-  const transferRequest = await TransferRequest.create({
-    employee: employeeId,
-    fromSchool: fromSchoolId,
-    toSchool: toSchoolId,
-    requestedBy,
-    status: "Pending",
-    comment,
-  });
-
-  await TransferRemark.create({
-    transferRequest: transferRequest._id,
-    remarkType: "RequestCreation",
-    remarkText: comment || "No remarks provided",
-    addedBy: currentUser.userId,
-  });
-
-  await createLog({
-    admin: currentUser.userId,
-    role: currentUser.role,
-    action: "Employee Transfer Request",
-    school: fromSchool.name,
-    description: `Initiated transfer request for employee ${employeeId}. Reason: ${comment}`,
-    ip,
-  });
-
-  return transferRequest;
 };
 
-export const approveTransferRequest = async (requestId, action, currentUser, ip, remarkText = "") => {
+export const approveTransferRequestService = async (requestId, action, currentUser, ip, remarkText = "") => {
   const transferRequest = await TransferRequest.findById(requestId);
 
   if (!transferRequest) throw new Error("Transfer request not found");
@@ -64,7 +95,7 @@ export const approveTransferRequest = async (requestId, action, currentUser, ip,
   await transferRequest.save();
 
   await TransferRemark.create({
-    transferRequest: transferRequest._id,
+    transfer: transferRequest._id,
     remarkType: action === "approve" ? "MainAdminApproval" : "Rejection",
     remarkText: remarkText || (action === "approve" ? "Approved by CEO" : "Rejected by CEO"),
     addedBy: currentUser.userId,
@@ -101,9 +132,9 @@ export const respondToTransferRequest = async (requestId, action, currentUser, i
   await transferRequest.save();
 
   await TransferRemark.create({
-    transferRequest: transferRequest._id,
+    transfer: transferRequest._id,
     remarkType: action === "accept" ? "SchoolAdminApproval" : "Rejection",
-    remarkText: reason || (action === "accept" ? "Accepted by Receiving School Admin" : "Rejected by Receiving School Admin"),
+    remarkText: reason || (action === "accept" ? "Accepted by Receiving Office Admin" : "Rejected by Receiving Office Admin"),
     addedBy: currentUser.userId,
   });
 

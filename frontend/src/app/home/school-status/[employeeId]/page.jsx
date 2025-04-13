@@ -129,15 +129,25 @@ console.log("Token from localStorage:", token);
       },
     });
     
-    const handleSubmitTransfer = ({ selectedSchool, comment }) => {
-      transferMutation.mutate({
-        employeeId,
-        fromSchoolId: schoolId, 
-        toSchoolId: selectedSchool,
-        requestedBy: user.userId,
-        comment,
-      });
+   
+    const handleSubmitTransfer = (formData) => {
+      const payload = {
+        employee: employeeId,
+        fromOffice: user?.officeId,
+        toOffice: formData.get("toOfficeId"),
+        transferType: formData.get("transferType"),
+        transferDate: formData.get("transferDate"),
+        transferReason: formData.get("transferReason"),
+        transferOrderNo: formData.get("transferOrderNo"),
+        transferOrderDate: formData.get("transferOrderDate"),
+        transferOrder: formData.get("transferOrder"), 
+      };
+    
+      console.log("Payload:", payload);
+      transferMutation.mutate(payload);
     };
+    
+    
 
     const handleSaveEdit = (updatedData) => {
       updateMutation.mutate({ employeeId, updatedData });
@@ -300,10 +310,9 @@ console.log("Token from localStorage:", token);
           {/* Transfer Mode */}
           {isTransferMode && (
             <EmployeeTransferForm
-              schools={filteredSchools}
-              currentSchoolId={schoolId}
               onSubmit={handleSubmitTransfer}
               onCancel={() => setIsTransferMode(false)}
+              employeeId={employeeId}
             />
           )}
 

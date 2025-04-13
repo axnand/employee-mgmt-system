@@ -88,7 +88,8 @@ function OfficeDetails() {
           "Content-Type": "application/json",
         },
       });
-      const empList = response.data.employees || [];
+      const empList = response.data || [];
+      console.log("empList", empList);
       setEmployees(empList);
 
       const categories = empList.map((emp) => emp.staffType || "Unknown");
@@ -325,10 +326,10 @@ function OfficeDetails() {
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{emp.presentDesignation}</td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm flex items-center gap-x-2">
                     <Link
-                      href={`/employee?employeeId=${encodeURIComponent(emp._id)}`}
+                      href={`/home/school-status/${encodeURIComponent(emp._id)}`}
                       className="py-1 px-3 bg-primary text-white rounded-full font-medium text-xs hover:bg-blue-600 transition"
                     >
-                      View Employee
+                      View
                     </Link>
                   </td>
                 </tr>

@@ -1,99 +1,168 @@
-"use client";
+import { useState, useEffect } from "react";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import Select from "react-select";
+import axiosClient from "@/api/axiosClient";
+import { toast } from "react-toastify";
+import { useUser } from "@/context/UserContext";
+import { createTransferRequest } from "@/api/transferService";
 
-import { useState } from "react";
-import { useQuery } from "@tanstack/react-query";
+export default function TransferRequestForm({ onCancel, employeeId }) {
+  const [transferType, setTransferType] = useState("Transfer");
+  const [transferDate, setTransferDate] = useState("");
+  const [transferReason, setTransferReason] = useState("");
+  const [transferOrderNo, setTransferOrderNo] = useState("");
+  const [transferOrderDate, setTransferOrderDate] = useState("");
+  const [transferOrderFile, setTransferOrderFile] = useState(null);
+  const [offices, setOffices] = useState([]);
+  const [toOfficeId, setToOfficeId] = useState("");
+  const { user } = useUser();
+  const currentOfficeId = user?.officeId;
+  const queryClient = useQueryClient();
 
-const fetchAllSchools = async () => {
-  const token = localStorage.getItem("token");
-  const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/schools`, {
-    headers: { Authorization: `Bearer ${token}` },
+  useEffect(() => {
+    const fetchOffices = async () => {
+      try {
+        const response = await axiosClient.get("/offices");
+        const officeOptions = response.data.offices
+          .filter((office) => office._id !== currentOfficeId)
+          .map((office) => ({
+            label: office.officeName,
+            value: office._id,
+          }));
+        setOffices(officeOptions);
+      } catch (err) {
+        console.error("Failed to fetch offices:", err);
+      }
+    };
+    fetchOffices();
+  }, [currentOfficeId]);
+
+  const transferMutation = useMutation({
+    mutationFn: (transferData) =>
+      createTransferRequest(transferData, user, window.location.hostname),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["employee"] });
+      toast.success("Transfer request submitted successfully");
+      onCancel?.();
+    },
+    onError: (error) => {
+      toast.error("Error submitting transfer request: " + error.message);
+    },
   });
-  if (!res.ok) {
-    throw new Error("Failed to fetch schools");
-  }
-  // Assuming the API returns an array of school objects
-  return res.json();
-};
 
-export default function EmployeeTransferForm({ currentSchoolId, onSubmit, onCancel }) {
-  const [search, setSearch] = useState("");
-  const [selectedSchool, setSelectedSchool] = useState("");
-  const [comment, setComment] = useState("");
+  const handleSubmit = async () => {
+    if (!toOfficeId || !transferDate || !transferType) {
+      toast.error("Please fill all required fields.");
+      return;
+    }
 
-  // Fetch all schools from the backend
-  const { data: schools, isLoading, error } = useQuery({
-    queryKey: ["allSchools"],
-    queryFn: fetchAllSchools,
-    refetchOnWindowFocus: false,
-  });
+    let transferOrderUrl = "";
+    try {
+      if (transferOrderFile) {
+        const formData = new FormData();
+        formData.append("transferOrder", transferOrderFile);
 
-  // Filter schools based on search input and exclude the current school
-  const filteredSchools = schools
-    ? schools.filter(
-        (sch) =>
-          sch._id !== currentSchoolId &&
-          sch.name.toLowerCase().includes(search.toLowerCase())
-      )
-    : [];
+        const uploadRes = await axiosClient.post("/uploads/upload-transfer-order", formData, {
+          headers: { "Content-Type": "multipart/form-data" },
+        });
 
-  const handleSubmit = () => {
-    // Pass both the selected school id and the comment/reason to onSubmit
-    onSubmit({ selectedSchool, comment });
+        transferOrderUrl = uploadRes.data.url;
+      }
+
+      const payload = {
+        employee: employeeId,
+        fromOffice: currentOfficeId,
+        toOffice: toOfficeId,
+        transferType,
+        transferDate,
+        transferReason,
+        transferOrderNo,
+        transferOrderDate,
+        transferOrder: transferOrderUrl || null,
+      };
+
+      transferMutation.mutate(payload);
+    } catch (err) {
+      console.error("Upload error:", err);
+      toast.error("Error uploading transfer order file");
+    }
   };
-
-  if (isLoading) return <div className="flex justify-center items-center h-full">
-  <div className="border-t-transparent border-[#377DFF] w-8 h-8 border-4 border-solid rounded-full animate-spin"></div>
-</div>;
-  if (error) return <p>Error loading schools: {error.message}</p>;
 
   return (
     <div className="bg-white shadow rounded-lg p-6 mb-6">
-      <h2 className="text-xl font-semibold mb-4 text-gray-800">Transfer Request</h2>
+      <h2 className="text-xl font-semibold mb-4 text-gray-800">Create Transfer Request</h2>
+
       <div className="mb-4">
-        <label className="font-semibold text-gray-600 block mb-1">Search School</label>
-        <input
-          type="text"
-          placeholder="Type to filter schools..."
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          className="border border-gray-300 rounded w-full p-2 text-sm"
+        <label className="block text-sm font-medium text-gray-600">To Office</label>
+        <Select
+          options={offices}
+          onChange={(selected) => setToOfficeId(selected?.value || "")}
+          placeholder="Select destination office"
         />
       </div>
-      <div className="mb-4">
-        <label className="font-semibold text-gray-600 block mb-1">Select School</label>
-        <select
-          value={selectedSchool}
-          onChange={(e) => setSelectedSchool(e.target.value)}
-          className="border border-gray-300 rounded w-full p-2 text-sm"
-        >
-          <option value="">-- Choose a school --</option>
-          {filteredSchools.map((sch) => (
-            <option key={sch._id} value={sch._id}>
-              {sch.name}
-            </option>
-          ))}
-        </select>
-      </div>
-      <div className="mb-4">
-        <label className="font-semibold text-gray-600 block mb-1">Comment / Reason</label>
-        <textarea
-          placeholder="Enter reason for transfer..."
-          value={comment}
-          onChange={(e) => setComment(e.target.value)}
-          className="border border-gray-300 rounded w-full p-2 text-sm"
-        ></textarea>
-      </div>
+
+      <label className="block mb-1 text-sm font-medium text-gray-600">Transfer Type</label>
+      <select
+        value={transferType}
+        onChange={(e) => setTransferType(e.target.value)}
+        className="border w-full p-2 rounded mb-4"
+      >
+        <option value="Transfer">Transfer</option>
+        <option value="Deputation">Deputation</option>
+        <option value="Attachment">Attachment</option>
+      </select>
+
+      <label className="block mb-1 text-sm font-medium text-gray-600">Transfer Date</label>
+      <input
+        type="date"
+        value={transferDate}
+        onChange={(e) => setTransferDate(e.target.value)}
+        className="border w-full p-2 rounded mb-4"
+      />
+
+      <label className="block mb-1 text-sm font-medium text-gray-600">Reason</label>
+      <textarea
+        value={transferReason}
+        onChange={(e) => setTransferReason(e.target.value)}
+        className="border w-full p-2 rounded mb-4"
+        placeholder="Enter reason..."
+      ></textarea>
+
+      <label className="block mb-1 text-sm font-medium text-gray-600">Order Number</label>
+      <input
+        type="text"
+        value={transferOrderNo}
+        onChange={(e) => setTransferOrderNo(e.target.value)}
+        className="border w-full p-2 rounded mb-4"
+      />
+
+      <label className="block mb-1 text-sm font-medium text-gray-600">Order Date</label>
+      <input
+        type="date"
+        value={transferOrderDate}
+        onChange={(e) => setTransferOrderDate(e.target.value)}
+        className="border w-full p-2 rounded mb-4"
+      />
+
+      <label className="block mb-1 text-sm font-medium text-gray-600">Upload Order (PDF)</label>
+      <input
+        type="file"
+        accept=".pdf"
+        onChange={(e) => setTransferOrderFile(e.target.files[0])}
+        className="border w-full p-2 rounded mb-6"
+      />
+
       <div className="flex gap-2">
         <button
           onClick={handleSubmit}
-          disabled={!selectedSchool}
-          className="font-semibold text-[13px] px-4 py-2 bg-red-500 text-white rounded transition hover:bg-red-600 disabled:opacity-50"
+          disabled={!toOfficeId || !transferDate || !transferType}
+          className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
         >
           Submit Transfer
         </button>
         <button
           onClick={onCancel}
-          className="font-semibold text-[13px] px-4 py-2 bg-gray-300 text-gray-700 rounded hover:bg-gray-400"
+          className="bg-gray-300 text-gray-700 px-4 py-2 rounded hover:bg-gray-400"
         >
           Cancel
         </button>

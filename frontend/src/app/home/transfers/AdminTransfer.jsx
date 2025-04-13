@@ -1,35 +1,29 @@
-"use client";
-
 import { useState } from "react";
-import { CheckCircle, XCircle, ArrowDownCircle, Search as SearchIcon, ArrowLeftRightIcon } from "lucide-react";
+import { CheckCircle, XCircle, ArrowLeftRightIcon, Search as SearchIcon } from "lucide-react";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useUser } from "@/context/UserContext";
 import { getTransferRequests, approveTransferRequest } from "@/api/transferService";
 
-export default function MainAdminTransfersPage() {
+export default function AdminTransfer() {
   const { user } = useUser();
   const queryClient = useQueryClient();
   const [searchTerm, setSearchTerm] = useState("");
 
-  // Fetch all transfer requests from the backend
   const { data: transfersData, isLoading, error } = useQuery({
     queryKey: ["transfers"],
     queryFn: getTransferRequests,
     refetchOnWindowFocus: false,
   });
 
-  // For main admin, show only transfers that are pending
-  const pendingTransfers =
-  (transfersData?.transferRequests ?? []).filter(
-    (t) => t.status?.toLowerCase() === "pending"
+  const pendingTransfers = (transfersData?.transferRequests ?? []).filter(
+    (t) => t.status === "Pending"
   );
 
-  // Mutation for approving or rejecting a transfer request (using the approve endpoint)
   const approveMutation = useMutation({
     mutationFn: ({ requestId, action }) =>
-      approveTransferRequest(requestId, action, user, window.location.hostname),
+      approveTransferRequest(requestId, action, "Reviewed by CEO"),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["transfers"] });
       toast.success("Transfer request updated successfully");
@@ -47,16 +41,15 @@ export default function MainAdminTransfersPage() {
     approveMutation.mutate({ requestId, action: "reject" });
   };
 
-  // Filter transfers by search term
   const filteredTransfers = pendingTransfers?.filter((transfer) => {
     const employeeName = transfer.employee?.employeeName || "";
-    const fromSchoolName = transfer.fromSchool?.name || "";
-    const toSchoolName = transfer.toSchool?.name || "";
+    const fromOfficeName = transfer.fromOffice?.officeName || "";
+    const toOfficeName = transfer.toOffice?.officeName || "";
     const status = transfer.status || "";
     return (
       employeeName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      fromSchoolName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      toSchoolName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      fromOfficeName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      toOfficeName.toLowerCase().includes(searchTerm.toLowerCase()) ||
       status.toLowerCase().includes(searchTerm.toLowerCase())
     );
   });
@@ -64,7 +57,7 @@ export default function MainAdminTransfersPage() {
   return (
     <div className="min-h-screen pb-8">
       <ToastContainer position="top-right" autoClose={3000} />
-      <header className="mb-10 ">
+      <header className="mb-10">
         <h1 className="text-2xl font-bold text-secondary flex items-center gap-2">
           <ArrowLeftRightIcon className="w-8 h-8 text-primary" />
           Transfer Requests (Main Admin)
@@ -73,8 +66,8 @@ export default function MainAdminTransfersPage() {
           Review and update transfer requests.
         </p>
       </header>
-      <div className=" mb-8">
-        <div className="bg-white p-6 rounded-lg shadow-sm border-l-4 border-primary">
+      <div className="mb-8">
+        <div className="bg-white rounded-lg shadow-sm border-l-4 border-primary">
           <div className="relative flex-1">
             <SearchIcon className="w-5 h-5 text-gray-400 absolute top-3 left-3" />
             <input
@@ -87,11 +80,11 @@ export default function MainAdminTransfersPage() {
           </div>
         </div>
       </div>
-      <div className=" bg-white p-6 rounded-lg shadow-sm">
+      <div className="bg-white rounded-lg shadow-sm">
         {isLoading ? (
           <div className="flex justify-center items-center h-full">
-          <div className="border-t-transparent border-[#377DFF] w-8 h-8 border-4 border-solid rounded-full animate-spin"></div>
-        </div>
+            <div className="border-t-transparent border-[#377DFF] w-8 h-8 border-4 border-solid rounded-full animate-spin"></div>
+          </div>
         ) : error ? (
           <p className="text-red-500">Error loading transfer requests</p>
         ) : (
@@ -103,10 +96,10 @@ export default function MainAdminTransfersPage() {
                     Employee
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
-                    Current School
+                    Current Office
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
-                    Requested School
+                    Requested Office
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
                     Reason
@@ -130,20 +123,20 @@ export default function MainAdminTransfersPage() {
                         {transfer.employee?.employeeName || "N/A"}
                       </td>
                       <td className="px-6 py-3 text-sm text-gray-900">
-                        {transfer.fromSchool?.name || "N/A"}
+                        {transfer.fromOffice?.officeName || "N/A"}
                       </td>
                       <td className="px-6 py-3 text-sm text-gray-900">
-                        {transfer.toSchool?.name || "N/A"}
+                        {transfer.toOffice?.officeName || "N/A"}
                       </td>
                       <td className="px-6 py-3 text-sm text-gray-900">
-                        {transfer.comment || "N/A"}
+                        {transfer.transferReason || "N/A"}
                       </td>
                       <td className={`px-6 py-3 text-sm font-semibold ${
-                        transfer.status === "pending"
+                        transfer.status === "Pending"
                           ? "text-yellow-500"
-                          : transfer.status === "approved_by_main"
+                          : transfer.status === "MainAdminApproved"
                           ? "text-green-500"
-                          : transfer.status === "accepted_by_receiving"
+                          : transfer.status === "FullyApproved"
                           ? "text-green-600"
                           : "text-red-500"
                       }`}>

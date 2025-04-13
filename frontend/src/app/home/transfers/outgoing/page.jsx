@@ -1,12 +1,22 @@
-"use client";
-
+'use client'
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { ArrowLeftRightIcon, Search as SearchIcon } from "lucide-react";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { useUser } from "@/context/UserContext";
-import { getTransferRequests } from "@/api/transferService";
+import axiosClient from "@/api/axiosClient";
+
+const getTransferRequests = async () => {
+  const response = await axiosClient.get("/transfers", {
+    headers: {
+      Authorization: `Bearer ${localStorage.getItem("token")}`,
+    },
+  });
+  return response.data;
+};
+
+
 
 export default function OutgoingTransfersPage() {
   const { user } = useUser();
@@ -18,25 +28,25 @@ export default function OutgoingTransfersPage() {
     refetchOnWindowFocus: false,
   });
 
-  // Filter and sort outgoing transfers in descending order by date
+  console.log("Transfers data:", transfersData);
+
   const outgoingTransfers =
     transfersData?.transferRequests
       .filter(
         (t) =>
-          t.fromSchool &&
-          t.fromSchool._id &&
-          t.fromSchool._id.toString() === user.schoolId.toString()
+          t.fromOffice &&
+          t.fromOffice._id &&
+          t.fromOffice._id.toString() === user.officeId.toString()
       )
       .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)) || [];
 
-  // Apply search filter
   const filteredTransfers = outgoingTransfers.filter((transfer) => {
     const employeeName = transfer.employee?.employeeName || "";
-    const toSchoolName = transfer.toSchool?.name || "";
+    const toOfficeName = transfer.toOffice?.officeName || "";
     const status = transfer.status || "";
     return (
       employeeName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      toSchoolName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      toOfficeName.toLowerCase().includes(searchTerm.toLowerCase()) ||
       status.toLowerCase().includes(searchTerm.toLowerCase())
     );
   });
@@ -44,7 +54,6 @@ export default function OutgoingTransfersPage() {
   return (
     <div className="min-h-screen pb-8">
       <ToastContainer position="top-right" autoClose={3000} />
-      {/* Page Header */}
       <header className="mb-10 ">
         <h1 className="text-2xl font-bold text-secondary flex items-center gap-2">
           <ArrowLeftRightIcon className="w-8 h-8 text-primary" />
@@ -55,7 +64,6 @@ export default function OutgoingTransfersPage() {
         </p>
       </header>
 
-      {/* Search Bar */}
       <div className=" mb-8">
         <div className="bg-white p-6 rounded-lg shadow-sm border-l-4 border-primary">
           <div className="relative flex-1">
@@ -71,12 +79,11 @@ export default function OutgoingTransfersPage() {
         </div>
       </div>
 
-      {/* Transfers Table */}
-      <div className=" bg-white p-6 rounded-lg shadow-sm">
+      <div className=" bg-white rounded-lg shadow-sm">
         {isLoading ? (
           <div className="flex justify-center items-center h-full">
-          <div className="border-t-transparent border-[#377DFF] w-8 h-8 border-4 border-solid rounded-full animate-spin"></div>
-        </div>
+            <div className="border-t-transparent border-[#377DFF] w-8 h-8 border-4 border-solid rounded-full animate-spin"></div>
+          </div>
         ) : error ? (
           <p className="text-red-500">Error loading transfers</p>
         ) : (
@@ -88,7 +95,7 @@ export default function OutgoingTransfersPage() {
                     Employee
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
-                    Requested School
+                    Requested Office
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
                     Reason
@@ -106,21 +113,21 @@ export default function OutgoingTransfersPage() {
                   filteredTransfers.map((transfer) => (
                     <tr key={transfer._id}>
                       <td className="px-6 py-3 text-sm text-gray-900">
-                        {transfer.employee?.employeeName || "N/A"}
+                        {transfer.employee?.employeeId || "N/A"}
                       </td>
                       <td className="px-6 py-3 text-sm text-gray-900">
-                        {transfer.toSchool?.name || "N/A"}
+                        {transfer.toOffice?.officeName || "N/A"}
                       </td>
                       <td className="px-6 py-3 text-sm text-gray-900">
-                        {transfer.comment}
+                        {transfer.transferReason || "-"}
                       </td>
                       <td
                         className={`px-6 py-3 text-sm font-semibold ${
-                          transfer.status === "pending"
+                          transfer.status === "Pending"
                             ? "text-yellow-500"
-                            : transfer.status === "approved_by_main"
+                            : transfer.status === "MainAdminApproved"
                             ? "text-green-500"
-                            : transfer.status === "accepted_by_receiving"
+                            : transfer.status === "FullyApproved"
                             ? "text-green-600"
                             : "text-red-500"
                         }`}
@@ -145,7 +152,7 @@ export default function OutgoingTransfersPage() {
               </tbody>
             </table>
           </div>
-        )} 
+        )}
       </div>
     </div>
   );

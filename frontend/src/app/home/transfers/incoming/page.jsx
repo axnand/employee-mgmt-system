@@ -26,13 +26,11 @@ export default function TransferHistoryPage() {
     refetchOnWindowFocus: false,
   });
 
-  // Extract the array from the response
   const transferRequests = Array.isArray(transfersData)
     ? transfersData
     : transfersData?.transferRequests || [];
-  console.log("Transfers data:", transfersData);
+  console.log("Transfers data:", transferRequests);
 
-  // Filter transfers related to the current school (either as source or destination)
   const schoolTransfers = transferRequests
     .filter((t) => {
       const fromMatch =
@@ -57,11 +55,13 @@ export default function TransferHistoryPage() {
 
   // Split incoming transfers into "Current" (pending action by the school admin) and "History" (resolved)
   const currentTransfers = incomingTransfers.filter(
-    (t) => t.status === "approved_by_main"
+    (t) => t.status === "MainAdminApproved"
   );
+  
   const historyTransfers = incomingTransfers.filter(
-    (t) => t.status === "accepted_by_receiving" || t.status === "rejected"
+    (t) => t.status === "FullyApproved" || t.status === "Rejected"
   );
+  
 
   // Further filter by search term (checks employee name, fromSchool, toSchool, and status)
   const filterTransfers = (transfersArray) =>
@@ -304,13 +304,20 @@ export default function TransferHistoryPage() {
                     </td>
                     <td
                       className={`px-6 py-3 text-sm font-semibold ${
-                        transfer.status === "accepted_by_receiving"
+                        transfer.status === "FullyApproved"
                           ? "text-green-600"
-                          : "text-red-500"
+                          : transfer.status === "Rejected"
+                          ? "text-red-500"
+                          : "text-gray-500"
                       }`}
                     >
-                      {transfer.status}
+                      {transfer.status === "FullyApproved"
+                        ? "Approved"
+                        : transfer.status === "Rejected"
+                        ? "Rejected"
+                        : transfer.status}
                     </td>
+
                     <td className="px-6 py-3 text-sm text-gray-900">
                       {new Date(transfer.createdAt).toLocaleDateString()}
                     </td>

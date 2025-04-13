@@ -1,30 +1,30 @@
 import axiosClient from "./axiosClient";
 
-// Creates a transfer request
-export const createTransferRequest = async (transferData, currentUser, ip) => {
+
+export const createTransferRequest = async (transferData) => {
   const response = await axiosClient.post("/transfers", transferData, {
     headers: {
       Authorization: `Bearer ${localStorage.getItem("token")}`,
     },
   });
-  return response.data.transferRequest; // Adjust this if your backend returns a different structure
+  return response.data.transferRequest; 
 };
 
-// Fetches all transfer requests
+
 export const getTransferRequests = async () => {
   const response = await axiosClient.get("/transfers", {
     headers: {
       Authorization: `Bearer ${localStorage.getItem("token")}`,
     },
   });
-  return response.data; // Expected to include a property like { transferRequests: [...] }
+  return response.data; 
 };
 
-// Responds to a transfer request (accept/reject) by the receiving school admin
-export const respondToTransferRequest = async (requestId, action, currentUser, ip) => {
+// Responds to a transfer request (accept/reject) by the receiving office admin
+export const respondToTransferRequest = async (requestId, action, reason) => {
   const response = await axiosClient.put(
     `/transfers/${requestId}/respond`,
-    { action },
+    { action, reason },
     {
       headers: {
         Authorization: `Bearer ${localStorage.getItem("token")}`,
@@ -34,15 +34,15 @@ export const respondToTransferRequest = async (requestId, action, currentUser, i
   return response.data.transferRequest; // Adjust as necessary
 };
 
-export const approveTransferRequest = async (requestId, action, currentUser, ip) => {
-    const response = await axiosClient.put(
-      `/transfers/${requestId}/approve`,
-      { action },
-      {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
-        },
-      }
-    );
-    return response.data.transferRequest; // Adjust based on your backend's response
-  };
+export const approveTransferRequest = async (requestId, action, remarkText) => {
+  const response = await axiosClient.put(
+    `/transfers/${requestId}/approve`,
+    { action, remarkText },
+    {
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem("token")}`,
+      },
+    }
+  );
+  return response.data.transferRequest; // Adjust based on your backend's response
+};

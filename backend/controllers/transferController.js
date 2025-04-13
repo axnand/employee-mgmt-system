@@ -1,76 +1,79 @@
-
 import TransferRequest from "../models/TransferRequest.js";
 import TransferRemark from "../models/TransferRemark.js";
 import { 
   createTransferRequest as createTransferRequestService,
-  approveTransferRequest as approveTransferService,
+  approveTransferRequestService as approveTransferRequestService,
   respondToTransferRequest as respondTransferService 
 } from "../services/transferService.js";
-
-
 export const getTransferRequests = async (req, res) => {
   try {
-    let query = {};
-
-    if (req.user.role.roleName === "CEO") {
-      query = {}; 
-    } 
-    else if (req.user.role.roleName === "ZEO") {
-      query = { fromZone: req.user.zoneId };
-    } 
-    else if (req.user.role.roleName === "School") {
-      query = { $or: [{ fromSchool: req.user.schoolId }, { toSchool: req.user.schoolId }] };
-    } 
-    else {
-      return res.status(403).json({ message: "Not authorized to view transfer requests" });
-    }
-
-    const requests = await TransferRequest.find(query)
+    const requests = await TransferRequest.find()
       .populate("employee")
-      .populate("fromSchool")
-      .populate("toSchool")
+      .populate("fromOffice")
+      .populate("toOffice")
       .exec();
-      
+
     res.json({ transferRequests: requests });
   } catch (error) {
     res.status(500).json({ message: "Error fetching transfer requests", error: error.message });
   }
 };
 
-
 export const createTransferRequest = async (req, res) => {
   try {
-    const { employeeId, toSchoolId, comment } = req.body;
-    const fromSchoolId = req.user.schoolId;
+    const {
+      employee,
+      fromOffice,
+      toOffice,
+      transferType,
+      transferDate,
+      transferReason,
+      transferOrderNo,
+      transferOrderDate,
+      transferOrder,
+    } = req.body;
+
+    if (!employee || !fromOffice || !toOffice || !transferType || !transferDate) {
+      return res.status(400).json({ message: "Missing required fields" });
+    }
+
     const transferRequest = await createTransferRequestService(
-      { employeeId, fromSchoolId, toSchoolId, requestedBy: req.user.userId, comment },
+      {
+        employee,
+        fromOffice,
+        toOffice,
+        transferType,
+        transferDate,
+        transferReason,
+        transferOrderNo,
+        transferOrderDate,
+        transferOrder,
+      },
       req.user,
       req.ip
     );
 
-    await TransferRemark.create({
-      transferRequest: transferRequest._id,
-      remarkType: "RequestCreation",
-      remarkText: comment || "No remarks provided",
-      addedBy: req.user.userId,
-    });
-    res.status(201).json({ message: "Transfer request created", transferRequest });
+    return res.status(201).json({ message: "Transfer request created", transferRequest });
   } catch (error) {
-    res.status(500).json({ message: "Error creating transfer request", error: error.message });
+    return res.status(500).json({
+      message: "Error creating transfer request",
+      error: error.message,
+    });
   }
 };
 
 
+
 export const approveTransferRequest = async (req, res) => {
   try {
-    const { action } = req.body;
-    const transferRequest = await approveTransferService(req.params.id, action, req.user, req.ip);
-    await TransferRemark.create({
-      transferRequest: transferRequest._id,
-      remarkType: action === "approve" ? "MainAdminApproval" : "Rejection",
-      remarkText: remarkText || "No remarks provided",
-      addedBy: req.user.userId,
-    });
+    const { action, remarkText } = req.body;
+    const transferRequest = await approveTransferRequestService(
+      req.params.id,
+      action,
+      req.user,
+      req.ip,
+      remarkText
+    );
 
     res.json({ message: `Transfer request ${action}d successfully`, transferRequest });
   } catch (error) {
@@ -79,63 +82,67 @@ export const approveTransferRequest = async (req, res) => {
 };
 
 
-export const respondToTransferRequest = async (requestId, action, currentUser, ip, reason) => {
+export const respondToTransferRequest = async (requestId, action, currentUser, ip, reason = "") => {
   try {
     console.log("🔍 Received Transfer Response Request:", { requestId, action, reason });
+
     const transferRequest = await TransferRequest.findById(requestId);
-    await TransferRemark.create({
-      transferRequest: transferRequest._id,
-      remarkType: action === "accept" ? "SchoolAdminApproval" : "Rejection",
-      remarkText: reason || "No remarks provided",
-      addedBy: req.user.userId,
-    });
-    
-    if (!transferRequest) {
-      console.error("❌ Transfer request not found:", requestId);
-      throw new Error("Transfer request not found");
+    if (!transferRequest) throw new Error("Transfer request not found");
+
+    // Only allow school admin to act on MainAdminApproved requests
+    if (transferRequest.status !== "MainAdminApproved") {
+      throw new Error("Transfer request has not been approved by the Main Admin yet");
     }
 
-    if (transferRequest.status !== "approved_by_main") {
-      console.error("❌ Transfer request not approved yet:", requestId);
-      throw new Error("Transfer request has not been approved by the main admin yet");
-    }
+    let remarkType = "";
+    let remarkText = "";
 
     if (action === "accept") {
-      console.log("✅ Transfer request accepted:", requestId);
-      transferRequest.status = "accepted_by_receiving";
+      transferRequest.status = "FullyApproved";
+      transferRequest.acceptedBy = currentUser.userId;
+      transferRequest.acceptanceDate = new Date();
 
+      remarkType = "SchoolAdminApproval";
+      remarkText = "Accepted by Receiving Office Admin";
     } else if (action === "reject") {
-      if (!reason || reason.trim() === "") {
-        console.error("❌ Rejection reason is missing");
-        throw new Error("Rejection reason is required");
-      }
-
       const trimmedReason = reason.trim();
-      transferRequest.status = "rejected";
-      transferRequest.rejectionReason = trimmedReason;
+      if (!trimmedReason) throw new Error("Rejection reason is required");
 
-      console.log("❌ Transfer request rejected with reason:", trimmedReason);
+      transferRequest.status = "Rejected";
+      transferRequest.processedBy = currentUser.userId;
+      transferRequest.approvalDate = new Date();
+
+      remarkType = "Rejection";
+      remarkText = trimmedReason;
     } else {
-      console.error("❌ Invalid action received:", action);
       throw new Error("Invalid action");
     }
+
+    // Save updated transfer request
     await transferRequest.save();
+
+    // Save remark
+    await TransferRemark.create({
+      transfer: transferRequest._id,
+      remarkType,
+      remarkText,
+      addedBy: currentUser.userId,
+    });
+
+    // Log action
     await createLog({
       admin: currentUser.userId,
       role: currentUser.role,
       action: "Incoming Transfer Response",
       description: `${action} transfer request ${transferRequest._id}` + 
-        (action === "reject" ? ` with reason: ${reason}` : ""),
+        (action === "reject" ? ` with reason: ${remarkText}` : ""),
       ip,
     });
 
-    console.log("✅ Transfer request updated successfully:", transferRequest);
     return transferRequest;
-
   } catch (error) {
-    console.error("🚨 Error processing transfer response:", error.message);
+    console.error("❌ Error in respondToTransferRequest:", error.message);
     throw new Error(error.message);
   }
 };
-
 
