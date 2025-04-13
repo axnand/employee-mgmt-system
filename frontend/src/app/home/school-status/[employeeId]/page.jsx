@@ -208,7 +208,7 @@ console.log("Token from localStorage:", token);
     }, [employeeData, postingHistoryData]);
 
     
-
+console.log("employee:",employee);
     
     if (employeeLoading || !employee) {
       return (
@@ -337,8 +337,8 @@ console.log("Token from localStorage:", token);
        
         <div className="space-y-3">
           <h2 className="text-lg font-bold text-primary mb-2">Official & Designation</h2>
-          <p><span className="font-semibold text-gray-600 mr-1">Posted Office:</span><span className="text-gray-600 font-medium">{employee.postedOffice || "N/A"}</span></p>
-          <p><span className="font-semibold text-gray-600 mr-1">Working Office:</span><span className="text-gray-600 font-medium">{employee.workingOffice || "N/A"}</span></p>
+          <p><span className="font-semibold text-gray-600 mr-1">Posted Office:</span><span className="text-gray-600 font-medium">{employee.postedOffice.officeName || "N/A"}</span></p>
+          <p><span className="font-semibold text-gray-600 mr-1">Working Office:</span><span className="text-gray-600 font-medium">{employee.office.officeName || "N/A"}</span></p>
           <p><span className="font-semibold text-gray-600 mr-1">Present Designation:</span><span className="text-gray-600 font-medium">{employee.presentDesignation || "N/A"}</span></p>
           <p><span className="font-semibold text-gray-600 mr-1">Date of First Appointment:</span><span className="text-gray-600 font-medium">{employee.dateOfFirstAppointment ? new Date(employee.dateOfFirstAppointment).toLocaleDateString() : "N/A"}</span></p>
           <p><span className="font-semibold text-gray-600 mr-1">Designation at First Appointment:</span><span className="text-gray-600 font-medium">{employee.designationAtFirstAppointment || "N/A"}</span></p>

@@ -51,13 +51,20 @@ export const getEmployeesByOffice = async (req, res) => {
 };
 export const getEmployeeById = async (req, res) => {
   try {
-    const employee = await Employee.findById(req.params.id);
-    if (!employee) return res.status(404).json({ message: "Employee not found" });
+    const employee = await Employee.findById(req.params.id)
+      .populate('office')
+      .populate('postedOffice');
+
+    if (!employee) {
+      return res.status(404).json({ message: "Employee not found" });
+    }
+
     res.json(employee);
   } catch (error) {
     res.status(500).json({ message: "Error fetching employee", error: error.message });
   }
 };
+
 
 
 
@@ -74,10 +81,10 @@ export const createEmployee = async (req, res) => {
     const office = await Office.findById(officeId);
     if (!office) return res.status(404).json({ message: "Office not found" });
 
-    // Create a new employee
+   
     const newEmployeeData = { ...req.body, office: officeId };
     const newEmployeeArr = await Employee.create([newEmployeeData], { session });
-    const savedEmployee = newEmployeeArr[0]; // Since Mongoose returns an array when using transactions
+    const savedEmployee = newEmployeeArr[0];
 
     
     const newUser = await User.create(

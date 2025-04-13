@@ -102,7 +102,7 @@ export default function AddEmployeeModal({
         const response = await axiosClient.get("/offices");
         console.log("Fetched Offices:", response.data.offices);
         const options = response.data.offices.map((office) => ({
-          value: office._id,
+          value: office.officeName,
           label: `${office.officeName}`
         }));
         setOffices(response.data.offices);
@@ -380,6 +380,23 @@ export default function AddEmployeeModal({
   />
   {requiredErrors.postedOffice && (
     <p className="text-red-500 text-xs mt-1">{requiredErrors.postedOffice}</p>
+  )}
+</div>
+<div>
+  <label className="font-semibold text-gray-600 block mb-1">Working Office</label>
+  <Select
+    options={officeOptions}
+    value={officeOptions.find(opt => opt.value === newEmployeeData.workingOffice) || null}
+    onChange={(selected) => {
+      setNewEmployeeData({ ...newEmployeeData, workingOffice: selected?.value || "" });
+      setRequiredErrors(prev => ({ ...prev, workingOffice: "" }));
+    }}
+    placeholder="Search and select office"
+    classNamePrefix="react-select"
+    className={`text-sm ${requiredErrors.workingOffice ? "border border-red-500 rounded" : ""}`}
+  />
+  {requiredErrors.workingOffice && (
+    <p className="text-red-500 text-xs mt-1">{requiredErrors.workingOffice}</p>
   )}
 </div>
 
