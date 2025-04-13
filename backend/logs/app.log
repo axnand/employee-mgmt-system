@@ -32,3 +32,6 @@ Meta: {"error":{"errors":{"employee":{"name":"ValidatorError","message":"Path `e
 2025-04-13 12:14:24 [INFO]: Action: Login - Performed by: ceoUser (CEO) - Description: ceoUser logged in successfully as CEO - IP: ::1
 2025-04-13 12:48:21 [INFO]: Action: Login - Performed by: ceoUser (CEO) - Description: ceoUser logged in successfully as CEO - IP: ::1
 2025-04-13 13:16:49 [INFO]: Action: Login - Performed by: ceoUser (CEO) - Description: ceoUser logged in successfully as CEO - IP: ::1
+2025-04-13 14:47:35 [INFO]: Action: Login - Performed by: zeo_bhalla (ZEO) - Description: zeo_bhalla logged in successfully as ZEO - IP: ::1
+2025-04-13 14:57:43 [INFO]: Action: Login - Performed by: schoolAdmin_20034 (schoolAdmin) - Description: schoolAdmin_20034 logged in successfully as schoolAdmin - IP: ::1
+2025-04-13 15:52:19 [INFO]: Action: Login - Performed by: schoolAdmin_20034 (schoolAdmin) - Description: schoolAdmin_20034 logged in successfully as schoolAdmin - IP: ::1

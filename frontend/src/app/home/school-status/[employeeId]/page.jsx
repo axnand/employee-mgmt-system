@@ -78,7 +78,7 @@ console.log("Token from localStorage:", token);
     const queryClient = useQueryClient();
     const { user } = useUser();
     const fileInputRef = useRef(null);
-
+    console.log("user office id",user?.officeId);
     const handleUploadProfilePicture = () => {
       if (fileInputRef.current) {
         fileInputRef.current.click();
@@ -162,8 +162,6 @@ console.log("Token from localStorage:", token);
         setIsUploading(true);
         const photoUrl = await handleImageUpload(file);
         console.log("Uploaded photo URL:", photoUrl);
-        
-        // Call update mutation to update the employee's photograph field
         updateMutation.mutate(
           { employeeId: employee._id, updatedData: { photograph: photoUrl } },
           {
@@ -261,7 +259,7 @@ console.log("employee:",employee);
               )}
               <h1 className="text-2xl font-bold text-gray-800">{employee.fullName}</h1>
             </div>
-            {user.officeId === employee.officeId && <div className="flex flex-col gap-2">
+            {user?.officeId === employee?.office?._id && <div className="flex flex-col gap-2">
               {!isEditMode && !isTransferMode && (
                 <>
                   <button

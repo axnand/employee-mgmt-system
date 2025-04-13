@@ -12,7 +12,7 @@ function page() {
     <>
     {userRole === "CEO" && <AdminLogs/>}
     {userRole === "ZEO" && <AdminLogs/>}
-    {userRole === "schoolAdmin" && <LocalLogsPage/>}
+    {userRole === "schoolAdmin" && <AdminLogs/>}
     </>
     
   )
