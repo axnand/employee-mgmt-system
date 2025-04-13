@@ -18,14 +18,28 @@ import cors from 'cors';
 
 dotenv.config();
 
-// Connect to the database
 connectDB();
 
 const app = express();
 app.use(express.json());
-app.use(cors());
+const allowedOrigins = [
+  'https://employee-mgmt-system-kf4my7klu-anands-projects-eb4bd129.vercel.app',
+  'https://www.emstest.work.gd',
+];
 
-// Mount routes
+app.use(cors({
+  origin: function (origin, callback) {
+    if (!origin) return callback(null, true);
+    if (allowedOrigins.includes(origin)) {
+      return callback(null, true);
+    } else {
+      return callback(new Error('Not allowed by CORS'));
+    }
+  },
+  credentials: true, 
+}));
+
+
 app.use("/api/auth", authRoutes);
 app.use("/api/employees", employeeRoutes);
 app.use("/api/logs", logRoutes);
