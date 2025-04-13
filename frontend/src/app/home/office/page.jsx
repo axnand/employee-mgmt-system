@@ -293,7 +293,7 @@ function OfficeDetails() {
           <h2 className="text-2xl font-semibold text-gray-800 mb-6 flex items-center gap-2">
             <Users className="w-6 h-6 text-primary" /> Employees
           </h2>
-          {user.role === "CEO" && <button
+          {user.officeId === officeId && <button
             onClick={() => setIsAddModalOpen(true)}
             className="font-semibold text-[13px] px-4 py-2 bg-primary transition text-white rounded hover:bg-blue-600"
           >

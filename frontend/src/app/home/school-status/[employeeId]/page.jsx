@@ -3,7 +3,7 @@
   import { useParams, useRouter } from "next/navigation";
   import { useState, useEffect, useRef } from "react";
   import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-  import { ChevronLeft, User } from "lucide-react";
+  import { Building, ChevronLeft, User } from "lucide-react";
   import EmployeeEditForm from "@/components/school-status/EmployeeEditForm";
   import EmployeeTransferForm from "@/components/school-status/EmployeeTransferForm";
   import districtData from "@/data/data.json"; // Used only for schools list in transfer form
@@ -209,7 +209,7 @@ console.log("Token from localStorage:", token);
 
     
 
-    // Loading & error states
+    
     if (employeeLoading || !employee) {
       return (
         <div className="flex justify-center items-center h-full">
@@ -227,7 +227,7 @@ console.log("Token from localStorage:", token);
 
     console.log("employees-page:",employee);
 
-    // For the transfer form, if no backend list is available, use local district data.
+   
     const allSchools = districtData.zones.flatMap((zone) =>
       zone.schools.map((school) => ({ ...school, zone: zone.zone }))
     );
@@ -238,7 +238,6 @@ console.log("Token from localStorage:", token);
     return (
       <div className="min-h-screen  capitalize">
         <div className="">
-          {/* Back Button */}
           <button
             onClick={() => router.back()}
             className="mb-6 flex items-center text-[15px] font-semibold rounded-md text-secondary hover:text-primary transition"
@@ -246,7 +245,7 @@ console.log("Token from localStorage:", token);
             <ChevronLeft className="w-4 h-4 mr-1" /> Back
           </button>
 
-          {/* Page Header: Employee Name + Action Buttons */}
+          
           <div className="bg-white shadow-sm border-l-4 border-primary rounded-lg p-6 mb-6 flex items-center justify-between">
             <div className="flex items-center gap-2">
               {employee.photograph ? (
@@ -262,7 +261,7 @@ console.log("Token from localStorage:", token);
               )}
               <h1 className="text-2xl font-bold text-gray-800">{employee.fullName}</h1>
             </div>
-            <div className="flex flex-col gap-2">
+            {user.officeId === employee.officeId && <div className="flex flex-col gap-2">
               {!isEditMode && !isTransferMode && (
                 <>
                   <button
@@ -294,10 +293,10 @@ console.log("Token from localStorage:", token);
                 onChange={handleFileChange}
                 className="hidden"
               />
-            </div>
+            </div>}
           </div>
 
-          {/* Edit Mode: EmployeeEditForm is integrated here */}
+          
           {isEditMode && (
             <EmployeeEditForm
               initialData={employee}
@@ -307,7 +306,7 @@ console.log("Token from localStorage:", token);
             />
           )}
 
-          {/* Transfer Mode */}
+         
           {isTransferMode && (
             <EmployeeTransferForm
               onSubmit={handleSubmitTransfer}
@@ -316,259 +315,144 @@ console.log("Token from localStorage:", token);
             />
           )}
 
-          {/* View Mode */}
+          
           {!isEditMode && !isTransferMode && (
     <div className="bg-white shadow rounded-lg p-6">
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-sm">
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-sm">
+      <div className="space-y-8">
         <div className="space-y-3">
-          <p>
-            <span className="font-semibold text-gray-600 mr-1">Employee ID:</span>
-            <span className="text-gray-600 font-medium">{employee.employeeId}</span>
-          </p>
-          <p>
-            <span className="font-semibold text-gray-600 mr-1">Full Name:</span>
-            <span className="text-gray-600 font-medium">{employee.fullName || "N/A"}</span>
-          </p>
-          <p>
-            <span className="font-semibold text-gray-600 mr-1">Gender:</span>
-            <span className="text-gray-600 font-medium">{employee.gender || "N/A"}</span>
-          </p>
-          <p>
-            <span className="font-semibold text-gray-600 mr-1">Marital Status:</span>
-            <span className="text-gray-600 font-medium">{employee.maritalStatus || "N/A"}</span>
-          </p>
-          <p>
-            <span className="font-semibold text-gray-600 mr-1">Parentage/Spouse:</span>
-            <span className="text-gray-600 font-medium">{employee.parentageOrSpouse || "N/A"}</span>
-          </p>
-          <p>
-            <span className="font-semibold text-gray-600 mr-1">Password:</span>
-            <span className="text-gray-600 font-medium" style={{ textTransform: 'none' }}>
-              {employee.credentials.passwordHash || "N/A"}
-            </span>
-          </p>
-          <p>
-            <span className="font-semibold text-gray-600 mr-1">Phone Number:</span>
-            <span className="text-gray-600 font-medium">{employee.phoneNo || "N/A"}</span>
-          </p>
-          <p>
-            <span className="font-semibold text-gray-600 mr-1">Email:</span>
-            <span className="text-gray-600 font-medium" style={{ textTransform: 'none' }}>{employee.email || "N/A"}</span>
-          </p>
-          <p>
-            <span className="font-semibold text-gray-600 mr-1">Date of Birth:</span>
-            <span className="text-gray-600 font-medium">
-              {employee.dateOfBirth ? new Date(employee.dateOfBirth).toLocaleDateString() : "N/A"}
-            </span>
-          </p>
-          <p>
-            <span className="font-semibold text-gray-600 mr-1">Staff Type:</span>
-            <span className="text-gray-600 font-medium">{employee.staffType || "N/A"}</span>
-          </p>
-          <p>
-  <span className="font-semibold text-gray-600 mr-1">Posted Office:</span>
-  <span className="text-gray-600 font-medium">{employee.postedOffice || "N/A"}</span>
-</p>
-
-<p>
-  <span className="font-semibold text-gray-600 mr-1">Working Office:</span>
-  <span className="text-gray-600 font-medium">{employee.workingOffice || "N/A"}</span>
-</p>
-          <p>
-            <span className="font-semibold text-gray-600 mr-1">Present Designation:</span>
-            <span className="text-gray-600 font-medium ">{employee.presentDesignation || "N/A"}</span>
-          </p>
-          <p>
-            <span className="font-semibold text-gray-600 mr-1">Date of First Appointment:</span>
-            <span className="text-gray-600 font-medium">
-              {employee.dateOfFirstAppointment ? new Date(employee.dateOfFirstAppointment).toLocaleDateString() : "N/A"}
-            </span>
-          </p>
-          
-          <p>
-            <span className="font-semibold text-gray-600 mr-1">Designation at First Appointment:</span>
-            <span className="text-gray-600 font-medium">{employee.designationAtFirstAppointment || "N/A"}</span>
-          </p>
-          <p>
-            <span className="font-semibold text-gray-600 mr-1">Latest Promotion:</span>
-            <span className="text-gray-600 font-medium">
-              {employee.dateOfRecentPromotion ? new Date(employee.dateOfRecentPromotion).toLocaleDateString() : "N/A"}
-            </span>
-          </p>
+          <h2 className="text-lg font-bold text-primary mb-2">Personal Details</h2>
+          <p><span className="font-semibold text-gray-600 mr-1">Employee ID:</span><span className="text-gray-600 font-medium">{employee.employeeId}</span></p>
+          <p><span className="font-semibold text-gray-600 mr-1">Full Name:</span><span className="text-gray-600 font-medium">{employee.fullName || "N/A"}</span></p>
+          <p><span className="font-semibold text-gray-600 mr-1">Gender:</span><span className="text-gray-600 font-medium">{employee.gender || "N/A"}</span></p>
+          <p><span className="font-semibold text-gray-600 mr-1">Marital Status:</span><span className="text-gray-600 font-medium">{employee.maritalStatus || "N/A"}</span></p>
+          <p><span className="font-semibold text-gray-600 mr-1">Parentage/Spouse:</span><span className="text-gray-600 font-medium">{employee.parentageOrSpouse || "N/A"}</span></p>
+          <p><span className="font-semibold text-gray-600 mr-1">Phone Number:</span><span className="text-gray-600 font-medium">{employee.phoneNo || "N/A"}</span></p>
+          <p><span className="font-semibold text-gray-600 mr-1">Email:</span><span className="text-gray-600 font-medium" style={{ textTransform: 'none' }}>{employee.email || "N/A"}</span></p>
+          <p><span className="font-semibold text-gray-600 mr-1">Date of Birth:</span><span className="text-gray-600 font-medium">{employee.dateOfBirth ? new Date(employee.dateOfBirth).toLocaleDateString() : "N/A"}</span></p>
+          <p><span className="font-semibold text-gray-600 mr-1">Staff Type:</span><span className="text-gray-600 font-medium">{employee.staffType || "N/A"}</span></p>
+          <p><span className="font-semibold text-gray-600 mr-1">Password:</span><span className="text-gray-600 font-medium" style={{ textTransform: 'none' }}>{employee.credentials.passwordHash || "N/A"}</span></p>
         </div>
+  
+       
         <div className="space-y-3">
-          
-          <p>
-            <span className="font-semibold text-gray-600 mr-1">Retirement Date:</span>
-            <span className="text-gray-600 font-medium">
-              {employee.dateOfRetirement ? new Date(employee.dateOfRetirement).toLocaleDateString() : "N/A"}
-            </span>
-          </p>
-          <p>
-            <span className="font-semibold text-gray-600 mr-1">Actual Place of Posting:</span>
-            <span className="text-gray-600 font-medium">{employee.actualPlaceOfPosting || "N/A"}</span>
-          </p>
-          
-          <p>
-            <span className="font-semibold text-gray-600 mr-1">Basis of Work:</span>
-            <span className="text-gray-600 font-medium">{employee.basisOfWork || "N/A"}</span>
-          </p>
-          <p>
-    <span className="font-semibold text-gray-600 mr-1">Highest Qualification:</span>
-    <span className="text-gray-600 font-medium">
-      {employee.highestQualification || "N/A"}
-    </span>
-  </p>
-
-  {/* Show Specialization Subject only if qualification is not 10TH or 12TH */}
-  {employee.highestQualification &&
-    !["10TH", "12TH"].includes(employee.highestQualification.toUpperCase()) && (
-      <p>
-        <span className="font-semibold text-gray-600 mr-1">
-          {employee.highestQualification.toUpperCase() === "PHD"
-            ? "Specialization (Enter Text):"
-            : "Specialization Subject:"}
-        </span>
-        <span className="text-gray-600 font-medium">
-          {employee.specializationSubject || "N/A"}
-        </span>
-      </p>
-    )}
-
-  {/* Show PG University if qualification is not 10TH or 12TH */}
-  {employee.highestQualification &&
-    !["10TH", "12TH"].includes(employee.highestQualification.toUpperCase()) && (
-      <p>
-        <span className="font-semibold text-gray-600 mr-1">
-          {employee.highestQualification.toUpperCase()} University:
-        </span>
-        <span className="text-gray-600 font-medium">
-          {employee.pgUniversity || "N/A"}
-        </span>
-      </p>
-    )}
-
-  <p>
-    <span className="font-semibold text-gray-600 mr-1">B.Ed:</span>
-    <span className="text-gray-600 font-medium">
-      {employee.bed ? "Yes" : "No"}
-    </span>
-  </p>
-
-  {/* If B.Ed is Yes, show B.Ed University */}
-  {employee.bed && (
-    <p>
-      <span className="font-semibold text-gray-600 mr-1">B.Ed University:</span>
-      <span className="text-gray-600 font-medium">
-        {employee.bedUniversity || "N/A"}
-      </span>
-    </p>
-  )}
-
-  <p>
-    <span className="font-semibold text-gray-600 mr-1">
-      Any Other Certification:
-    </span>
-    <span className="text-gray-600 font-medium">
-      {employee.anyOtherCertification || "N/A"}
-    </span>
-  </p>
-
-          <p>
-            <span className="font-semibold text-gray-600 mr-1">Date From Which Working in Current Office:</span>
-            <span className="text-gray-600 font-medium">
-              {employee.dateOfCurrentPosting ? new Date(employee.dateOfCurrentPosting).toLocaleDateString() : "N/A"}
-            </span>
-          </p>
-          <p>
-            <span className="font-semibold text-gray-600 mr-1">Current Payscale and Level:</span>
-            <span className="text-gray-600 font-medium">
-              {employee.payScaleAndLevel || "N/A"}
-            </span>
-          </p>
-          <p>
-            <span className="font-semibold text-gray-600 mr-1">Current Basic Pay:</span>
-            <span className="text-gray-600 font-medium">{employee.basicPay || "N/A"}</span>
-          </p>
-          
-          <p>
-            <span className="font-semibold text-gray-600 mr-1">Gross Salary:</span>
-            <span className="text-gray-600 font-medium">{employee.grossSalary || "N/A"}</span>
-          </p>
-          
-          <p>
-            <span className="font-semibold text-gray-600 mr-1">Pension Scheme:</span>
-            <span className="text-gray-600 font-medium">{employee.pensionScheme || "N/A"}</span>
-          </p>
-          
+          <h2 className="text-lg font-bold text-primary mb-2">Official & Designation</h2>
+          <p><span className="font-semibold text-gray-600 mr-1">Posted Office:</span><span className="text-gray-600 font-medium">{employee.postedOffice || "N/A"}</span></p>
+          <p><span className="font-semibold text-gray-600 mr-1">Working Office:</span><span className="text-gray-600 font-medium">{employee.workingOffice || "N/A"}</span></p>
+          <p><span className="font-semibold text-gray-600 mr-1">Present Designation:</span><span className="text-gray-600 font-medium">{employee.presentDesignation || "N/A"}</span></p>
+          <p><span className="font-semibold text-gray-600 mr-1">Date of First Appointment:</span><span className="text-gray-600 font-medium">{employee.dateOfFirstAppointment ? new Date(employee.dateOfFirstAppointment).toLocaleDateString() : "N/A"}</span></p>
+          <p><span className="font-semibold text-gray-600 mr-1">Designation at First Appointment:</span><span className="text-gray-600 font-medium">{employee.designationAtFirstAppointment || "N/A"}</span></p>
+          <p><span className="font-semibold text-gray-600 mr-1">Latest Promotion:</span><span className="text-gray-600 font-medium">{employee.dateOfRecentPromotion ? new Date(employee.dateOfRecentPromotion).toLocaleDateString() : "N/A"}</span></p>
+          <p><span className="font-semibold text-gray-600 mr-1">Actual Place of Posting:</span><span className="text-gray-600 font-medium">{employee.actualPlaceOfPosting || "N/A"}</span></p>
+          <p><span className="font-semibold text-gray-600 mr-1">Basis of Work:</span><span className="text-gray-600 font-medium">{employee.basisOfWork || "N/A"}</span></p>
+        </div>
+  
+       
+        
+      </div>
+  
+      <div className="space-y-8">
+      <div className="space-y-3">
+          <h2 className="text-lg font-bold text-primary mb-2">Retirement Information</h2>
+          <p><span className="font-semibold text-gray-600 mr-1">Retirement Date:</span><span className="text-gray-600 font-medium">{employee.dateOfRetirement ? new Date(employee.dateOfRetirement).toLocaleDateString() : "N/A"}</span></p>
+        </div>
+       
+        <div className="space-y-3">
+          <h2 className="text-lg font-bold text-primary mb-2">Education</h2>
+          <p><span className="font-semibold text-gray-600 mr-1">Highest Qualification:</span><span className="text-gray-600 font-medium">{employee.highestQualification || "N/A"}</span></p>
+          {employee.highestQualification && !["10TH", "12TH"].includes(employee.highestQualification.toUpperCase()) && (
+            <>
+              <p>
+                <span className="font-semibold text-gray-600 mr-1">
+                  {employee.highestQualification.toUpperCase() === "PHD" ? "Specialization (Enter Text):" : "Specialization Subject:"}
+                </span>
+                <span className="text-gray-600 font-medium">{employee.specializationSubject || "N/A"}</span>
+              </p>
+              <p>
+                <span className="font-semibold text-gray-600 mr-1">{employee.highestQualification.toUpperCase()} University:</span>
+                <span className="text-gray-600 font-medium">{employee.pgUniversity || "N/A"}</span>
+              </p>
+            </>
+          )}
+          <p><span className="font-semibold text-gray-600 mr-1">B.Ed:</span><span className="text-gray-600 font-medium">{employee.bed ? "Yes" : "No"}</span></p>
+          {employee.bed && (
+            <p><span className="font-semibold text-gray-600 mr-1">B.Ed University:</span><span className="text-gray-600 font-medium">{employee.bedUniversity || "N/A"}</span></p>
+          )}
+          <p><span className="font-semibold text-gray-600 mr-1">Any Other Certification:</span><span className="text-gray-600 font-medium">{employee.anyOtherCertification || "N/A"}</span></p>
+        </div>
+  
+       
+        <div className="space-y-3">
+          <h2 className="text-lg font-bold text-primary mb-2">Salary Details</h2>
+          <p><span className="font-semibold text-gray-600 mr-1">Date From Which Working in Current Office:</span><span className="text-gray-600 font-medium">{employee.dateOfCurrentPosting ? new Date(employee.dateOfCurrentPosting).toLocaleDateString() : "N/A"}</span></p>
+          <p><span className="font-semibold text-gray-600 mr-1">Current Payscale and Level:</span><span className="text-gray-600 font-medium">{employee.payScaleAndLevel || "N/A"}</span></p>
+          <p><span className="font-semibold text-gray-600 mr-1">Current Basic Pay:</span><span className="text-gray-600 font-medium">{employee.basicPay || "N/A"}</span></p>
+          <p><span className="font-semibold text-gray-600 mr-1">Gross Salary:</span><span className="text-gray-600 font-medium">{employee.grossSalary || "N/A"}</span></p>
+          <p><span className="font-semibold text-gray-600 mr-1">Pension Scheme:</span><span className="text-gray-600 font-medium">{employee.pensionScheme || "N/A"}</span></p>
         </div>
       </div>
+    </div>
+  
+   
+    <div className=" mt-12  font-medium">
+  <h3 className="text-xl font-bold text-gray-800 mb-2">Posting History</h3>
+  <p className="text-gray-500 text-sm mb-8">Your postings in a timeline</p>
 
-      {/* Last Three Postings */}
-      {/* Last Three Postings */}
-<div className="mt-8">
-  <h2 className="text-xl font-bold text-primary mb-4">Posting History</h2>
   {postingLoading ? (
     <div className="flex justify-center items-center h-full">
-    <div className="border-t-transparent border-[#377DFF] w-8 h-8 border-4 border-solid rounded-full animate-spin"></div>
-  </div>
+      <div className="border-t-transparent border-[#377DFF] w-8 h-8 border-4 border-solid rounded-full animate-spin"></div>
+    </div>
   ) : postingError ? (
     <p className="text-gray-600">Error loading postings.</p>
   ) : postingHistoryData && postingHistoryData.length > 0 ? (
-    postingHistoryData.slice(0, 3).map((posting, index) => (
-      <div key={posting._id || index} className="bg-gray-50 p-4 border border-gray-200 rounded-md mb-4">
-        <p className="font-semibold text-secondary mb-2 text-[15px]">Posting {index + 1}:</p>
-        <p>
-          <span className="font-semibold text-gray-600 mr-1">Office Name:</span>
-          <span className="text-gray-600 font-medium">{posting.office?.officeName || "N/A"}</span>
-        </p>
-        <p>
-          <span className="font-semibold text-gray-600 mr-1">Office Type:</span>
-          <span className="text-gray-600 font-medium">{posting.office?.officeType || "N/A"}</span>
-        </p>
-        
-        <p>
-          <span className="font-semibold text-gray-600 mr-1">Designation:</span>
-          <span className="text-gray-600 font-medium">{posting.designationDuringPosting || "N/A"}</span>
-        </p>
-        <p>
-          <span className="font-semibold text-gray-600 mr-1">Start Date:</span>
-          <span className="text-gray-600 font-medium">
-            {posting.startDate ? new Date(posting.startDate).toLocaleDateString() : "N/A"}
+    <div className="relative border-l-[3px] border-dashed border-gray-300 ml-6 text-sm">
+      {postingHistoryData.slice(0, 3).map((posting, index) => (
+        <div key={posting._id || index} className="mb-10 ml-8 flex">
+          <span className="flex absolute -left-[19px] justify-center items-center p-2 rounded-full bg-blue-100 ring-2 ring-primary">
+            <Building className="w-5 h-5 text-blue-600" />
           </span>
-        </p>
-        <p>
-          <span className="font-semibold text-gray-600 mr-1">End Date:</span>
-          <span className="text-gray-600 font-medium">
-            {posting.endDate ? new Date(posting.endDate).toLocaleDateString() : "N/A"}
-          </span>
-        </p>
-        {posting.postingType && (
-          <p>
-            <span className="font-semibold text-gray-600 mr-1">Type:</span>
-            <span className="text-gray-600 font-medium">{posting.postingType}</span>
-          </p>
-        )}
-        {posting.reason && (
-          <p>
-            <span className="font-semibold text-gray-600 mr-1">Reason:</span>
-            <span className="text-gray-600 font-medium">{posting.reason}</span>
-          </p>
-        )}
-        {posting.remarks && (
-          <p>
-            <span className="font-semibold text-gray-600 mr-1">Remarks:</span>
-            <span className="text-gray-600 font-medium">{posting.remarks}</span>
-          </p>
-        )}
-      </div>
-    ))
+          <div className="flex flex-col gap-y-1">
+            <time className="block mb-2 text-xs font-semibold leading-none text-gray-400">
+              {posting.startDate
+                ? new Date(posting.startDate).toLocaleDateString()
+                : "Start N/A"}{" "}
+              -{" "}
+              {posting.endDate
+                ? new Date(posting.endDate).toLocaleDateString()
+                : "End N/A"}
+            </time>
+            <h3 className="text-[15px] font-semibold text-gray-900">
+              {posting.office?.officeName || "N/A"} (
+              {posting.office?.officeType || "N/A"})
+            </h3>
+            <p className="text-[13px] font-medium text-gray-500">
+              Designation: {posting.designationDuringPosting || "N/A"}
+            </p>
+            {posting.postingType && (
+              <p className="text-[13px] text-gray-500">
+                Type: {posting.postingType}
+              </p>
+            )}
+            {posting.reason && (
+              <p className="text-[13px] text-gray-500">
+                Reason: {posting.reason}
+              </p>
+            )}
+            {posting.remarks && (
+              <p className="text-[13px] text-gray-500">
+                Remarks: {posting.remarks}
+              </p>
+            )}
+          </div>
+        </div>
+      ))}
+    </div>
   ) : (
     <p className="text-gray-600">No postings found.</p>
   )}
 </div>
-
-    </div>
+  </div>
+  
   )}
 
         </div>

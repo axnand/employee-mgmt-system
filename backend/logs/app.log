@@ -30,3 +30,5 @@ Meta: {"error":{"errors":{"employee":{"name":"ValidatorError","message":"Path `e
 2025-04-13 12:03:46 [INFO]: Action: Transfer Request Review - Performed by: 67f6d109106db152ce7959ac (CEO) - Description: approve transfer request 67fb5a4413523ffe9e1c279a - IP: ::1
 2025-04-13 12:13:53 [INFO]: Action: Login - Performed by: schoolAdmin_01091202701 (schoolAdmin) - Description: schoolAdmin_01091202701 logged in successfully as schoolAdmin - IP: ::1
 2025-04-13 12:14:24 [INFO]: Action: Login - Performed by: ceoUser (CEO) - Description: ceoUser logged in successfully as CEO - IP: ::1
+2025-04-13 12:48:21 [INFO]: Action: Login - Performed by: ceoUser (CEO) - Description: ceoUser logged in successfully as CEO - IP: ::1
+2025-04-13 13:16:49 [INFO]: Action: Login - Performed by: ceoUser (CEO) - Description: ceoUser logged in successfully as CEO - IP: ::1
