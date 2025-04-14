@@ -5,6 +5,7 @@ import User from "../models/User.js";
 import Office from "../models/Office.js";
 import mongoose from "mongoose";
 import Employee from "../models/Employee.js";
+import School from "../models/School.js";
 
 
 export const getZones = async (req, res) => {
@@ -21,30 +22,40 @@ export const getZoneById = async (req, res) => {
   try {
     const { zoneId } = req.params;
 
-    // Find the Zone by ID and populate relevant fields
     const zone = await Zone.findById(zoneId)
-      .populate("district") // Populates district details
-      .populate({
-        path: "offices",
-        model: "Office" // Ensures related Office documents are fetched
-      })
-      .populate({
-        path: "myOffice",
-        model: "Office" // Ensures the main Office for this zone is fetched
-      });
+      .populate("district")
+      .populate("myOffice")
+      .populate("offices");
 
     if (!zone) {
       return res.status(404).json({ message: "Zone not found" });
     }
 
+    // Add `schools` field directly to each office document (mutating is safe here)
+    await Promise.all(
+      zone.offices.map(async (office) => {
+        if (office.officeType === "Educational") {
+          const schools = await School.find({ office: office._id });
+          office._doc.schools = schools; // ✅ Directly add new field without breaking population
+        }
+      })
+    );
+
     const zeoUser = await User.findOne({ zoneId: zone._id, role: "ZEO" });
 
-    res.status(200).json({ message: "Zone fetched successfully", zone, zeoUser });
+    res.status(200).json({
+      message: "Zone fetched successfully",
+      zone,
+      zeoUser,
+    });
   } catch (error) {
     console.error("❌ Error fetching zone by ID:", error.message);
     res.status(500).json({ message: "Error fetching zone", error: error.message });
   }
 };
+
+
+
 
 export const createZone = async (req, res) => {
   const session = await mongoose.startSession();
@@ -67,12 +78,13 @@ export const createZone = async (req, res) => {
     }
 
     // ✅ Correctly checking for `zonalOffice` object existence
-    if (!zonalOffice.officeName) {
-      return res.status(400).json({ message: " Office Name are required in zonalOffice" });
+    if (!zonalOffice.officeId || !zonalOffice.officeName) {
+      return res.status(400).json({ message: "Office ID and Office Name are required in zonalOffice" });
     }
 
     // ✅ Creating the office using the transaction
     const createdOffice = await Office.create([{
+      officeId: zonalOffice.officeId,
       officeName: zonalOffice.officeName,
       officeType: 'Administrative',
       contact: zonalOffice.contact,

@@ -19,13 +19,14 @@ const ZoneDetails = () => {
     const fetchZoneDetails = async () => {
       try {
         const response = await axiosClient.get(`/zones/${zoneId}`);
-        console.log(response.data);
+        console.log("response",response.data);
         setZoneDetails(response.data.zone);
         setOffices(response.data.zone.offices);
       } catch (error) {
         toast.error("Error fetching zone details");
       }
     };
+    console.log("offices:", offices);
 
     if (zoneId) fetchZoneDetails();
   }, [zoneId]);
@@ -33,9 +34,14 @@ const ZoneDetails = () => {
   console.log("offices:", offices);
   console.log("zoneDetails:", zoneDetails);
 
-  const handleViewOffice = (officeId) => {
-    router.push(`/home/office?officeId=${officeId}`);
+  const handleViewOffice = (office) => {
+    if (office.officeType === "Educational" && office.schools?.length > 0) {
+      router.push(`/home/school-status?school=${office.schools[0]._id}`);
+    } else {
+      router.push(`/home/office?officeId=${office._id}`);
+    }
   };
+  
 
   
 
@@ -76,7 +82,7 @@ const ZoneDetails = () => {
                 <td className="px-6 py-4 text-sm text-gray-900">{office.officeType}</td>
                 <td className="px-6 py-4 text-sm text-gray-900">
                   <button
-                    onClick={() => handleViewOffice(office._id)}
+                    onClick={() => handleViewOffice(office)}
                     className="py-1 px-3 bg-primary text-white rounded-full font-medium text-xs hover:bg-blue-600 transition"
                   >
                     View
