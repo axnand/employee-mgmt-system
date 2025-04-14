@@ -41,3 +41,7 @@ Meta: {"error":{"errors":{"employee":{"name":"ValidatorError","message":"Path `e
 2025-04-14 18:19:50 [INFO]: Action: Login - Performed by: ceoUser (CEO) - Description: ceoUser logged in successfully as CEO - IP: ::1
 2025-04-14 18:21:41 [INFO]: Action: Login - Performed by: zeo_bhalla (ZEO) - Description: zeo_bhalla logged in successfully as ZEO - IP: ::1
 2025-04-15 01:23:00 [INFO]: Action: Login - Performed by: ceoUser (CEO) - Description: ceoUser logged in successfully as CEO - IP: ::1
+2025-04-15 02:17:22 [INFO]: Action: Employee Creation - Performed by: 67f6d109106db152ce7959ac (CEO) - Description: Created employee Ruchika Nawal - IP: ::1
+2025-04-15 02:18:42 [INFO]: Action: Employee Creation - Performed by: 67f6d109106db152ce7959ac (CEO) - Description: Created employee Umang - IP: ::1
+2025-04-15 02:22:08 [INFO]: Action: Login - Performed by: schoolAdmin_20034 (schoolAdmin) - Description: schoolAdmin_20034 logged in successfully as schoolAdmin - IP: ::1
+2025-04-15 02:22:48 [INFO]: Action: Login - Performed by: schoolAdmin_45671 (schoolAdmin) - Description: schoolAdmin_45671 logged in successfully as schoolAdmin - IP: ::1

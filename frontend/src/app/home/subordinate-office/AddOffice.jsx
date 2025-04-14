@@ -89,7 +89,7 @@ export default function AddOffice() {
     const value = e.target.value;
     setUdiseId(value);
     if (value) {
-      setAdminUserName(`schoolAdmin_${value}`);
+      setAdminUserName(`${value}`);
     }
   };
   
