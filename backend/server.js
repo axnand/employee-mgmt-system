@@ -23,6 +23,7 @@ connectDB();
 const app = express();
 app.use(express.json());
 const allowedOrigins = [
+  'http://localhost:3000',
   'https://employee-mgmt-system-kappa.vercel.app',
   'https://employee-mgmt-system-kf4my7klu-anands-projects-eb4bd129.vercel.app',
   'https://www.emstest.work.gd',

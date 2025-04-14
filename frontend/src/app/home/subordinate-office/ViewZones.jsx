@@ -7,6 +7,9 @@ import "react-toastify/dist/ReactToastify.css";
 import { useRouter } from "next/navigation";
 import { Building2 } from "lucide-react";
 
+
+
+
 const ViewZones = () => {
   const [zonalOffices, setZonalOffices] = useState([]);
   const [filteredOffices, setFilteredOffices] = useState([]);
@@ -43,6 +46,7 @@ const ViewZones = () => {
 };
 
 console.log("filteredOffices:", filteredOffices);
+
 
   return (
     <div className="w-full capitalize">

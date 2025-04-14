@@ -31,6 +31,7 @@ export default function AddEmployeeModal({
   const [passwordError, setPasswordError] = useState("");
   const [offices, setOffices] = useState([]);
   const [officeOptions, setOfficeOptions] = useState([]);
+  const [officeOptions2, setOfficeOptions2] = useState([]);
   const [requiredErrors, setRequiredErrors] = useState({});
 
 
@@ -51,7 +52,6 @@ export default function AddEmployeeModal({
     if (!newEmployeeData.dateOfRetirement) errors.dateOfRetirement = "This field is required";
     if (!newEmployeeData.dateOfRecentPromotion) errors.dateOfRecentPromotion = "This field is required";
     if (!newEmployeeData.postedOffice) errors.postedOffice = "This field is required";
-    if (!newEmployeeData.workingOffice) errors.workingOffice = "This field is required";
     if (!newEmployeeData.basisOfWork) errors.basisOfWork = "This field is required";
     if (!newEmployeeData.highestQualification) errors.highestQualification = "This field is required";
     if (
@@ -65,7 +65,6 @@ export default function AddEmployeeModal({
     if (newEmployeeData.bed === "Yes" && !newEmployeeData.bedUniversity) {
       errors.bedUniversity = "This field is required";
     }
-    if (!newEmployeeData.anyOtherCertification) errors.anyOtherCertification = "This field is required";
     if (!newEmployeeData.dateOfCurrentPosting) errors.dateOfCurrentPosting = "This field is required";
     if (!newEmployeeData.payScaleAndLevel) errors.payScaleAndLevel = "This field is required";
     if (!newEmployeeData.basicPay) errors.basicPay = "This field is required";
@@ -86,6 +85,7 @@ export default function AddEmployeeModal({
 
   const handleSave = () => {
     if (!validateFields()) return;
+    console.log("Submitted postedOffice:", newEmployeeData.postedOffice);
     handleSaveNewEmployee();
   };
   
@@ -105,8 +105,14 @@ export default function AddEmployeeModal({
           value: office.officeName,
           label: `${office.officeName}`
         }));
+        const options2 = response.data.offices.map((office) => ({
+          value: office._id,        
+          label: office.officeName  
+        }));
+        
         setOffices(response.data.offices);
         setOfficeOptions(options);
+        setOfficeOptions2(options2);
       } catch (err) {
         console.error("Error fetching offices:", err);
       }
@@ -1007,9 +1013,9 @@ export default function AddEmployeeModal({
         <div>
         <label className="font-semibold text-gray-600 block mb-1">Posting Office</label>
         <Select
-          options={officeOptions}
+          options={officeOptions2}
           value={
-            officeOptions.find(opt => opt.value === posting.office) || null
+            officeOptions2.find((opt) => String(opt.value) === String(posting.office)) || null
           }
           onChange={(selected) => {
             const updatedPosting = {
@@ -1026,6 +1032,7 @@ export default function AddEmployeeModal({
           placeholder="Search and select office"
           className="text-sm mb-1"
         />
+
         </div>
         <div>
           <label className="font-semibold text-gray-600 block mb-1">Designation During Posting</label>

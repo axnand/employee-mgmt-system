@@ -70,11 +70,11 @@ const AddZone = () => {
       setError("ZEO Username and Password are required.");
       return;
     }
-    if (!zonalOfficeId || !zonalOfficeName) {
+    if ( !zonalOfficeName) {
       setError("Zonal Office ID and Name are required.");
       return;
     }
-    if (!zoneName || !zonalOfficeId || !zonalOfficeName) {
+    if (!zoneName || !zonalOfficeName) {
         setError("All fields are required.");
         return;
       }
@@ -86,7 +86,6 @@ const AddZone = () => {
       zeoUserName,
       zeoPassword,
       zonalOffice: {
-        officeId: zonalOfficeId,
         officeName: zonalOfficeName,
         officeType: zonalOfficeType,
         contact: officeContact,
@@ -102,11 +101,12 @@ const AddZone = () => {
         setZoneName("");
         setZeoUserName("");
         setZeoPassword("");
-        setZonalOfficeId("");
         setZonalOfficeName("");
         setZonalOfficeName("");
         setOfficeContact("");
         setOfficeAddress("");
+        setIsModalOpen(false);
+
       }
     } catch (error) {
       console.error("Error creating zone:", error.response?.data || error.message);
@@ -166,17 +166,6 @@ const AddZone = () => {
 
           <div className="space-y-3 pt-4">
             <h3 className="text-lg font-semibold mb-2 text-gray-800">Zonal Office Details</h3>
-            <div>
-              <label className="block text-sm font-medium text-gray-700">Office ID</label>
-              <input
-                type="text"
-                value={zonalOfficeId}
-                onChange={(e) => setZonalOfficeId(e.target.value)}
-                className="w-full p-2 border border-gray-300 rounded mt-1"
-                placeholder="Enter zonal office ID"
-                required
-              />
-            </div>
             <div>
               <label className="block text-sm font-medium text-gray-700">Office Name</label>
               <input

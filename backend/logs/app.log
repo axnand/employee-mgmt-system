@@ -38,3 +38,6 @@ Meta: {"error":{"errors":{"employee":{"name":"ValidatorError","message":"Path `e
 2025-04-13 16:54:31 [INFO]: Action: Employee Transfer Request - Performed by: 67fac104f41f9e75116f3be2 (schoolAdmin) - Description: Initiated transfer request for employee 67fae2c8f41f9e75116f3dd7. Reason: drgerg - IP: ::1
 2025-04-13 16:55:05 [INFO]: Action: Transfer Request Review - Performed by: 67f6d109106db152ce7959ac (CEO) - Description: approve transfer request 67fb9eeff62bc7c32aa11af1 - IP: ::1
 2025-04-13 16:58:52 [INFO]: Action: Login - Performed by: zeo_bhalla (ZEO) - Description: zeo_bhalla logged in successfully as ZEO - IP: ::1
+2025-04-14 18:19:50 [INFO]: Action: Login - Performed by: ceoUser (CEO) - Description: ceoUser logged in successfully as CEO - IP: ::1
+2025-04-14 18:21:41 [INFO]: Action: Login - Performed by: zeo_bhalla (ZEO) - Description: zeo_bhalla logged in successfully as ZEO - IP: ::1
+2025-04-15 01:23:00 [INFO]: Action: Login - Performed by: ceoUser (CEO) - Description: ceoUser logged in successfully as CEO - IP: ::1
