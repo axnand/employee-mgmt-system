@@ -48,7 +48,7 @@ const AddZone = () => {
       const formattedName = zoneName.trim().toLowerCase().replace(/\s+/g, '_');
       setZeoUserName(`zeo_${formattedName}`);
       setZeoPassword(generatePassword());
-      setZonalOfficeName(`Zonal Office - ${zoneName}`);
+      setZonalOfficeName(`Zonal Education Office - ${zoneName}`);
       
     }
   }, [zoneName]);
@@ -101,7 +101,6 @@ const AddZone = () => {
         setZoneName("");
         setZeoUserName("");
         setZeoPassword("");
-        setZonalOfficeName("");
         setZonalOfficeName("");
         setOfficeContact("");
         setOfficeAddress("");
