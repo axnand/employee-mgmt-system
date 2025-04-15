@@ -6,23 +6,22 @@ import axiosClient from "@/api/axiosClient";
 import { useUser } from "@/context/UserContext";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { useQueryClient } from "@tanstack/react-query";
 import ViewZones from "./ViewZones";
 
 const AddZone = () => {
+  const queryClient = useQueryClient();
   const router = useRouter();
   const { user } = useUser();
   const districtId = user?.districtId;
   
-  // Zone fields
   const [zoneName, setZoneName] = useState("");
-  
-  // ZEO credentials (auto-generated when zone name is entered)
+
   const [zeoUserName, setZeoUserName] = useState("");
   const [zeoPassword, setZeoPassword] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  
-  // Zonal Office fields
+
   const [zonalOfficeId, setZonalOfficeId] = useState("");
   const [zonalOfficeName, setZonalOfficeName] = useState("");
   const [zonalOfficeType, setZonalOfficeType] = useState("Administrative");
@@ -32,7 +31,7 @@ const AddZone = () => {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
 
-  // Generate a random password
+
   const generatePassword = () => {
     const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*";
     let password = "";
@@ -42,7 +41,7 @@ const AddZone = () => {
     return password;
   };
 
-  // When zone name changes, auto-generate ZEO username and password
+
   useEffect(() => {
     if (zoneName) {
       const formattedName = zoneName.trim().toLowerCase().replace(/\s+/g, '_');
@@ -79,7 +78,7 @@ const AddZone = () => {
         return;
       }
 
-    // Prepare payload: include both zone details and zonal office details.
+
     const payload = {
       name: zoneName,
       district: districtId,
@@ -105,6 +104,7 @@ const AddZone = () => {
         setOfficeContact("");
         setOfficeAddress("");
         setIsModalOpen(false);
+        queryClient.invalidateQueries(["zones"]);
 
       }
     } catch (error) {

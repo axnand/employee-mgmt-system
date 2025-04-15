@@ -78,8 +78,8 @@ export const createZone = async (req, res) => {
     }
 
     // ✅ Correctly checking for `zonalOffice` object existence
-    if (!zonalOffice.officeId || !zonalOffice.officeName) {
-      return res.status(400).json({ message: "Office ID and Office Name are required in zonalOffice" });
+    if (!zonalOffice.officeName) {
+      return res.status(400).json({ message: "Office Name is required in zonalOffice" });
     }
 
     // ✅ Creating the office using the transaction

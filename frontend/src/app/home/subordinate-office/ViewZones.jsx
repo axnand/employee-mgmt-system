@@ -6,6 +6,7 @@ import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { useRouter } from "next/navigation";
 import { Building2 } from "lucide-react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 
 
 
@@ -15,20 +16,9 @@ const ViewZones = () => {
   const [filteredOffices, setFilteredOffices] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const router = useRouter();
+  const queryClient = useQueryClient();
 
-  useEffect(() => {
-    const fetchZonalOffices = async () => {
-      try {
-        const response = await axiosClient.get("/zones");
-        setZonalOffices(response.data.zones || []);
-        setFilteredOffices(response.data.zones || []);
-      } catch (error) {
-        toast.error("Error fetching zonal offices");
-      }
-    };
 
-    fetchZonalOffices();
-  }, []);
 
   useEffect(() => {
     if (searchTerm) {
@@ -44,6 +34,28 @@ const ViewZones = () => {
   const handleViewDetails = (zoneId) => {
     router.push(`/home/subordinate-office/zone?zoneId=${zoneId}`);
 };
+
+const { data: zones = [], isLoading, isError } = useQuery({
+  queryKey: ["zones"],
+  queryFn: async () => {
+    const response = await axiosClient.get("/zones");
+    return response.data.zones || [];
+  },
+});
+
+useEffect(() => {
+  if (zones.length > 0) {
+    setZonalOffices(zones);
+    setFilteredOffices(zones);
+    console.log("Zonal Offices:", zones);
+  }
+}, [zones]);
+
+useEffect(() => {
+  if (isError) {
+    toast.error("Error fetching zonal offices");
+  }
+}, [isError]);
 
 console.log("filteredOffices:", filteredOffices);
 
