@@ -2,10 +2,10 @@ import { useState, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import Select from "react-select";
 import axiosClient from "@/api/axiosClient";
-import { toast } from "react-toastify";
 import { useUser } from "@/context/UserContext";
 import { createTransferRequest } from "@/api/transferService";
-
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 export default function TransferRequestForm({ onCancel, employeeId }) {
   const [transferType, setTransferType] = useState("Transfer");
   const [transferDate, setTransferDate] = useState("");
@@ -46,12 +46,14 @@ export default function TransferRequestForm({ onCancel, employeeId }) {
       onCancel?.();
     },
     onError: (error) => {
-      toast.error("Error submitting transfer request: " + error.message);
-    },
+      const message = error?.message || "Something went wrong";
+      const details = error?.error || "";
+      toast.error(`${message}${details ? `: ${details}` : ""}`);
+    },    
   });
 
   const handleSubmit = async () => {
-    if (!toOfficeId || !transferDate || !transferType) {
+    if (!toOfficeId || !transferDate || !transferType ) {
       toast.error("Please fill all required fields.");
       return;
     }
@@ -90,6 +92,7 @@ export default function TransferRequestForm({ onCancel, employeeId }) {
 
   return (
     <div className="bg-white shadow rounded-lg p-6 mb-6">
+      <ToastContainer />
       <h2 className="text-xl font-semibold mb-4 text-gray-800">Create Transfer Request</h2>
 
       <div className="mb-4">

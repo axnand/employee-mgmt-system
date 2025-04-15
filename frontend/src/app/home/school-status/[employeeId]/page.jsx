@@ -9,7 +9,8 @@
   import districtData from "@/data/data.json"; // Used only for schools list in transfer form
   import { useUser } from "@/context/UserContext";
   import { createTransferRequest } from "@/api/transferService";
-  import { toast } from "react-toastify";
+  import { toast, ToastContainer } from "react-toastify";
+  import "react-toastify/dist/ReactToastify.css";
 
   // --- Backend fetch functions ---
 
@@ -235,6 +236,7 @@ console.log("employee:",employee);
 
     return (
       <div className="min-h-screen  capitalize">
+        <ToastContainer />
         <div className="">
           <button
             onClick={() => router.back()}
