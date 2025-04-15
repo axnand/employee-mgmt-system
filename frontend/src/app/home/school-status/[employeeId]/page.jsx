@@ -259,7 +259,7 @@ console.log("employee:",employee);
               )}
               <h1 className="text-2xl font-bold text-gray-800">{employee.fullName}</h1>
             </div>
-            {user?.officeId === employee?.office?._id && <div className="flex flex-col gap-2">
+            {user?.officeId === employee?.office?._id && <div className="flex  gap-2">
               {!isEditMode && !isTransferMode && (
                 <>
                   <button
