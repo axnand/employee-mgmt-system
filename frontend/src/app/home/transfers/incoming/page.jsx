@@ -54,20 +54,29 @@ export default function TransferHistoryPage() {
   );
 
   // Split incoming transfers into "Current" (pending action by the school admin) and "History" (resolved)
-  const currentTransfers = incomingTransfers.filter(
-    (t) => t.status === "MainAdminApproved"
+  const currentTransfers = transferRequests.filter(
+    (t) =>
+      t.status === "CEOApproved" &&
+      t.toOffice &&
+      t.toOffice._id &&
+      t.toOffice._id.toString() === user.officeId.toString()
   );
   
-  const historyTransfers = incomingTransfers.filter(
-    (t) => t.status === "FullyApproved" || t.status === "Rejected"
+  const historyTransfers = transferRequests.filter(
+    (t) =>
+      (t.status === "FullyApproved" || t.status === "Rejected") &&
+      t.toOffice &&
+      t.toOffice._id &&
+      t.toOffice._id.toString() === user.officeId.toString()
   );
+  
   
 
   // Further filter by search term (checks employee name, fromSchool, toSchool, and status)
   const filterTransfers = (transfersArray) =>
     transfersArray.filter((transfer) => {
       const employeeName = transfer.employee?.employeeName || "";
-      const fromSchoolName = transfer.fromSchool?.name || "";
+      const fromSchoolName = transfer.fromOffice?.officeName || "";
       const toSchoolName = transfer.toSchool?.name || "";
       const status = transfer.status || "";
       return (
@@ -79,7 +88,9 @@ export default function TransferHistoryPage() {
     });
 
   const filteredCurrent = filterTransfers(currentTransfers);
+  console.log("Filtered Current:", filteredCurrent);
   const filteredHistory = filterTransfers(historyTransfers);
+  console.log("Filtered History:", filteredHistory);
 
   // Mutation for responding to a transfer request (accept or reject)
   const respondMutation = useMutation({
@@ -197,10 +208,10 @@ export default function TransferHistoryPage() {
                     Employee
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
-                    From School
+                    From Office
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
-                    To School
+                    To Office
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
                     Reason
@@ -217,16 +228,16 @@ export default function TransferHistoryPage() {
                 {filteredCurrent.map((transfer) => (
                   <tr key={transfer._id}>
                     <td className="px-6 py-3 text-sm text-gray-900">
-                      {transfer.employee?.employeeName || "N/A"}
+                      {transfer.employee?.employeeId || "N/A"}
                     </td>
                     <td className="px-6 py-3 text-sm text-gray-900">
-                      {transfer.fromSchool?.name || "N/A"}
+                      {transfer.fromOffice?.officeName || "N/A"}
                     </td>
                     <td className="px-6 py-3 text-sm text-gray-900">
-                      {transfer.toSchool?.name || "N/A"}
+                      {transfer.toOffice?.officeName || "N/A"}
                     </td>
                     <td className="px-6 py-3 text-sm text-gray-900">
-                      {transfer.comment || "N/A"}
+                      {transfer.transferReason || "N/A"}
                     </td>
                     <td className="px-6 py-3 text-sm text-gray-900">
                       {new Date(transfer.createdAt).toLocaleDateString()}

@@ -160,7 +160,9 @@ const handlePasswordUpdate = async () => {
                   dropdownVisible
                     ? "transform translate-y-0 opacity-100"
                     : "transform translate-y-4 opacity-0 hidden"
-                } transition-all duration-300 ease-out`}
+                } transition-all duration-300 ease-out`
+              }
+              style={{ zIndex: 9999 }}
               >
                 <div className="p-4 space-y-1">
                   <p className="text-sm font-medium leading-none mb-1">Username: {userDetails?.userName}</p>

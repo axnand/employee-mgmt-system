@@ -85,7 +85,7 @@ export const approveTransferRequestService = async (requestId, action, currentUs
   if (!transferRequest) throw new Error("Transfer request not found");
 
   if (action === "approve") {
-    transferRequest.status = "MainAdminApproved";
+    transferRequest.status = "CEOApproved";
   } else if (action === "reject") {
     transferRequest.status = "Rejected";
   } else {
@@ -96,7 +96,7 @@ export const approveTransferRequestService = async (requestId, action, currentUs
 
   await TransferRemark.create({
     transfer: transferRequest._id,
-    remarkType: action === "approve" ? "MainAdminApproval" : "Rejection",
+    remarkType: action === "approve" ? "CEOApproval" : "Rejection",
     remarkText: remarkText || (action === "approve" ? "Approved by CEO" : "Rejected by CEO"),
     addedBy: currentUser.userId,
   });

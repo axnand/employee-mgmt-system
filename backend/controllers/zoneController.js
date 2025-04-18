@@ -30,13 +30,11 @@ export const getZoneById = async (req, res) => {
     if (!zone) {
       return res.status(404).json({ message: "Zone not found" });
     }
-
-    // Add `schools` field directly to each office document (mutating is safe here)
     await Promise.all(
       zone.offices.map(async (office) => {
         if (office.officeType === "Educational") {
           const schools = await School.find({ office: office._id });
-          office._doc.schools = schools; // ✅ Directly add new field without breaking population
+          office._doc.schools = schools;
         }
       })
     );
@@ -77,12 +75,12 @@ export const createZone = async (req, res) => {
       return res.status(400).json({ message: "Zone already exists in this district" });
     }
 
-    // ✅ Correctly checking for `zonalOffice` object existence
+
     if (!zonalOffice.officeName) {
       return res.status(400).json({ message: "Office Name is required in zonalOffice" });
     }
 
-    // ✅ Creating the office using the transaction
+
     const createdOffice = await Office.create([{
       officeId: zonalOffice.officeId,
       officeName: zonalOffice.officeName,
@@ -91,7 +89,7 @@ export const createZone = async (req, res) => {
       address: zonalOffice.address
     }], { session });
 
-    // ✅ Creating the zone with a reference to the newly created office
+
     const newZone = await Zone.create([{
       name,
       district,
@@ -103,7 +101,7 @@ export const createZone = async (req, res) => {
       return res.status(400).json({ message: "ZEO Username and Password are required" });
     }
 
-    // ✅ Creating the ZEO User within the transaction
+
     const newUser = await User.create([{
       userName: zeoUserName,
       password: zeoPassword,
@@ -114,7 +112,7 @@ export const createZone = async (req, res) => {
       office: createdOffice[0]._id
     }], { session });
 
-    // ✅ Commit the transaction if everything is successful
+
     await session.commitTransaction();
     session.endSession();
 
@@ -166,7 +164,7 @@ export const deleteZone = async (req, res) => {
   }
 };
 
-export const getEmployeeCountInZone = async (req, res) => {
+export const getEmployeeDetailsInZone = async (req, res) => {
   try {
     const { zoneId } = req.params;
 
@@ -176,11 +174,12 @@ export const getEmployeeCountInZone = async (req, res) => {
 
     const officeIds = zone.offices.map((office) => office._id);
 
-    const count = await Employee.countDocuments({ office: { $in: officeIds } });
+    const employees = await Employee.find({ office: { $in: officeIds } });
 
-    return res.json({ count });
+    return res.json({ employees });
   } catch (err) {
-    console.error("Error in getEmployeeCountInZone:", err);
+    console.error("Error in getEmployeeDetailsInZone:", err);
     res.status(500).json({ message: "Internal server error" });
   }
 };
+

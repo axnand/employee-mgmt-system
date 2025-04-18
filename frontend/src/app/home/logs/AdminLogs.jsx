@@ -63,25 +63,25 @@ export default function AdminLogs() {
     refetchOnWindowFocus: false,
   });
 
-  // Use empty arrays if data is not yet available
+
   const logs = logsData?.logs || [];
   const systemStats = statsData?.stats || [];
 
-  // Filter logs based on admin, action, or school
+
   const filteredLogs = logs.filter(
     (log) =>
-      log.admin.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      log.action.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      log.school.toLowerCase().includes(searchTerm.toLowerCase())
+      log.admin?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      log.action?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      log.school?.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  // Pagination logic
+
   const indexOfLastLog = currentPage * logsPerPage;
   const indexOfFirstLog = indexOfLastLog - logsPerPage;
   const currentLogs = filteredLogs.slice(indexOfFirstLog, indexOfLastLog);
   const totalPages = Math.ceil(filteredLogs.length / logsPerPage);
 
-  // Reset page when search term changes
+
   const handleSearchChange = (e) => {
     setSearchTerm(e.target.value);
     setCurrentPage(1);
@@ -112,7 +112,6 @@ export default function AdminLogs() {
         draggable
       />
       <div className="max-w-7xl mx-auto">
-        {/* Page Header */}
         <header className="mb-8">
           <h1 className="text-2xl font-bold text-secondary flex items-center gap-2">
             <FileText className="w-8 h-8 text-primary" />
@@ -123,7 +122,7 @@ export default function AdminLogs() {
           </p>
         </header>
 
-        {/* Statistics Cards */}
+
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
           {systemStats.map((stat, idx) => (
             <div
@@ -140,7 +139,7 @@ export default function AdminLogs() {
           ))}
         </div>
 
-        {/* Search & Filters */}
+
         <div className="flex items-center mb-6">
           <div className="relative w-full text-sm">
             <Search className="w-5 h-5 text-gray-500 absolute top-1/2 left-3 transform -translate-y-1/2" />
@@ -169,9 +168,6 @@ export default function AdminLogs() {
                   Action
                 </th>
                 <th className="p-3 text-left text-xs font-semibold text-gray-500 uppercase">
-                  Affected School
-                </th>
-                <th className="p-3 text-left text-xs font-semibold text-gray-500 uppercase">
                   Description
                 </th>
                 <th className="p-3 text-left text-xs font-semibold text-gray-500 uppercase">
@@ -189,10 +185,7 @@ export default function AdminLogs() {
                   <td className="p-3 text-[13px] text-gray-700">
                     {log.action}
                   </td>
-                  <td className="p-3 text-[13px] text-gray-700 text-center">
-                    {log.school ? log.school : "-" }
-                  </td>
-                  <td className="p-3 text-[13px] text-gray-700 line-clamp-1">
+                  <td className="p-3 text-[13px] text-gray-700 line-clamp-2">
                     {log.description}
                   </td>
                   <td className="p-3">
@@ -200,7 +193,6 @@ export default function AdminLogs() {
                       className="flex items-center gap-1 bg-primary text-white px-3 py-1 rounded-full font-medium text-xs hover:bg-blue-600 transition"
                       onClick={() => setModalData(log)}
                     >
-                      <Eye className="w-4 h-4" />
                       View
                     </button>
                   </td>
@@ -213,14 +205,13 @@ export default function AdminLogs() {
                     className="p-3 text-center text-sm text-gray-500"
                   >
                     No logs found.
-                  </td>
+                  </td>style={{ zIndex: 9999 }}
                 </tr>
               )}
             </tbody>
           </table>
         </div>
 
-        {/* Pagination Controls */}
         {filteredLogs.length > logsPerPage && (
           <div className="flex justify-center items-center mt-4 gap-2">
             <button

@@ -92,7 +92,7 @@ export const respondToTransferRequest = async (requestId, action, currentUser, i
     if (!transferRequest) throw new Error("Transfer request not found");
 
     // Only allow school admin to act on MainAdminApproved requests
-    if (transferRequest.status !== "MainAdminApproved") {
+    if (transferRequest.status !== "CEOApproved") {
       throw new Error("Transfer request has not been approved by the Main Admin yet");
     }
 

@@ -38,14 +38,23 @@ const ViewOffice = () => {
     // Filter Offices based on search term
     useEffect(() => {
       if (searchTerm) {
-        const filtered = offices.filter((office) =>
+        let filtered = offices.filter((office) =>
           office.officeName.toLowerCase().includes(searchTerm.toLowerCase())
         );
+
+        if (user.role === "ZEO" && user.officeId) {
+          filtered = filtered.filter((office) => office._id !== user.officeId);
+        }
         setFilteredOffices(filtered);
       } else {
-        setFilteredOffices(offices);
+        let filtered = offices;
+        if (user.role === "ZEO" && user.officeId) {
+          filtered = filtered.filter((office) => office._id !== user.officeId);
+        }
+    
+        setFilteredOffices(filtered);
       }
-    }, [searchTerm, offices]);
+    },  [searchTerm, offices, user.role, user.officeId]);
   
     const handleViewOffice = (officeId) => {
       router.push(`/home/office?officeId=${officeId}`);

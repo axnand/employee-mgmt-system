@@ -1,55 +1,16 @@
-2025-04-13 09:16:27 [ERROR]: unhandledRejection: TransferRequest validation failed: employee: Path `employee` is required., fromOffice: Path `fromOffice` is required., toOffice: Path `toOffice` is required., transferDate: Path `transferDate` is required., transferType: Path `transferType` is required.
-ValidationError: TransferRequest validation failed: employee: Path `employee` is required., fromOffice: Path `fromOffice` is required., toOffice: Path `toOffice` is required., transferDate: Path `transferDate` is required., transferType: Path `transferType` is required.
-    at Document.invalidate (C:\Users\hp\OneDrive\Desktop\projects\EMS\backend\node_modules\mongoose\lib\document.js:3329:32)
-    at C:\Users\hp\OneDrive\Desktop\projects\EMS\backend\node_modules\mongoose\lib\document.js:3090:17
-    at C:\Users\hp\OneDrive\Desktop\projects\EMS\backend\node_modules\mongoose\lib\schemaType.js:1407:9
-    at process.processTicksAndRejections (node:internal/process/task_queues:77:11)
-Stack Trace: ValidationError: TransferRequest validation failed: employee: Path `employee` is required., fromOffice: Path `fromOffice` is required., toOffice: Path `toOffice` is required., transferDate: Path `transferDate` is required., transferType: Path `transferType` is required.
-    at Document.invalidate (C:\Users\hp\OneDrive\Desktop\projects\EMS\backend\node_modules\mongoose\lib\document.js:3329:32)
-    at C:\Users\hp\OneDrive\Desktop\projects\EMS\backend\node_modules\mongoose\lib\document.js:3090:17
-    at C:\Users\hp\OneDrive\Desktop\projects\EMS\backend\node_modules\mongoose\lib\schemaType.js:1407:9
-    at process.processTicksAndRejections (node:internal/process/task_queues:77:11)
-Meta: {"error":{"errors":{"employee":{"name":"ValidatorError","message":"Path `employee` is required.","properties":{"message":"Path `employee` is required.","type":"required","path":"employee"},"kind":"required","path":"employee"},"fromOffice":{"name":"ValidatorError","message":"Path `fromOffice` is required.","properties":{"message":"Path `fromOffice` is required.","type":"required","path":"fromOffice"},"kind":"required","path":"fromOffice"},"toOffice":{"name":"ValidatorError","message":"Path `toOffice` is required.","properties":{"message":"Path `toOffice` is required.","type":"required","path":"toOffice"},"kind":"required","path":"toOffice"},"transferDate":{"name":"ValidatorError","message":"Path `transferDate` is required.","properties":{"message":"Path `transferDate` is required.","type":"required","path":"transferDate"},"kind":"required","path":"transferDate"},"transferType":{"name":"ValidatorError","message":"Path `transferType` is required.","properties":{"message":"Path `transferType` is required.","type":"required","path":"transferType"},"kind":"required","path":"transferType"}},"_message":"TransferRequest validation failed","name":"ValidationError","message":"TransferRequest validation failed: employee: Path `employee` is required., fromOffice: Path `fromOffice` is required., toOffice: Path `toOffice` is required., transferDate: Path `transferDate` is required., transferType: Path `transferType` is required."},"rejection":true,"date":"Sun Apr 13 2025 09:16:27 GMT+0530 (India Standard Time)","process":{"pid":9928,"uid":null,"gid":null,"cwd":"C:\\Users\\hp\\OneDrive\\Desktop\\projects\\EMS\\backend","execPath":"C:\\Users\\hp\\AppData\\Local\\fnm_multishells\\6700_1744362946104\\node.exe","version":"v20.14.0","argv":["C:\\Users\\hp\\AppData\\Local\\fnm_multishells\\6700_1744362946104\\node.exe","C:\\Users\\hp\\OneDrive\\Desktop\\projects\\EMS\\backend\\server.js"],"memoryUsage":{"rss":68169728,"heapTotal":27836416,"heapUsed":26267680,"external":20924999,"arrayBuffers":18330040}},"os":{"loadavg":[0,0,0],"uptime":240485.156},"trace":[{"column":32,"file":"C:\\Users\\hp\\OneDrive\\Desktop\\projects\\EMS\\backend\\node_modules\\mongoose\\lib\\document.js","function":"Document.invalidate","line":3329,"method":"invalidate","native":false},{"column":17,"file":"C:\\Users\\hp\\OneDrive\\Desktop\\projects\\EMS\\backend\\node_modules\\mongoose\\lib\\document.js","function":null,"line":3090,"method":null,"native":false},{"column":9,"file":"C:\\Users\\hp\\OneDrive\\Desktop\\projects\\EMS\\backend\\node_modules\\mongoose\\lib\\schemaType.js","function":null,"line":1407,"method":null,"native":false},{"column":11,"file":"node:internal/process/task_queues","function":"process.processTicksAndRejections","line":77,"method":"processTicksAndRejections","native":false}]}
-2025-04-13 09:27:50 [INFO]: Action: Employee Transfer Request - Performed by: 67fac104f41f9e75116f3be2 (schoolAdmin) - Description: Initiated transfer request for employee 67fae2c8f41f9e75116f3dd7. Reason: dfsds - IP: ::1
-2025-04-13 09:47:23 [INFO]: Action: Employee Transfer Request - Performed by: 67fac104f41f9e75116f3be2 (schoolAdmin) - Description: Initiated transfer request for employee 67fae2c8f41f9e75116f3dd7. Reason: dddfc - IP: ::1
-2025-04-13 09:54:16 [INFO]: Action: Login - Performed by: ceoUser (CEO) - Description: ceoUser logged in successfully as CEO - IP: ::1
-2025-04-13 10:04:45 [INFO]: Action: Transfer Request Review - Performed by: 67f6d109106db152ce7959ac (CEO) - Description: reject transfer request 67fb3ad3cf6ee0f7062b43d7 - IP: ::1
-2025-04-13 10:04:55 [INFO]: Action: Transfer Request Review - Performed by: 67f6d109106db152ce7959ac (CEO) - Description: approve transfer request 67fb3ad3cf6ee0f7062b43d7 - IP: ::1
-2025-04-13 10:05:07 [INFO]: Action: Transfer Request Review - Performed by: 67f6d109106db152ce7959ac (CEO) - Description: reject transfer request 67fb3ad3cf6ee0f7062b43d7 - IP: ::1
-2025-04-13 10:12:29 [INFO]: Action: Login - Performed by: schoolAdmin_20034 (schoolAdmin) - Description: schoolAdmin_20034 logged in successfully as schoolAdmin - IP: ::1
-2025-04-13 10:13:20 [INFO]: Action: Employee Transfer Request - Performed by: 67fac104f41f9e75116f3be2 (schoolAdmin) - Description: Initiated transfer request for employee 67fae2c8f41f9e75116f3dd7. Reason: Family issues need to be handled - IP: ::1
-2025-04-13 10:17:27 [INFO]: Action: Transfer Request Review - Performed by: 67f6d109106db152ce7959ac (CEO) - Description: approve transfer request 67fb40e8fefeda2495d1fd25 - IP: ::1
-2025-04-13 10:37:17 [INFO]: Action: Login - Performed by: schoolAdmin_45671 (schoolAdmin) - Description: schoolAdmin_45671 logged in successfully as schoolAdmin - IP: ::1
-2025-04-13 10:37:21 [INFO]: Action: Password Update - Performed by: schoolAdmin_45671 (schoolAdmin) - Description: User schoolAdmin_45671 updated their password. - IP: ::1
-2025-04-13 10:40:23 [INFO]: Action: Employee Creation - Performed by: 67f879d6376dd5586db799a5 (schoolAdmin) - Description: Created employee Kishore - IP: ::1
-2025-04-13 10:44:45 [INFO]: Action: Employee Creation - Performed by: 67f879d6376dd5586db799a5 (schoolAdmin) - Description: Created employee Nanda - IP: ::1
-2025-04-13 10:45:20 [INFO]: Action: Employee Transfer Request - Performed by: 67f879d6376dd5586db799a5 (schoolAdmin) - Description: Initiated transfer request for employee 67fb484431b1c656d2909b0c. Reason: yoyo - IP: ::1
-2025-04-13 10:45:53 [INFO]: Action: Login - Performed by: ceoUser (CEO) - Description: ceoUser logged in successfully as CEO - IP: ::1
-2025-04-13 10:46:03 [INFO]: Action: Transfer Request Review - Performed by: 67f6d109106db152ce7959ac (CEO) - Description: approve transfer request 67fb486731b1c656d2909b25 - IP: ::1
-2025-04-13 12:01:32 [INFO]: Action: Employee Transfer Request - Performed by: 67f879d6376dd5586db799a5 (schoolAdmin) - Description: Initiated transfer request for employee 67fb484431b1c656d2909b0c. Reason: Cannot work propely - IP: ::1
-2025-04-13 12:03:46 [INFO]: Action: Transfer Request Review - Performed by: 67f6d109106db152ce7959ac (CEO) - Description: approve transfer request 67fb5a4413523ffe9e1c279a - IP: ::1
-2025-04-13 12:13:53 [INFO]: Action: Login - Performed by: schoolAdmin_01091202701 (schoolAdmin) - Description: schoolAdmin_01091202701 logged in successfully as schoolAdmin - IP: ::1
-2025-04-13 12:14:24 [INFO]: Action: Login - Performed by: ceoUser (CEO) - Description: ceoUser logged in successfully as CEO - IP: ::1
-2025-04-13 12:48:21 [INFO]: Action: Login - Performed by: ceoUser (CEO) - Description: ceoUser logged in successfully as CEO - IP: ::1
-2025-04-13 13:16:49 [INFO]: Action: Login - Performed by: ceoUser (CEO) - Description: ceoUser logged in successfully as CEO - IP: ::1
-2025-04-13 14:47:35 [INFO]: Action: Login - Performed by: zeo_bhalla (ZEO) - Description: zeo_bhalla logged in successfully as ZEO - IP: ::1
-2025-04-13 14:57:43 [INFO]: Action: Login - Performed by: schoolAdmin_20034 (schoolAdmin) - Description: schoolAdmin_20034 logged in successfully as schoolAdmin - IP: ::1
-2025-04-13 15:52:19 [INFO]: Action: Login - Performed by: schoolAdmin_20034 (schoolAdmin) - Description: schoolAdmin_20034 logged in successfully as schoolAdmin - IP: ::1
-2025-04-13 16:54:31 [INFO]: Action: Employee Transfer Request - Performed by: 67fac104f41f9e75116f3be2 (schoolAdmin) - Description: Initiated transfer request for employee 67fae2c8f41f9e75116f3dd7. Reason: drgerg - IP: ::1
-2025-04-13 16:55:05 [INFO]: Action: Transfer Request Review - Performed by: 67f6d109106db152ce7959ac (CEO) - Description: approve transfer request 67fb9eeff62bc7c32aa11af1 - IP: ::1
-2025-04-13 16:58:52 [INFO]: Action: Login - Performed by: zeo_bhalla (ZEO) - Description: zeo_bhalla logged in successfully as ZEO - IP: ::1
-2025-04-14 18:19:50 [INFO]: Action: Login - Performed by: ceoUser (CEO) - Description: ceoUser logged in successfully as CEO - IP: ::1
-2025-04-14 18:21:41 [INFO]: Action: Login - Performed by: zeo_bhalla (ZEO) - Description: zeo_bhalla logged in successfully as ZEO - IP: ::1
-2025-04-15 01:23:00 [INFO]: Action: Login - Performed by: ceoUser (CEO) - Description: ceoUser logged in successfully as CEO - IP: ::1
-2025-04-15 02:17:22 [INFO]: Action: Employee Creation - Performed by: 67f6d109106db152ce7959ac (CEO) - Description: Created employee Ruchika Nawal - IP: ::1
-2025-04-15 02:18:42 [INFO]: Action: Employee Creation - Performed by: 67f6d109106db152ce7959ac (CEO) - Description: Created employee Umang - IP: ::1
-2025-04-15 02:22:08 [INFO]: Action: Login - Performed by: schoolAdmin_20034 (schoolAdmin) - Description: schoolAdmin_20034 logged in successfully as schoolAdmin - IP: ::1
-2025-04-15 02:22:48 [INFO]: Action: Login - Performed by: schoolAdmin_45671 (schoolAdmin) - Description: schoolAdmin_45671 logged in successfully as schoolAdmin - IP: ::1
-2025-04-15 04:12:55 [INFO]: Action: Login - Performed by: ceoUser (CEO) - Description: ceoUser logged in successfully as CEO - IP: ::1
-2025-04-15 06:13:39 [INFO]: Action: Login - Performed by: schoolAdmin_20034 (schoolAdmin) - Description: schoolAdmin_20034 logged in successfully as schoolAdmin - IP: ::1
-2025-04-15 06:14:29 [INFO]: Action: Failed Login - Performed by: schoolAdmin_8907 (schoolAdmin) - Description: Unsuccessful login attempt - IP: ::1
-2025-04-15 06:15:36 [INFO]: Action: Login - Performed by: schoolAdmin_12359 (schoolAdmin) - Description: schoolAdmin_12359 logged in successfully as schoolAdmin - IP: ::1
-2025-04-15 06:15:45 [INFO]: Action: Password Update - Performed by: schoolAdmin_12359 (schoolAdmin) - Description: User schoolAdmin_12359 updated their password. - IP: ::1
-2025-04-15 06:16:33 [INFO]: Action: Employee Transfer Request - Performed by: 67fac104f41f9e75116f3be2 (schoolAdmin) - Description: Initiated transfer request for employee 67fae2c8f41f9e75116f3dd7. Reason: efwde - IP: ::1
-2025-04-15 06:35:47 [INFO]: Action: Transfer Request Review - Performed by: 67f6d109106db152ce7959ac (CEO) - Description: reject transfer request 67fdac69da78eca5e95523c3 - IP: ::1
-2025-04-15 06:36:45 [INFO]: Action: Employee Transfer Request - Performed by: 67fac104f41f9e75116f3be2 (schoolAdmin) - Description: Initiated transfer request for employee 67fae2c8f41f9e75116f3dd7. Reason: dfvdf - IP: ::1
+2025-04-16 11:29:47 [INFO]: Action: Login - Performed by: zeo_bhalla (ZEO) - Description: zeo_bhalla logged in successfully as ZEO - IP: ::1
+2025-04-16 11:38:01 [INFO]: Action: Login - Performed by: schoolAdmin_20034 (schoolAdmin) - Description: schoolAdmin_20034 logged in successfully as schoolAdmin - IP: ::1
+2025-04-16 11:39:18 [INFO]: Action: Employee Transfer Request - Performed by: 67fac104f41f9e75116f3be2 (schoolAdmin) - Description: Initiated transfer request for employee 67fae2c8f41f9e75116f3dd7. Reason: dfgf - IP: ::1
+2025-04-16 11:39:43 [INFO]: Action: Login - Performed by: ceoUser (CEO) - Description: ceoUser logged in successfully as CEO - IP: ::1
+2025-04-16 11:41:04 [INFO]: Action: Login - Performed by: zeo_bhalla (ZEO) - Description: zeo_bhalla logged in successfully as ZEO - IP: ::1
+2025-04-16 11:53:49 [INFO]: Action: Failed Login - Performed by: ceoUser (CEO) - Description: Unsuccessful login attempt - IP: ::1
+2025-04-16 11:56:50 [INFO]: Action: Failed Login - Performed by: ceoUser (CEO) - Description: Unsuccessful login attempt - IP: ::1
+2025-04-16 11:59:52 [INFO]: Action: Login - Performed by: ceoUser (CEO) - Description: ceoUser logged in successfully as CEO - IP: ::1
+2025-04-16 12:00:15 [INFO]: Action: Login - Performed by: ceoUser (CEO) - Description: ceoUser logged in successfully as CEO - IP: ::1
+2025-04-16 12:11:59 [INFO]: Action: Employee Creation - Performed by: 67f6d109106db152ce7959ac (CEO) - Description: Created employee Anand Mohan Jha - IP: ::1
+2025-04-16 12:13:21 [INFO]: Action: Login - Performed by: zeo_bhalla (ZEO) - Description: zeo_bhalla logged in successfully as ZEO - IP: ::1
+2025-04-16 12:13:21 [INFO]: Action: Login - Performed by: zeo_bhalla (ZEO) - Description: zeo_bhalla logged in successfully as ZEO - IP: ::1
+2025-04-18 00:12:40 [INFO]: Action: Login - Performed by: zeo_bhalla (ZEO) - Description: zeo_bhalla logged in successfully as ZEO - IP: ::1
+2025-04-18 16:37:20 [INFO]: Action: Login - Performed by: ceoUser (CEO) - Description: ceoUser logged in successfully as CEO - IP: ::1
+2025-04-18 16:58:29 [INFO]: Action: Login - Performed by: zeo_bhalla (ZEO) - Description: zeo_bhalla logged in successfully as ZEO - IP: ::1
+2025-04-18 17:14:37 [INFO]: Action: Login - Performed by: ceoUser (CEO) - Description: ceoUser logged in successfully as CEO - IP: ::1

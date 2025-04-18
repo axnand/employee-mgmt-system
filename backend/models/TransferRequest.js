@@ -9,7 +9,7 @@ const TransferRequestSchema = new mongoose.Schema(
     transferDate: { type: Date, required: true },
     transferType: { type: String, required: true, enum: ['Transfer', 'Deputation', 'Attachment'] },
     transferReason: { type: String },
-    status: { type: String, required: true, default: "Pending", enum: ['Pending', 'MainAdminApproved', 'FullyApproved', 'Rejected', 'Completed'] },
+    status: { type: String, required: true, default: "Pending" },
     processedBy: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
     approvalDate: { type: Date },
     acceptedBy: { type: mongoose.Schema.Types.ObjectId, ref: "User" },

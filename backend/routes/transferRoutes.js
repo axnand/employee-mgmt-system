@@ -9,8 +9,8 @@ import { protect, authorizeRoles } from "../middleware/authMiddleware.js";
 
 const router = express.Router();
 router.get("/", protect, getTransferRequests); 
-router.post("/", protect, authorizeRoles("schoolAdmin"), createTransferRequest);
-router.put("/:id/approve", protect, authorizeRoles("CEO"), approveTransferRequest);
-router.put("/:id/respond", protect, authorizeRoles("schoolAdmin"), respondToTransferRequest);
+router.post("/", protect,  createTransferRequest);
+router.put("/:id/approve", protect,  approveTransferRequest);
+router.put("/:id/respond", protect,  respondToTransferRequest);
 
 export default router;

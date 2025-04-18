@@ -19,6 +19,8 @@ import {
   School as SchoolIcon,
   Users,
   ArrowLeftRight,
+  BookOpen,
+  BriefcaseBusinessIcon,
 } from "lucide-react";
 import Link from "next/link";
 import { useQuery } from "@tanstack/react-query";
@@ -32,9 +34,9 @@ const fetchEmployeesByRole = async (role, zoneId, officeId) => {
       const res = await axiosClient.get("/employees");
       return Array.isArray(res.data) ? res.data : res.data.employees || [];
     } else if (role === "ZEO" && zoneId) {
-      const res = await axiosClient.get(`/zones/${zoneId}/employees/count`);
-      console.log("Zone employees response:", res.data);
-      return { count: res.data.count };
+      const res = await axiosClient.get(`/zones/${zoneId}/employees`);
+      console.log("Zone employees response:", res.data.employees);
+      return  res.data.employees ;
     } else if (role === "schoolAdmin" && officeId) {
       const res = await axiosClient.get(`/employees/office/${officeId}`);
       return Array.isArray(res.data) ? res.data : res.data.employees || [];
@@ -67,9 +69,8 @@ const fetchEmployeesByRole = async (role, zoneId, officeId) => {
 
 
 
-// Fetch enrollment trends (if available; otherwise, use sample data)
+
 const fetchEnrollmentTrends = async () => {
-  // Replace with your real endpoint if available.
   return [
     { year: "2018", students: 1200 },
     { year: "2019", students: 1300 },
@@ -80,15 +81,14 @@ const fetchEnrollmentTrends = async () => {
   ];
 };
 
-// Fetch recent activities (logs) for the dashboard
+
 const fetchRecentActivities = async () => {
   try {
     const res = await axiosClient.get("/logs");
-    // Assume logs are sorted descending by createdAt; take top 3.
     return res?.data?.logs?.slice(0, 3) || [];
   } catch (error) {
     console.error("Error fetching recent activities:", error);
-    return []; // Return empty array on error
+    return [];
   }
 };
 
@@ -113,7 +113,7 @@ const fetchSchools = async (role, districtId, zoneId, officeId) => {
       return [];
     }
 
-    // If API returns error with a message like "No schools found for the given zone."
+  
     if (
       response.data &&
       typeof response.data === "object" &&
@@ -122,7 +122,7 @@ const fetchSchools = async (role, districtId, zoneId, officeId) => {
       return [];
     }
 
-    // Safely handle all data return types
+
     if (Array.isArray(response.data)) {
       return response.data;
     } else if (response.data && Array.isArray(response.data.schools)) {
@@ -132,18 +132,14 @@ const fetchSchools = async (role, districtId, zoneId, officeId) => {
     }
   } catch (error) {
     console.warn("Error fetching schools:", error?.response?.data?.message || error.message);
-    return []; // fallback safely
+    return []; 
   }
 };
 
 
-
-
-// ---------- Dashboard Component ----------
-
 export default function ZonalAdminDashboard() {
   const [filterDays, setFilterDays] = useState(30);
-  const { userRole, user } = useUser();  // Assuming user role and user data are in the context
+  const { userRole, user } = useUser();  
   const userDistrictId = user?.districtId;
   const userZoneId = user?.zoneId;
   const userOfficeId = user?.officeId;
@@ -158,19 +154,16 @@ export default function ZonalAdminDashboard() {
     retry: false,
   });
 
-
-
-  // Use react-query to fetch data from the backend.
-  
   const { data: employeeData = [] } = useQuery({
       queryKey: ["employees", userRole, userZoneId, userOfficeId],
       queryFn: () => fetchEmployeesByRole(userRole, userZoneId, userOfficeId),
     });
+
+    console.log("Employee Data:", employeeData);
   
   const { data: enrollmentData = [] } = useQuery({
     queryKey: ["enrollmentTrends"],
     queryFn: fetchEnrollmentTrends,
-    // Don't retry on error
     retry: false,
   });
   
@@ -186,7 +179,6 @@ export default function ZonalAdminDashboard() {
   //   keepPreviousData: true,
   // });
 
-  // ---------- Derived Metrics ----------
 
   const safeSchools = Array.isArray(schools) ? schools : [];
   const totalSchools = safeSchools.length;
@@ -194,8 +186,10 @@ export default function ZonalAdminDashboard() {
     (acc, school) => acc + (school.numberOfStudents || 0),
     0
   );
-  const totalStaff =
-  userRole === "ZEO" ? employeeData.count || 0 : employeeData.length;
+  const totalStaff = Array.isArray(employeeData) ? employeeData.length : 0;
+
+  
+
 
   // const safeTransfers = Array.isArray(transfers) ? transfers : [];
   // const pendingTransfers = safeTransfers.filter((t) => t.status === "pending").length;
@@ -203,7 +197,9 @@ export default function ZonalAdminDashboard() {
 
   // Staff distribution: count based on staffType.
   const safeEmployees =
-  userRole === "ZEO" ? [] : Array.isArray(employeeData) ? employeeData : [];
+  Array.isArray(employeeData) ? employeeData : [];
+
+  console.log("Safe Employees:", safeEmployees);
 
 const teachingCount = safeEmployees.filter(
   (emp) => emp.staffType?.toLowerCase() === "teaching"
@@ -249,6 +245,7 @@ const nonTeachingCount = safeEmployees.filter(
         </div>
 
         {/* Total Employees */}
+        
         <div className="bg-white shadow-sm rounded-lg p-4 flex flex-col border-l-[3px] border-primary">
           <div className="flex items-center space-x-2">
             <Users className="h-5 w-5 text-green-500" />
@@ -261,6 +258,34 @@ const nonTeachingCount = safeEmployees.filter(
           </p>
           <div className="text-2xl font-bold text-gray-800">
             {totalStaff}
+          </div>
+        </div>
+        <div className="bg-white shadow-sm rounded-lg p-4 flex flex-col border-l-[3px] border-primary">
+          <div className="flex items-center space-x-2">
+            <BookOpen className="h-5 w-5 text-yellow-500" />
+            <h3 className="text-[15px] font-semibold text-gray-800">
+              Teaching Staff
+            </h3>
+          </div>
+          <p className="text-[13px] pt-1 text-gray-600">
+            Total Teaching staff
+          </p>
+          <div className="text-2xl font-bold text-gray-800">
+            {teachingCount}
+          </div>
+        </div>
+        <div className="bg-white shadow-sm rounded-lg p-4 flex flex-col border-l-[3px] border-primary">
+          <div className="flex items-center space-x-2">
+            <BriefcaseBusinessIcon className="h-5 w-5 text-orange-500" />
+            <h3 className="text-[15px] font-semibold text-gray-800">
+            Non-Teaching staff
+            </h3>
+          </div>
+          <p className="text-[13px] pt-1 text-gray-600">
+            Total Non-Teaching staff
+          </p>
+          <div className="text-2xl font-bold text-gray-800">
+            {nonTeachingCount}
           </div>
         </div>
 

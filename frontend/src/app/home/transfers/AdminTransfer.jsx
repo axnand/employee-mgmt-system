@@ -54,6 +54,8 @@ export default function AdminTransfer() {
     );
   });
 
+  console.log("filteredTransfers",filteredTransfers)
+
   return (
     <div className="min-h-screen pb-8">
       <ToastContainer position="top-right" autoClose={3000} />
@@ -120,7 +122,7 @@ export default function AdminTransfer() {
                   filteredTransfers.map((transfer) => (
                     <tr key={transfer._id}>
                       <td className="px-6 py-3 text-sm text-gray-900">
-                        {transfer.employee?.employeeName || "N/A"}
+                        {transfer.employee?.employeeId || "N/A"}
                       </td>
                       <td className="px-6 py-3 text-sm text-gray-900">
                         {transfer.fromOffice?.officeName || "N/A"}
