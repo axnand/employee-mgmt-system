@@ -129,10 +129,13 @@ export const createEmployee = async (req, res) => {
     }
 
     // Log the employee creation action
+    const userDetails = await User.findOne({ _id: req.body.user?.userId });
+    
     await createLog({
-      admin: req.user.userId,
-      role: req.user.role,
-      action: "Employee Creation",
+      admin: userDetails?.userName || "System",
+      role: userDetails?.role || "Unknown",
+      action: "CREATE_OFFICE",
+      office: userDetails?.office?.toString() || null,
       description: `Created employee ${savedEmployee.fullName}`,
       ip: req.ip,
     });

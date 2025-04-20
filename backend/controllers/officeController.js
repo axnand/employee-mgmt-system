@@ -3,6 +3,7 @@ import School from "../models/School.js";
 import User from "../models/User.js";
 import Zone from "../models/Zone.js";
 import mongoose from "mongoose";
+import { createLog } from "../services/logService.js";
 
 // A helper function to get full DDO details using the ddoOfficerId (employeeId)
 import Employee from "../models/Employee.js";
@@ -49,7 +50,7 @@ export const getOfficeById = async (req, res) => {
 
 // Create a new office
 export const createOffice = async (req, res) => {
-  console.log("Request body:", req.body);
+  console.log("Request body:", req?.body);
   const session = await mongoose.startSession();
   let transactionCommitted = false;
 
@@ -63,7 +64,8 @@ export const createOffice = async (req, res) => {
       ddoCode, 
       parentOffice, 
       isDdo, 
-      zone, 
+      zone,
+      user, 
     } = req.body;
 
     if ( !officeName || !officeType) {
@@ -139,10 +141,19 @@ export const createOffice = async (req, res) => {
         )
       ]);
     }
-
-    // Commit the transaction
+    
     await session.commitTransaction();
-    transactionCommitted = true;  // ✅ Mark the transaction as committed
+    transactionCommitted = true;
+    const userDetails = await User.findOne({ _id: user?.userId });
+
+    await createLog({
+      admin: userDetails?.userName || "System",
+      role: userDetails?.role || "Unknown",
+      action: "CREATE_OFFICE",
+      office: userDetails?.office?.toString() || null,
+      description: `Office "${officeObject.officeName}" created successfully`,
+      ip: req.ip,
+    });   
     res.status(201).json({ message: "Office created successfully", office: officeObject });
 
   } catch (error) {

@@ -129,6 +129,7 @@ export default function CeoOffice() {
     addEmployeeMutation.mutate({
       ...newEmployeeData,
       office: user?.officeId || user?.office,
+      user,
     });
   };
   const filteredEmployees = employees.filter(

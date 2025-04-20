@@ -136,6 +136,7 @@ function OfficeDetails() {
     addEmployeeMutation.mutate({
       ...newEmployeeData,
       office: officeId,
+      user,
     });
   };
 

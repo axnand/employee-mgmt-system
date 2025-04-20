@@ -62,7 +62,8 @@ const AddZonePage = () => {
         name, 
         district: districtId,
         zeoUserName,
-        zeoPassword 
+        zeoPassword,
+        user
       });
 
       setSuccess('Zone and ZEO user added successfully!');

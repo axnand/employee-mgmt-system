@@ -119,6 +119,7 @@ export default function SchoolDetailsCard({ schoolInfo }) {
     addEmployeeMutation.mutate({
       ...newEmployeeData,
       office: officeId,
+      user,
     });
   };
 

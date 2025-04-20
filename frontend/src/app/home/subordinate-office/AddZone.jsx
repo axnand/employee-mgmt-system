@@ -89,7 +89,8 @@ const AddZone = () => {
         officeType: zonalOfficeType,
         contact: officeContact,
         address: officeAddress,
-      }
+      },
+      user
     };
 
     try {

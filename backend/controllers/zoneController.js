@@ -6,6 +6,7 @@ import Office from "../models/Office.js";
 import mongoose from "mongoose";
 import Employee from "../models/Employee.js";
 import School from "../models/School.js";
+import { createLog } from "../services/logService.js";
 
 
 export const getZones = async (req, res) => {
@@ -67,7 +68,7 @@ export const createZone = async (req, res) => {
   const session = await mongoose.startSession();
   session.startTransaction();
   try {
-    const { name, district, zedioOfficer, zeoUserName, zeoPassword, zonalOffice } = req.body;
+    const { name, district, zeoUserName, zeoPassword, zonalOffice } = req.body;
 
     if (!name || !district || !zonalOffice) {
       return res.status(400).json({ message: "Name, District, and Zonal Office are required" });
@@ -119,6 +120,17 @@ export const createZone = async (req, res) => {
       zoneId: newZone[0]._id,
       office: createdOffice[0]._id
     }], { session });
+
+    const userDetails = await User.findOne({ _id: req.body.user?.userId });
+        
+    await createLog({
+      admin: userDetails?.userName || "System",
+      role: userDetails?.role || "Unknown",
+      office: userDetails?.office?.toString() || null,
+      action: "CREATE_ZONE",
+      ip: req.ip,
+      description: `Created new Zone "${name}" under district "${existingDistrict.name}", along with zonal office "${zonalOffice.officeName}" and ZEO user "${zeoUserName}".`
+    });
 
 
     await session.commitTransaction();

@@ -56,7 +56,7 @@ export const loginUser = async (req, res) => {
     const token = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: "1d" });
     await createLog({
       admin: userName,
-
+      office: user.office?._id || null,
       role:  user.role,
       action: "Login",
       description: `${userName} logged in successfully as ${user.role}`,

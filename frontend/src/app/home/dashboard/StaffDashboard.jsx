@@ -28,7 +28,7 @@ const fetchEmployeeData = async (employeeId) => {
   });
 
   const data = await response.json();
-  console.log("Fetched Data (Inside fetchEmployeeData):", data); // Check the response format here
+  console.log("Fetched Data (Inside fetchEmployeeData):", data);
   if (!response.ok) {
     throw new Error("Failed to fetch employee data");
   }

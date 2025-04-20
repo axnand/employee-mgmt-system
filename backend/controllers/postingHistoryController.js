@@ -30,13 +30,6 @@ export const createPostingHistory = async (req, res) => {
 
     const newHistory = await PostingHistory.create(req.body);
 
-    await createLog({
-      admin: req.user?.userId || "System",
-      role: req.user?.role || "Unknown",
-      action: "Create Posting History",
-      description: `Created posting history for employee ${employeeRecord.fullName}`,
-      ip: req.ip,
-    });
 
     res.status(201).json({ message: "Posting history created", history: newHistory });
   } catch (error) {

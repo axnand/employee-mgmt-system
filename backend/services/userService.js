@@ -77,7 +77,7 @@ export const updatePassword = async (userId, newPassword, ip) => {
     admin: user.userName,
     role: user.role,
     action: "Password Update",
-    school: user.schoolId || "-",
+    office: user.office?.toString() || null,
     description: `User ${user.userName} updated their password.`,
     ip,
   });

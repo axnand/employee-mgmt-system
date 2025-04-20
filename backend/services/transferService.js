@@ -59,14 +59,7 @@ export const createTransferRequest = async (
       { session }
     );
 
-    await createLog({
-      admin: currentUser.userId,
-      role: currentUser.role,
-      action: "Employee Transfer Request",
-      description: `Initiated transfer request for employee ${employee}. Reason: ${transferReason}`,
-      ip,
-      session,
-    });
+    
 
     await session.commitTransaction();
     session.endSession();
@@ -99,14 +92,6 @@ export const approveTransferRequestService = async (requestId, action, currentUs
     remarkType: action === "approve" ? "CEOApproval" : "Rejection",
     remarkText: remarkText || (action === "approve" ? "Approved by CEO" : "Rejected by CEO"),
     addedBy: currentUser.userId,
-  });
-
-  await createLog({
-    admin: currentUser.userId,
-    role: currentUser.role,
-    action: "Transfer Request Review",
-    description: `${action} transfer request ${transferRequest._id}`,
-    ip,
   });
 
   return transferRequest;

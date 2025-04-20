@@ -35,6 +35,7 @@ export default function AddOffice() {
   const [adminPassword, setAdminPassword] = useState("");
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
+  
 
   const mutation = useMutation({
     mutationFn: createOffice, // Correct usage in v4
@@ -112,6 +113,7 @@ export default function AddOffice() {
       ddoOfficer: isDdo ? ddoOfficer : undefined,
       ddoCode: isDdo ? ddoCode : undefined,
       parentOffice: parentOffice || undefined,
+      user,
     };
 
     if (officeType === "Educational") {

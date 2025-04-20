@@ -1,10 +1,13 @@
 import TransferRequest from "../models/TransferRequest.js";
 import TransferRemark from "../models/TransferRemark.js";
+import mongoose from "mongoose";
 import { 
   createTransferRequest as createTransferRequestService,
   approveTransferRequestService as approveTransferRequestService, 
 } from "../services/transferService.js";
 import { createLog } from "../services/logService.js";
+import Office from "../models/Office.js";
+import Employee from "../models/Employee.js";
 export const getTransferRequests = async (req, res) => {
   try {
     const requests = await TransferRequest.find()
@@ -22,6 +25,8 @@ export const getTransferRequests = async (req, res) => {
 
 
 export const createTransferRequest = async (req, res) => {
+  const session = await mongoose.startSession();
+  session.startTransaction();
   try {
     const {
       employee,
@@ -57,6 +62,22 @@ export const createTransferRequest = async (req, res) => {
       req.ip
     );
 
+    const [from, to] = await Promise.all([
+      Office.findById(fromOffice).select("officeName"),
+      Office.findById(toOffice).select("officeName"),
+    ]);
+
+    const userDetails = await User.findOne({ _id: req.body.user?.userId });
+        
+    await createLog({
+      admin: userDetails?.userName || "System",
+      role: userDetails?.role || "Unknown",
+      office: userDetails?.office?.toString() || null,
+      action: "TRANSFER_EMPLOYEE",
+      description: `Transfer request created for employee ID "${employee}" from "${from.officeName}" to "${to.officeName}" on ${transferDate}.`,
+      ip: req.ip,
+    });
+
     return res.status(201).json({ message: "Transfer request created", transferRequest });
   } catch (error) {
     return res.status(500).json({
@@ -78,7 +99,22 @@ export const approveTransferRequest = async (req, res) => {
       req.ip,
       remarkText
     );
-
+    const [from, to, employee] = await Promise.all([
+      Office.findById(transferRequest.fromOffice).select("officeName"),
+      Office.findById(transferRequest.toOffice).select("officeName"),
+      Employee.findById(transferRequest.employee).select("name employeeId"),
+    ]);
+    const description = `Transfer request for employee "${employee?.name}" (${employee?.employeeId}) has been ${action}ed. From "${from?.officeName}" to "${to?.officeName}".`;
+    const userDetails = await User.findOne({ _id: req.body.user?.userId });
+        
+    await createLog({
+      admin: userDetails?.userName || "System",
+      role: userDetails?.role || "Unknown",
+      office: userDetails?.office?.toString() || null,
+      action: `TRANSFER_${action.toUpperCase()}`,
+      description,
+      ip: req.ip,
+    });
     res.json({ message: `Transfer request ${action}d successfully`, transferRequest });
   } catch (error) {
     res.status(500).json({ message: "Error processing transfer request", error: error.message });
@@ -141,13 +177,23 @@ export const respondToTransferRequest = async (req, res) => {
       addedBy: currentUser.userId,
     });
 
+    const [from, to, employee] = await Promise.all([
+      Office.findById(transferRequest.fromOffice).select("officeName"),
+      Office.findById(transferRequest.toOffice).select("officeName"),
+      Employee.findById(transferRequest.employee).select("name employeeId"),
+    ]);
+
+    const description = `Transfer request for employee "${employee?.name}" (${employee?.employeeId}) has been ${action}ed by receiving admin. From "${from?.officeName}" to "${to?.officeName}".`
+      + (action === "reject" ? ` Rejection reason: ${remarkText}` : "");
     // Log action
+    const userDetails = await User.findOne({ _id: req.body.user?.userId });
+        
     await createLog({
-      admin: currentUser.userId,
-      role: currentUser.role,
-      action: "Incoming Transfer Response",
-      description: `${action} transfer request ${transferRequest._id}` + 
-        (action === "reject" ? ` with reason: ${remarkText}` : ""),
+      admin: userDetails?.userName || "System",
+      role: userDetails?.role || "Unknown",
+      office: userDetails?.office?.toString() || null,
+      action: `TRANSFER_${action.toUpperCase()}_BY_RECEIVER`,
+      description,
       ip,
     });
 

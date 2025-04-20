@@ -1,31 +1,23 @@
 import mongoose from "mongoose";
 import dotenv from "dotenv";
+import Log from "./models/Log.js"; // Adjust the path if your model is elsewhere
 
 dotenv.config();
 
 const MONGO_URI = process.env.MONGO_URI || "mongodb://localhost:27017/yourDatabaseName";
 
-const cleanOfficeCollection = async () => {
+const cleanLogCollection = async () => {
   try {
     await mongoose.connect(MONGO_URI);
     console.log("✅ Connected to MongoDB");
 
-    const db = mongoose.connection.db;
-    const collection = db.collection("offices");
+    // Delete all documents in the Log collection
+    const result = await Log.deleteMany({});
+    console.log(`🧹 Deleted ${result.deletedCount} logs from the collection.`);
 
-    // Drop index if exists
-    const indexes = await collection.indexes();
-    const indexToDrop = indexes.find(index => index.name === "officeId_1");
-    if (indexToDrop) {
-      await collection.dropIndex("officeId_1");
-      console.log("✅ Dropped index 'officeId_1'");
-    } else {
-      console.log("ℹ️ No 'officeId_1' index found.");
-    }
-
-    // Remove officeId field from all documents
-    const result = await collection.updateMany({}, { $unset: { officeId: "" } });
-    console.log(`✅ Removed 'officeId' field from ${result.modifiedCount} documents.`);
+    // Optional: Drop the entire collection (use with caution!)
+    // await mongoose.connection.db.dropCollection('logs');
+    // console.log("🗑️ Dropped 'logs' collection.");
 
     await mongoose.disconnect();
     console.log("🔌 Disconnected from MongoDB");
@@ -34,4 +26,4 @@ const cleanOfficeCollection = async () => {
   }
 };
 
-cleanOfficeCollection();
+cleanLogCollection();
