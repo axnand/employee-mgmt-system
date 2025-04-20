@@ -7,7 +7,7 @@ import AddEmployeeModal from "@/components/school-status/AddEmployeeModal";
 import EditOfficeModal from "./EditOfficeModal";
 import { ToastContainer, toast } from "react-toastify";
 import { Users } from "lucide-react";
-import Link from "next/link"; 
+import Link from "next/link";
 import { MapPin, Phone, Building2, UserCheck, BadgeInfo } from "lucide-react";
 
 export default function CeoOffice() {
@@ -35,12 +35,15 @@ export default function CeoOffice() {
   const fetchOfficeDetails = async (officeId) => {
     try {
       const token = localStorage.getItem("token");
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/offices/${officeId}`, {
-        headers: {
-          "Authorization": `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-      });
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_API_BASE_URL}/offices/${officeId}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
 
       if (!response.ok) {
         throw new Error("Failed to fetch office data");
@@ -57,12 +60,15 @@ export default function CeoOffice() {
   const fetchEmployees = async (officeId) => {
     try {
       const token = localStorage.getItem("token");
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/employees/office/${officeId}`, {
-        headers: {
-          "Authorization": `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-      });
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_API_BASE_URL}/employees/office/${officeId}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
 
       if (!response.ok) {
         throw new Error("Failed to fetch employees");
@@ -77,7 +83,9 @@ export default function CeoOffice() {
       setUniqueCategory([...new Set(categories)]);
 
       // Compute unique designations
-      const designations = empList.map((emp) => emp.presentDesignation || "Unknown");
+      const designations = empList.map(
+        (emp) => emp.presentDesignation || "Unknown"
+      );
       setUniqueDesignations([...new Set(designations)]);
     } catch (error) {
       console.error("Error fetching employees:", error);
@@ -87,14 +95,17 @@ export default function CeoOffice() {
   const addEmployeeMutation = useMutation({
     mutationFn: async (newEmployee) => {
       const token = localStorage.getItem("token");
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/employees`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify(newEmployee),
-      });
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_API_BASE_URL}/employees`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify(newEmployee),
+        }
+      );
 
       if (!response.ok) {
         const errorData = await response.json();
@@ -115,96 +126,124 @@ export default function CeoOffice() {
   });
 
   const handleSaveNewEmployee = () => {
-
     addEmployeeMutation.mutate({
       ...newEmployeeData,
       office: user?.officeId || user?.office,
     });
   };
-  const filteredEmployees = employees.filter((emp) => 
-    emp.fullName.toLowerCase().includes(searchTerm.toLowerCase()) &&
-    (designationFilter === "" || emp.presentDesignation === designationFilter) &&
-    (categoryFilter === "" || emp.staffType === categoryFilter)
+  const filteredEmployees = employees.filter(
+    (emp) =>
+      emp.fullName.toLowerCase().includes(searchTerm.toLowerCase()) &&
+      (designationFilter === "" ||
+        emp.presentDesignation === designationFilter) &&
+      (categoryFilter === "" || emp.staffType === categoryFilter)
   );
 
   console.log("officeInfo:", officeInfo);
 
-  if (!officeInfo) return <div className="flex justify-center items-center h-full">
-  <div className="border-t-transparent border-[#377DFF] w-8 h-8 border-4 border-solid rounded-full animate-spin"></div>
-</div>;
+  if (!officeInfo)
+    return (
+      <div className="flex justify-center items-center h-full">
+        <div className="border-t-transparent border-[#377DFF] w-8 h-8 border-4 border-solid rounded-full animate-spin"></div>
+      </div>
+    );
 
   return (
     <div className="container capitalize">
       <ToastContainer />
 
       <div className="bg-white border-l-[3px] border-primary p-6 rounded-lg shadow-sm transition duration-300 mb-8 text-sm">
-      <div className="flex items-center gap-3">
-        <Building2 className="w-7 h-7 text-primary" />
-        <h1 className="text-2xl font-bold text-secondary">{officeInfo.officeName}</h1>
+        <div className="flex items-center gap-3">
+          <Building2 className="w-7 h-7 text-primary" />
+          <h1 className="text-2xl font-bold text-secondary">
+            {officeInfo.officeName}
+          </h1>
+        </div>
+
+        <div className="mt-4 space-y-3">
+          <p className="flex items-center text-gray-600">
+            <BadgeInfo className="w-5 h-5 text-secondary mr-2" />
+            <span className="font-semibold text-secondary mr-1">
+              Office Type:
+            </span>{" "}
+            {officeInfo.officeType}
+          </p>
+
+          <p className="flex items-center text-gray-600">
+            <MapPin className="w-5 h-5 text-secondary mr-2" />
+            <span className="font-semibold text-secondary mr-1">
+              Address:
+            </span>{" "}
+            {officeInfo.address}
+          </p>
+
+          <p className="flex items-center text-gray-600">
+            <Phone className="w-5 h-5 text-secondary mr-2" />
+            <span className="font-semibold text-secondary mr-1">
+              Contact:
+            </span>{" "}
+            {officeInfo.contact}
+          </p>
+
+          <p className="flex items-center text-gray-600">
+            <UserCheck className="w-5 h-5 text-secondary mr-2" />
+            <span className="font-semibold text-secondary mr-1">
+              Is DDO:
+            </span>{" "}
+            {officeInfo.isDdo ? "Yes" : "No"}
+          </p>
+
+          {officeInfo.isDdo && (
+            <>
+              <p className="flex items-center text-gray-600">
+                <BadgeInfo className="w-5 h-5 text-secondary mr-2" />
+                <span className="font-semibold text-secondary mr-1">
+                  DDO ID:
+                </span>{" "}
+                {officeInfo.ddoOfficerId || "N/A"}
+              </p>
+              <p className="flex items-center text-gray-600">
+                <BadgeInfo className="w-5 h-5 text-secondary mr-2" />
+                <span className="font-semibold text-secondary mr-1">
+                  DDO Code:
+                </span>{" "}
+                {officeInfo.ddoCode || "N/A"}
+              </p>
+            </>
+          )}
+        </div>
+
+        <button
+          onClick={() => setIsEditing(true)}
+          className="mt-4 px-4 py-2 bg-blue-500 font-medium  text-white rounded hover:bg-blue-600"
+        >
+          Edit Office Details
+        </button>
       </div>
 
-      <div className="mt-4 space-y-3">
-
-        <p className="flex items-center text-gray-600">
-          <BadgeInfo className="w-5 h-5 text-secondary mr-2" />
-          <span className="font-semibold text-secondary mr-1">Office Type:</span> {officeInfo.officeType}
-        </p>
-
-        <p className="flex items-center text-gray-600">
-          <MapPin className="w-5 h-5 text-secondary mr-2" />
-          <span className="font-semibold text-secondary mr-1">Address:</span> {officeInfo.address}
-        </p>
-
-        <p className="flex items-center text-gray-600">
-          <Phone className="w-5 h-5 text-secondary mr-2" />
-          <span className="font-semibold text-secondary mr-1">Contact:</span> {officeInfo.contact}
-        </p>
-
-        <p className="flex items-center text-gray-600">
-          <UserCheck className="w-5 h-5 text-secondary mr-2" />
-          <span className="font-semibold text-secondary mr-1">Is DDO:</span> {officeInfo.isDdo ? "Yes" : "No"}
-        </p>
-
-        {officeInfo.isDdo && (
-          <>
-            <p className="flex items-center text-gray-600">
-              <BadgeInfo className="w-5 h-5 text-secondary mr-2" />
-              <span className="font-semibold text-secondary mr-1">DDO Officer ID:</span> {officeInfo.ddoOfficerId || "N/A"}
-            </p>
-            <p className="flex items-center text-gray-600">
-              <BadgeInfo className="w-5 h-5 text-secondary mr-2" />
-              <span className="font-semibold text-secondary mr-1">DDO Code:</span> {officeInfo.ddoCode || "N/A"}
-            </p>
-          </>
-        )}
-      </div>
-
-      <button
-        onClick={() => setIsEditing(true)}
-        className="mt-4 px-4 py-2 bg-blue-500 font-medium  text-white rounded hover:bg-blue-600"
-      >
-        Edit Office Details
-      </button>
-    </div>
-
-
-
-    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 mb-6">
         <div className="bg-white shadow-sm rounded-lg p-4 flex flex-col border-l-[3px] border-primary">
           <div className="flex items-center space-x-2">
             <Users className="h-5 w-5 text-purple-700" />
             <h3 className="text-[15px] font-semibold">Total Employees</h3>
           </div>
-          <p className="text-[13px] pt-1 text-gray-600">Teaching & Non-Teaching staff</p>
+          <p className="text-[13px] pt-1 text-gray-600">
+            Teaching & Non-Teaching staff
+          </p>
           <div className="text-2xl font-bold">{employees.length}</div>
         </div>
       </div>
       {/* Filter Employees Section */}
       <div className="bg-white shadow-md rounded-lg p-4 mb-8 border-l-[3px] border-primary">
-        <h2 className="text-xl font-semibold text-gray-800 mb-4">Filter Employees</h2>
+        <h2 className="text-xl font-semibold text-gray-800 mb-4">
+          Filter Employees
+        </h2>
         <div className="flex flex-col md:flex-row md:items-end md:space-x-4">
           <div className="flex-1 mb-4 md:mb-0">
-            <label htmlFor="employeeSearch" className="block text-sm font-medium text-gray-700 mb-1">
+            <label
+              htmlFor="employeeSearch"
+              className="block text-sm font-medium text-gray-700 mb-1"
+            >
               Search by Name
             </label>
             <input
@@ -217,7 +256,10 @@ export default function CeoOffice() {
             />
           </div>
           <div className="flex-1 mb-4 md:mb-0">
-            <label htmlFor="categoryFilter" className="block text-sm font-medium text-gray-700 mb-1">
+            <label
+              htmlFor="categoryFilter"
+              className="block text-sm font-medium text-gray-700 mb-1"
+            >
               Filter by Staff Type
             </label>
             <select
@@ -235,7 +277,10 @@ export default function CeoOffice() {
             </select>
           </div>
           <div className="flex-1 mb-4 md:mb-0">
-            <label htmlFor="designationFilter" className="block text-sm font-medium text-gray-700 mb-1">
+            <label
+              htmlFor="designationFilter"
+              className="block text-sm font-medium text-gray-700 mb-1"
+            >
               Filter by Designation
             </label>
             <select
@@ -254,8 +299,6 @@ export default function CeoOffice() {
           </div>
         </div>
       </div>
-
-      
 
       {/* Employee Table */}
       <div className="bg-white p-6 rounded-lg shadow mb-8">
@@ -289,30 +332,37 @@ export default function CeoOffice() {
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
-              {filteredEmployees.map((emp) => (
-                <tr key={emp._id}>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                    {emp.employeeId}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                    {emp.fullName}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                    {emp.presentDesignation}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm flex items-center gap-x-2">
-                    <Link
-                      href={`/home/school-status/${encodeURIComponent(emp._id)}`}
-                      className="py-1 px-3 bg-primary text-white rounded-full font-medium text-xs hover:bg-blue-600 transition"
-                    >
-                      View
-                    </Link>
-                  </td>
-                </tr>
-              ))}
+              {[...filteredEmployees]
+                .sort((a, b) => a.fullName.localeCompare(b.fullName))
+                .map((emp) => (
+                  <tr key={emp._id}>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                      {emp.employeeId}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                      {emp.fullName}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                      {emp.presentDesignation}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm flex items-center gap-x-2">
+                      <Link
+                        href={`/home/school-status/${encodeURIComponent(
+                          emp._id
+                        )}`}
+                        className="py-1 px-3 bg-primary text-white rounded-full font-medium text-xs hover:bg-blue-600 transition"
+                      >
+                        View
+                      </Link>
+                    </td>
+                  </tr>
+                ))}
               {filteredEmployees.length === 0 && (
                 <tr>
-                  <td colSpan="4" className="px-6 py-4 text-center text-sm text-gray-500">
+                  <td
+                    colSpan="4"
+                    className="px-6 py-4 text-center text-sm text-gray-500"
+                  >
                     No employees found.
                   </td>
                 </tr>
@@ -329,8 +379,8 @@ export default function CeoOffice() {
           newEmployeeData={newEmployeeData}
           setNewEmployeeData={setNewEmployeeData}
           handleSaveNewEmployee={handleSaveNewEmployee}
-          showError={showError}                
-    setShowError={setShowError}  
+          showError={showError}
+          setShowError={setShowError}
         />
       )}
 

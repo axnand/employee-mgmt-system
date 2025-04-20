@@ -6,7 +6,10 @@ import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useUser } from "@/context/UserContext";
-import { getTransferRequests, respondToTransferRequest } from "@/api/transferService";
+import {
+  getTransferRequests,
+  respondToTransferRequest,
+} from "@/api/transferService";
 import Link from "next/link";
 
 export default function TransferHistoryPage() {
@@ -20,9 +23,11 @@ export default function TransferHistoryPage() {
   const [rejectReason, setRejectReason] = useState("");
   const [selectedTransfer, setSelectedTransfer] = useState(null);
 
-
-
-  const { data: transfersData, isLoading, error } = useQuery({
+  const {
+    data: transfersData,
+    isLoading,
+    error,
+  } = useQuery({
     queryKey: ["transfers"],
     queryFn: getTransferRequests,
     refetchOnWindowFocus: false,
@@ -40,7 +45,7 @@ export default function TransferHistoryPage() {
       t.toOffice._id &&
       t.toOffice._id.toString() === user.officeId.toString()
   );
-  
+
   const historyTransfers = transferRequests.filter(
     (t) =>
       (t.status === "Approved" || t.status === "Rejected") &&
@@ -48,9 +53,6 @@ export default function TransferHistoryPage() {
       t.toOffice._id &&
       t.toOffice._id.toString() === user.officeId.toString()
   );
-  
-  
-
 
   const filterTransfers = (transfersArray) =>
     transfersArray.filter((transfer) => {
@@ -74,16 +76,24 @@ export default function TransferHistoryPage() {
   // Mutation for responding to a transfer request (accept or reject)
   const respondMutation = useMutation({
     mutationFn: async ({ requestId, action, reason }) => {
-      console.log("🔍 Sending Transfer Response Request:", { requestId, action, reason });
-  
+      console.log("🔍 Sending Transfer Response Request:", {
+        requestId,
+        action,
+        reason,
+      });
+
       if (action === "reject" && (!reason || reason.trim() === "")) {
         toast.error("Rejection reason is required.");
         throw new Error("Rejection reason is required");
       }
-  
+
       try {
-        const response = await respondToTransferRequest(requestId, action, reason || "");
-  
+        const response = await respondToTransferRequest(
+          requestId,
+          action,
+          reason || ""
+        );
+
         console.log("✅ Response from API:", response);
         return response;
       } catch (error) {
@@ -94,7 +104,7 @@ export default function TransferHistoryPage() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["transfers"] });
       toast.success("Response submitted successfully");
-  
+
       // Reset modal state on success
       setShowRejectModal(false);
       setRejectRequestId(null);
@@ -105,8 +115,6 @@ export default function TransferHistoryPage() {
       toast.error(err.message || "Error responding to transfer request");
     },
   });
-  
-  
 
   const handleAccept = (requestId) => {
     respondMutation.mutate({ requestId, action: "accept" });
@@ -124,11 +132,12 @@ export default function TransferHistoryPage() {
       toast.error("Rejection reason is required.");
       return;
     }
-    respondMutation.mutate({ requestId: rejectRequestId, action: "reject", reason: trimmedReason });
+    respondMutation.mutate({
+      requestId: rejectRequestId,
+      action: "reject",
+      reason: trimmedReason,
+    });
   };
-  
-  
-  
 
   const handleRejectCancel = () => {
     setShowRejectModal(false);
@@ -137,12 +146,16 @@ export default function TransferHistoryPage() {
   };
 
   if (isLoading) {
-    return <div className="flex justify-center items-center h-full">
-    <div className="border-t-transparent border-[#377DFF] w-8 h-8 border-4 border-solid rounded-full animate-spin"></div>
-  </div>;
+    return (
+      <div className="flex justify-center items-center h-full">
+        <div className="border-t-transparent border-[#377DFF] w-8 h-8 border-4 border-solid rounded-full animate-spin"></div>
+      </div>
+    );
   }
   if (error) {
-    return <p className="text-center text-red-500">Error loading transfer history</p>;
+    return (
+      <p className="text-center text-red-500">Error loading transfer history</p>
+    );
   }
 
   return (
@@ -171,7 +184,9 @@ export default function TransferHistoryPage() {
 
       {/* Current Incoming Requests */}
       <div className=" px-4 bg-white p-6 rounded-lg shadow-sm mb-8 border-l-[3px] border-primary">
-        <h2 className="text-xl font-bold text-secondary mb-4">Current Transfer Requests</h2>
+        <h2 className="text-xl font-bold text-secondary mb-4">
+          Current Transfer Requests
+        </h2>
         {filteredCurrent.length > 0 ? (
           <div className="overflow-x-auto">
             <table className="min-w-full divide-y divide-gray-200">
@@ -198,60 +213,70 @@ export default function TransferHistoryPage() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-200">
-                {filteredCurrent.map((transfer) => (
-                  <tr key={transfer._id}>
-                    <td className="px-6 py-3 text-sm text-gray-900">
-                      {transfer.employee?.employeeId || "N/A"}
-                    </td>
-                    <td className="px-6 py-3 text-sm text-gray-900">
-                      {transfer.fromOffice?.officeName || "N/A"}
-                    </td>
-                    <td className="px-6 py-3 text-sm text-gray-900">
-                      {transfer.toOffice?.officeName || "N/A"}
-                    </td>
-                    <td className="px-6 py-3 text-sm text-gray-900">
-                      {transfer.transferReason || "N/A"}
-                    </td>
-                    <td className="px-6 py-3 text-sm text-gray-900">
-                      {new Date(transfer.createdAt).toLocaleDateString()}
-                    </td>
-                    <td className="px-6 py-3 text-sm">
-                      <div className="flex gap-2">
-                        <button
-                          onClick={() => handleAccept(transfer._id)}
-                          className="flex items-center gap-1 bg-green-500 hover:bg-green-600 transition text-white px-3 py-1 rounded text-xs"
-                        >
-                          <CheckCircle className="w-4 h-4" />
-                          Accept
-                        </button>
-                        <button
-                          onClick={() => openRejectModal(transfer._id)}
-                          className="flex items-center gap-1 bg-red-500 hover:bg-red-600 transition text-white px-3 py-1 rounded text-xs"
-                        >
-                          <XCircle className="w-4 h-4" />
-                          Reject
-                        </button>
-                        <button
-      onClick={() => setSelectedTransfer(transfer)}
-      className="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded text-xs"
-    >
-      View Details
-    </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
+                {[...filteredCurrent]
+                  .sort((a, b) =>
+                    (a.employee?.employeeId || "").localeCompare(
+                      b.employee?.employeeId || ""
+                    )
+                  )
+                  .map((transfer) => (
+                    <tr key={transfer._id}>
+                      <td className="px-6 py-3 text-sm text-gray-900">
+                        {transfer.employee?.employeeId || "N/A"}
+                      </td>
+                      <td className="px-6 py-3 text-sm text-gray-900">
+                        {transfer.fromOffice?.officeName || "N/A"}
+                      </td>
+                      <td className="px-6 py-3 text-sm text-gray-900">
+                        {transfer.toOffice?.officeName || "N/A"}
+                      </td>
+                      <td className="px-6 py-3 text-sm text-gray-900">
+                        {transfer.transferReason || "N/A"}
+                      </td>
+                      <td className="px-6 py-3 text-sm text-gray-900">
+                        {new Date(transfer.createdAt).toLocaleDateString()}
+                      </td>
+                      <td className="px-6 py-3 text-sm">
+                        <div className="flex gap-2">
+                          <button
+                            onClick={() => handleAccept(transfer._id)}
+                            className="flex items-center gap-1 bg-green-500 hover:bg-green-600 transition text-white px-3 py-1 rounded text-xs"
+                          >
+                            <CheckCircle className="w-4 h-4" />
+                            Accept
+                          </button>
+                          <button
+                            onClick={() => openRejectModal(transfer._id)}
+                            className="flex items-center gap-1 bg-red-500 hover:bg-red-600 transition text-white px-3 py-1 rounded text-xs"
+                          >
+                            <XCircle className="w-4 h-4" />
+                            Reject
+                          </button>
+                          <button
+                            onClick={() => setSelectedTransfer(transfer)}
+                            className="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded text-xs"
+                          >
+                            View Details
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
               </tbody>
             </table>
           </div>
         ) : (
-          <p className="text-center text-sm text-gray-500">No current transfer requests found.</p>
+          <p className="text-center text-sm text-gray-500">
+            No current transfer requests found.
+          </p>
         )}
       </div>
 
       {/* Transfer History */}
       <div className=" px-4 bg-white p-6 rounded-lg shadow-sm mb-8 border-l-[3px] border-primary">
-        <h2 className="text-xl font-bold text-secondary mb-4">Transfer History</h2>
+        <h2 className="text-xl font-bold text-secondary mb-4">
+          Transfer History
+        </h2>
         {filteredHistory.length > 0 ? (
           <div className="overflow-x-auto">
             <table className="min-w-full divide-y divide-gray-200">
@@ -278,7 +303,12 @@ export default function TransferHistoryPage() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-200">
-                {filteredHistory.map((transfer) => (
+              {[...filteredHistory]
+                  .sort((a, b) =>
+                    (a.employee?.employeeId || "").localeCompare(
+                      b.employee?.employeeId || ""
+                    )
+                  ).map((transfer) => (
                   <tr key={transfer._id}>
                     <td className="px-6 py-3 text-sm text-gray-900">
                       {transfer.employee?.employeeId || "N/A"}
@@ -308,16 +338,18 @@ export default function TransferHistoryPage() {
                         : transfer.status}
                     </td>
 
-                    <td className="px-6 py-3 text-sm text-gray-900">
-                      {new Date(transfer.createdAt).toLocaleDateString()}
-                    </td>
-                  </tr>
-                ))}
+                      <td className="px-6 py-3 text-sm text-gray-900">
+                        {new Date(transfer.createdAt).toLocaleDateString()}
+                      </td>
+                    </tr>
+                  ))}
               </tbody>
             </table>
           </div>
         ) : (
-          <p className="text-center text-sm text-gray-500">No transfer history found.</p>
+          <p className="text-center text-sm text-gray-500">
+            No transfer history found.
+          </p>
         )}
       </div>
 
@@ -352,41 +384,68 @@ export default function TransferHistoryPage() {
         </div>
       )}
       {selectedTransfer && (
-  <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
-    <div className="bg-white p-6 rounded-lg shadow-lg w-full max-w-2xl relative">
-      <h3 className="text-xl font-bold mb-4">Transfer Details</h3>
-      <button
-        className="absolute top-2 right-2 text-gray-500 hover:text-black"
-        onClick={() => setSelectedTransfer(null)}
-      >
-        ✕
-      </button>
-      <div className="grid grid-cols-2 gap-4 text-sm">
-        <div><strong>Employee ID:</strong> {selectedTransfer.employee?.employeeId}</div>
-        <div><strong>Employee Name:</strong> {selectedTransfer.employee?.fullName}</div>
-        <div><strong>From Office:</strong> {selectedTransfer.fromOffice?.officeName}</div>
-        <div><strong>To Office:</strong> {selectedTransfer.toOffice?.officeName}</div>
-        <div><strong>Transfer Reason:</strong> {selectedTransfer.transferReason}</div>
-        <div><strong>Transfer Date:</strong> {new Date(selectedTransfer.transferDate).toLocaleDateString()}</div>
-        <div><strong>Transfer Order No:</strong> {selectedTransfer.transferOrderNo}</div>
-        <div><strong>Transfer Order Date:</strong> {new Date(selectedTransfer.transferOrderDate).toLocaleDateString()}</div>
-        <div><strong>Transfer Type:</strong> {selectedTransfer.transferType}</div>
-        <div>
-          <strong>Transfer Order File:</strong>{" "}
-          <a
-            href={selectedTransfer.transferOrder}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-blue-600 underline"
-          >
-            View Document
-          </a>
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
+          <div className="bg-white p-6 rounded-lg shadow-lg w-full max-w-2xl relative">
+            <h3 className="text-xl font-bold mb-4">Transfer Details</h3>
+            <button
+              className="absolute top-2 right-2 text-gray-500 hover:text-black"
+              onClick={() => setSelectedTransfer(null)}
+            >
+              ✕
+            </button>
+            <div className="grid grid-cols-2 gap-4 text-sm">
+              <div>
+                <strong>Employee ID:</strong>{" "}
+                {selectedTransfer.employee?.employeeId}
+              </div>
+              <div>
+                <strong>Employee Name:</strong>{" "}
+                {selectedTransfer.employee?.fullName}
+              </div>
+              <div>
+                <strong>From Office:</strong>{" "}
+                {selectedTransfer.fromOffice?.officeName}
+              </div>
+              <div>
+                <strong>To Office:</strong>{" "}
+                {selectedTransfer.toOffice?.officeName}
+              </div>
+              <div>
+                <strong>Transfer Reason:</strong>{" "}
+                {selectedTransfer.transferReason}
+              </div>
+              <div>
+                <strong>Transfer Date:</strong>{" "}
+                {new Date(selectedTransfer.transferDate).toLocaleDateString()}
+              </div>
+              <div>
+                <strong>Transfer Order No:</strong>{" "}
+                {selectedTransfer.transferOrderNo}
+              </div>
+              <div>
+                <strong>Transfer Order Date:</strong>{" "}
+                {new Date(
+                  selectedTransfer.transferOrderDate
+                ).toLocaleDateString()}
+              </div>
+              <div>
+                <strong>Transfer Type:</strong> {selectedTransfer.transferType}
+              </div>
+              <div>
+                <strong>Transfer Order File:</strong>{" "}
+                <a
+                  href={selectedTransfer.transferOrder}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-blue-600 underline"
+                >
+                  View Document
+                </a>
+              </div>
+            </div>
+          </div>
         </div>
-      </div>
-    </div>
-  </div>
-)}
-
+      )}
     </div>
   );
 }

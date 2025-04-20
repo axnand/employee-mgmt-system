@@ -177,7 +177,7 @@ export default function AddOffice() {
         {isDdo && (
           <>
             <div>
-              <label className="block text-sm font-medium text-gray-700">DDO Officer ID</label>
+              <label className="block text-sm font-medium text-gray-700">DDO ID</label>
               <input
                 type="text"
                 value={ddoOfficer}

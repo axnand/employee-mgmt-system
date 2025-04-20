@@ -71,7 +71,7 @@ export default function DashboardLayout({ children }) {
       },
       {
         title: "Reports",
-        href: "/home/staff-statement",
+        href: "/home/reports",
         icon: <File className=" h-5 w-5" />,
       },
       {
@@ -104,7 +104,7 @@ export default function DashboardLayout({ children }) {
       },
       {
         title: "Reports",
-        href: "/home/staff-statement",
+        href: "/home/reports",
         icon: <File className=" h-5 w-5" />,
       },
       {
@@ -147,7 +147,7 @@ export default function DashboardLayout({ children }) {
       },
       {
         title: "Reports",
-        href: "/home/staff-statement",
+        href: "/home/reports",
         icon: <File className=" h-5 w-5" />,
       },
       {
