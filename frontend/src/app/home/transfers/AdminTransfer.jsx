@@ -123,7 +123,9 @@ export default function AdminTransfer() {
               </thead>
               <tbody className="divide-y divide-gray-200">
                 {filteredTransfers.length > 0 ? (
-                  filteredTransfers.map((transfer) => (
+                  [...filteredTransfers]
+                  .sort((a, b) => (a.employee?.fullName || "").localeCompare(b.employee?.fullName || ""))
+                  .map((transfer) => (
                     <tr key={transfer._id}>
                       <td className="px-6 py-3 text-sm text-gray-900">
                         {transfer.employee?.fullName || "N/A"}

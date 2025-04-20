@@ -4,7 +4,7 @@ import User from "../models/User.js";
 import Zone from "../models/Zone.js";
 import mongoose from "mongoose";
 
-// A helper function to get full DDO officer details using the ddoOfficerId (employeeId)
+// A helper function to get full DDO details using the ddoOfficerId (employeeId)
 import Employee from "../models/Employee.js";
 const getDdoOfficerDetails = async (ddoOfficerId) => {
   if (!ddoOfficerId) return null;

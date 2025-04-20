@@ -1,4 +1,4 @@
-'use client'
+"use client";
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { ArrowLeftRightIcon, Search as SearchIcon } from "lucide-react";
@@ -16,13 +16,15 @@ const getTransferRequests = async () => {
   return response.data;
 };
 
-
-
 export default function OutgoingTransfersPage() {
   const { user } = useUser();
   const [searchTerm, setSearchTerm] = useState("");
 
-  const { data: transfersData, isLoading, error } = useQuery({
+  const {
+    data: transfersData,
+    isLoading,
+    error,
+  } = useQuery({
     queryKey: ["transfers"],
     queryFn: getTransferRequests,
     refetchOnWindowFocus: false,
@@ -110,35 +112,41 @@ export default function OutgoingTransfersPage() {
               </thead>
               <tbody className="divide-y divide-gray-200">
                 {filteredTransfers.length > 0 ? (
-                  filteredTransfers.map((transfer) => (
-                    <tr key={transfer._id}>
-                      <td className="px-6 py-3 text-sm text-gray-900">
-                        {transfer.employee?.employeeId || "N/A"}
-                      </td>
-                      <td className="px-6 py-3 text-sm text-gray-900">
-                        {transfer.toOffice?.officeName || "N/A"}
-                      </td>
-                      <td className="px-6 py-3 text-sm text-gray-900">
-                        {transfer.transferReason || "-"}
-                      </td>
-                      <td
-                        className={`px-6 py-3 text-sm font-semibold ${
-                          transfer.status === "Pending"
-                            ? "text-yellow-500"
-                            : transfer.status === "CEOApproved"
-                            ? "text-green-500"
-                            : transfer.status === "FullyApproved"
-                            ? "text-green-600"
-                            : "text-red-500"
-                        }`}
-                      >
-                        {transfer.status}
-                      </td>
-                      <td className="px-6 py-3 text-sm text-gray-900">
-                        {new Date(transfer.createdAt).toLocaleDateString()}
-                      </td>
-                    </tr>
-                  ))
+                  [...filteredTransfers]
+                    .sort((a, b) =>
+                      (a.employee?.employeeId || "").localeCompare(
+                        b.employee?.employeeId || ""
+                      )
+                    )
+                    .map((transfer) => (
+                      <tr key={transfer._id}>
+                        <td className="px-6 py-3 text-sm text-gray-900">
+                          {transfer.employee?.employeeId || "N/A"}
+                        </td>
+                        <td className="px-6 py-3 text-sm text-gray-900">
+                          {transfer.toOffice?.officeName || "N/A"}
+                        </td>
+                        <td className="px-6 py-3 text-sm text-gray-900">
+                          {transfer.transferReason || "-"}
+                        </td>
+                        <td
+                          className={`px-6 py-3 text-sm font-semibold ${
+                            transfer.status === "Pending"
+                              ? "text-yellow-500"
+                              : transfer.status === "CEOApproved"
+                              ? "text-green-500"
+                              : transfer.status === "FullyApproved"
+                              ? "text-green-600"
+                              : "text-red-500"
+                          }`}
+                        >
+                          {transfer.status}
+                        </td>
+                        <td className="px-6 py-3 text-sm text-gray-900">
+                          {new Date(transfer.createdAt).toLocaleDateString()}
+                        </td>
+                      </tr>
+                    ))
                 ) : (
                   <tr>
                     <td

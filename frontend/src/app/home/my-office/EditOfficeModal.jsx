@@ -145,7 +145,7 @@ export default function EditOfficeModal({ office, isOpen, onClose, onOfficeUpdat
       {officeData.isDdo && (
         <div className="grid gap-4 border-t pt-4">
           <div>
-            <label className="block text-sm font-medium text-gray-600">DDO Officer ID</label>
+            <label className="block text-sm font-medium text-gray-600">DDO ID</label>
             <input
               type="text"
               name="ddoOfficerId"
