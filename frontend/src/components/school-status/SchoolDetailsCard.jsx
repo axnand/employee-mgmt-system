@@ -239,6 +239,16 @@ export default function SchoolDetailsCard({ schoolInfo }) {
         />
       )}
     </div>
+    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+          <div className="bg-white shadow-sm rounded-lg p-4 flex flex-col border-l-[3px] border-primary">
+            <div className="flex items-center space-x-2">
+              <Users className="h-5 w-5 text-purple-700" />
+              <h3 className="text-[15px] font-semibold">Total Employees</h3>
+            </div>
+            <p className="text-[13px] pt-1 text-gray-600">Teaching & Non-Teaching staff</p>
+            <div className="text-2xl font-bold">{employees.length}</div>
+          </div>
+        </div>
         <div className="bg-white p-6 rounded-lg shadow-sm mb-8 border-l-[3px] border-primary">
           <h2 className="text-xl font-semibold text-gray-800 mb-4">Filter Employees</h2>
           <div className="flex flex-col md:flex-row md:items-end md:space-x-4">
@@ -273,6 +283,7 @@ export default function SchoolDetailsCard({ schoolInfo }) {
                 ))}
               </select>
             </div>
+            
             <div className="flex-1 mb-4 md:mb-0">
               <label htmlFor="designationFilter" className="block text-sm font-medium text-gray-700 mb-1">
                 Filter by Designation
@@ -293,16 +304,7 @@ export default function SchoolDetailsCard({ schoolInfo }) {
             </div>
           </div>
         </div>
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-          <div className="bg-white shadow-sm rounded-lg p-4 flex flex-col border-l-[3px] border-primary">
-            <div className="flex items-center space-x-2">
-              <Users className="h-5 w-5 text-purple-700" />
-              <h3 className="text-[15px] font-semibold">Total Employees</h3>
-            </div>
-            <p className="text-[13px] pt-1 text-gray-600">Teaching & Non-Teaching staff</p>
-            <div className="text-2xl font-bold">{employees.length}</div>
-          </div>
-        </div>
+        
         <div className="bg-white p-6 rounded-lg shadow mb-8">
           <div className="flex justify-between items-center">
             <h2 className="text-2xl font-semibold text-gray-800 mb-6 flex items-center gap-2">

@@ -125,7 +125,7 @@ export default function OutgoingTransfersPage() {
                         className={`px-6 py-3 text-sm font-semibold ${
                           transfer.status === "Pending"
                             ? "text-yellow-500"
-                            : transfer.status === "MainAdminApproved"
+                            : transfer.status === "CEOApproved"
                             ? "text-green-500"
                             : transfer.status === "FullyApproved"
                             ? "text-green-600"

@@ -20,19 +20,31 @@ export const getTransferRequests = async () => {
   return response.data; 
 };
 
-// Responds to a transfer request (accept/reject) by the receiving office admin
+
 export const respondToTransferRequest = async (requestId, action, reason) => {
-  const response = await axiosClient.put(
-    `/transfers/${requestId}/respond`,
-    { action, reason },
-    {
-      headers: {
-        Authorization: `Bearer ${localStorage.getItem("token")}`,
-      },
+  try {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      throw new Error("Authorization token is missing.");
     }
-  );
-  return response.data.transferRequest; // Adjust as necessary
+
+    const response = await axiosClient.put(
+      `/transfers/${requestId}/respond`, 
+      { action, reason },
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+    return response.data.transferRequest; 
+  } catch (error) {
+    console.error("Error responding to transfer request:", error);
+    throw new Error(error.response?.data?.message || error.message || "Something went wrong.");
+  }
 };
+
+
 
 export const approveTransferRequest = async (requestId, action, remarkText) => {
   const response = await axiosClient.put(

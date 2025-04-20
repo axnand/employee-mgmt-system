@@ -2,9 +2,9 @@ import TransferRequest from "../models/TransferRequest.js";
 import TransferRemark from "../models/TransferRemark.js";
 import { 
   createTransferRequest as createTransferRequestService,
-  approveTransferRequestService as approveTransferRequestService,
-  respondToTransferRequest as respondTransferService 
+  approveTransferRequestService as approveTransferRequestService, 
 } from "../services/transferService.js";
+import { createLog } from "../services/logService.js";
 export const getTransferRequests = async (req, res) => {
   try {
     const requests = await TransferRequest.find()
@@ -18,6 +18,8 @@ export const getTransferRequests = async (req, res) => {
     res.status(500).json({ message: "Error fetching transfer requests", error: error.message });
   }
 };
+
+
 
 export const createTransferRequest = async (req, res) => {
   try {
@@ -84,14 +86,22 @@ export const approveTransferRequest = async (req, res) => {
 };
 
 
-export const respondToTransferRequest = async (requestId, action, currentUser, ip, reason = "") => {
+export const respondToTransferRequest = async (req, res) => {
+  const requestId = req.params.id;
+  const { action, reason = "" } = req.body;
+  const currentUser = req.user; 
+  const ip = req.ip; 
+  console.log("Incoming request to respond to transfer request with ID:", req.params.id); 
   try {
     console.log("🔍 Received Transfer Response Request:", { requestId, action, reason });
 
     const transferRequest = await TransferRequest.findById(requestId);
     if (!transferRequest) throw new Error("Transfer request not found");
 
-    // Only allow school admin to act on MainAdminApproved requests
+    if (transferRequest.status === "FullyApproved" || transferRequest.status === "Rejected") {
+      throw new Error("Transfer request has already been completed and cannot be modified.");
+    }
+
     if (transferRequest.status !== "CEOApproved") {
       throw new Error("Transfer request has not been approved by the Main Admin yet");
     }
@@ -144,7 +154,9 @@ export const respondToTransferRequest = async (requestId, action, currentUser, i
     return transferRequest;
   } catch (error) {
     console.error("❌ Error in respondToTransferRequest:", error.message);
-    throw new Error(error.message);
+    return res.status(500).json({
+      message: error.message || "Internal Server Error",
+    });
   }
 };
 

@@ -229,7 +229,7 @@ const nonTeachingCount = safeEmployees.filter(
       {/* Top Stats Row */}
       <div className="grid gap-4 md:grid-cols-4 lg:grid-cols-4">
         {/* Total Schools */}
-        <div className="bg-white shadow-sm rounded-lg p-4 flex flex-col border-l-[3px] border-primary">
+        {user.role !== "schoolAdmin" && <div className="bg-white shadow-sm rounded-lg p-4 flex flex-col border-l-[3px] border-primary">
           <div className="flex items-center space-x-2">
             <SchoolIcon className="h-5 w-5 text-blue-500" />
             <h3 className="text-[15px] font-semibold text-gray-800">
@@ -242,7 +242,7 @@ const nonTeachingCount = safeEmployees.filter(
           <div className="text-2xl font-bold text-gray-800">
             {totalSchools}
           </div>
-        </div>
+        </div>}
 
         {/* Total Employees */}
         

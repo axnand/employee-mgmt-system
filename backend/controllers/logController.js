@@ -1,19 +1,15 @@
 import Log from "../models/Log.js";
+import Zone from "../models/Zone.js";
 
 export const getLogs = async (req, res) => {
   try {
-    const { role, schoolId, zoneId, districtId } = req.user;
+    const { role, officeId,  districtId } = req.user;
     let filter = {};
-
-    if (role.roleName === "School") {
-      filter.school = schoolId;
-    } else if (role.roleName === "ZEO") {
-      filter.zoneId = zoneId;
-    } else if (role.roleName === "CEO") {
+    if (role.roleName === "CEO") {
       filter.districtId = districtId;
     }
 
-    const logs = await Log.find(filter).sort({ createdAt: -1 }).exec();
+    const logs = await Log.find(filter).sort({ createdAt: -1 }).lean().exec();
 
     const formattedLogs = logs.map((log) => ({
       action: log.action,
@@ -110,3 +106,59 @@ export const getLastLogin = async (req, res) => {
   }
 };
 
+export const getLogsForZone = async (req, res) => {
+  try {
+    const { zoneId } = req.params;
+    const zone = await Zone.findById(zoneId).populate("offices");
+    if (!zone) {
+      return res.status(404).json({ message: "Zone not found" });
+    }
+
+    const officeIds = zone.offices.map((office) => office._id);
+
+    // Fetch logs where office is in officeIds
+    const logs = await Log.find({ office: { $in: officeIds } })
+      .sort({ createdAt: -1 })
+      .lean()
+      .exec();
+
+    const formattedLogs = logs.map((log) => ({
+      action: log.action,
+      description: log.description,
+      admin: log.admin,
+      role: log.role,
+      ip: log.ip,
+      time: new Date(log.createdAt).toLocaleString(),
+    }));
+
+    res.json({ zone: zone.name, logs: formattedLogs });
+  } catch (error) {
+    console.error("Error fetching zone logs:", error);
+    res.status(500).json({ message: "Error fetching logs for zone", error });
+  }
+};
+
+export const getLogsForOffice = async (req, res) => {
+  try {
+    const { officeId } = req.params;
+
+    const logs = await Log.find({ office: officeId })
+      .sort({ createdAt: -1 })
+      .lean()
+      .exec();
+
+    const formattedLogs = logs.map((log) => ({
+      action: log.action,
+      description: log.description,
+      admin: log.admin,
+      role: log.role,
+      ip: log.ip,
+      time: new Date(log.createdAt).toLocaleString(),
+    }));
+
+    res.json({ officeId, logs: formattedLogs });
+  } catch (error) {
+    console.error("Error fetching office logs:", error);
+    res.status(500).json({ message: "Error fetching logs for office", error });
+  }
+};

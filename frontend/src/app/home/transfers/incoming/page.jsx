@@ -18,8 +18,10 @@ export default function TransferHistoryPage() {
   const [showRejectModal, setShowRejectModal] = useState(false);
   const [rejectRequestId, setRejectRequestId] = useState(null);
   const [rejectReason, setRejectReason] = useState("");
+  const [selectedTransfer, setSelectedTransfer] = useState(null);
 
-  // Fetch transfer requests from the backend
+
+
   const { data: transfersData, isLoading, error } = useQuery({
     queryKey: ["transfers"],
     queryFn: getTransferRequests,
@@ -31,29 +33,6 @@ export default function TransferHistoryPage() {
     : transfersData?.transferRequests || [];
   console.log("Transfers data:", transferRequests);
 
-  const schoolTransfers = transferRequests
-    .filter((t) => {
-      const fromMatch =
-        t.fromSchool &&
-        t.fromSchool._id &&
-        t.fromSchool._id.toString() === user.schoolId.toString();
-      const toMatch =
-        t.toSchool &&
-        t.toSchool._id &&
-        t.toSchool._id.toString() === user.schoolId.toString();
-      return fromMatch || toMatch;
-    })
-    .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
-
-  // For school admin, we only consider incoming requests (where the school is the destination)
-  const incomingTransfers = schoolTransfers.filter(
-    (t) =>
-      t.toSchool &&
-      t.toSchool._id &&
-      t.toSchool._id.toString() === user.schoolId.toString()
-  );
-
-  // Split incoming transfers into "Current" (pending action by the school admin) and "History" (resolved)
   const currentTransfers = transferRequests.filter(
     (t) =>
       t.status === "CEOApproved" &&
@@ -72,7 +51,7 @@ export default function TransferHistoryPage() {
   
   
 
-  // Further filter by search term (checks employee name, fromSchool, toSchool, and status)
+
   const filterTransfers = (transfersArray) =>
     transfersArray.filter((transfer) => {
       const employeeName = transfer.employee?.employeeName || "";
@@ -97,20 +76,13 @@ export default function TransferHistoryPage() {
     mutationFn: async ({ requestId, action, reason }) => {
       console.log("🔍 Sending Transfer Response Request:", { requestId, action, reason });
   
-      // Ensure reason is always sent for rejection
       if (action === "reject" && (!reason || reason.trim() === "")) {
         toast.error("Rejection reason is required.");
         throw new Error("Rejection reason is required");
       }
   
       try {
-        const response = await respondToTransferRequest(
-          requestId,
-          action,
-          user,
-          window.location.hostname,
-          reason || "" // Ensure an empty string is sent if reason is missing
-        );
+        const response = await respondToTransferRequest(requestId, action, reason || "");
   
         console.log("✅ Response from API:", response);
         return response;
@@ -133,6 +105,7 @@ export default function TransferHistoryPage() {
       toast.error(err.message || "Error responding to transfer request");
     },
   });
+  
   
 
   const handleAccept = (requestId) => {
@@ -258,6 +231,12 @@ export default function TransferHistoryPage() {
                           <XCircle className="w-4 h-4" />
                           Reject
                         </button>
+                        <button
+      onClick={() => setSelectedTransfer(transfer)}
+      className="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded text-xs"
+    >
+      View Details
+    </button>
                       </div>
                     </td>
                   </tr>
@@ -271,7 +250,7 @@ export default function TransferHistoryPage() {
       </div>
 
       {/* Transfer History */}
-      <div className=" bg-white p-6 rounded-lg shadow-sm">
+      <div className=" px-4 bg-white p-6 rounded-lg shadow-sm mb-8 border-l-[3px] border-primary">
         <h2 className="text-xl font-bold text-secondary mb-4">Transfer History</h2>
         {filteredHistory.length > 0 ? (
           <div className="overflow-x-auto">
@@ -302,16 +281,16 @@ export default function TransferHistoryPage() {
                 {filteredHistory.map((transfer) => (
                   <tr key={transfer._id}>
                     <td className="px-6 py-3 text-sm text-gray-900">
-                      {transfer.employee?.employeeName || "N/A"}
+                      {transfer.employee?.employeeId || "N/A"}
                     </td>
                     <td className="px-6 py-3 text-sm text-gray-900">
-                      {transfer.fromSchool?.name || "N/A"}
+                      {transfer.fromOffice?.officeName || "N/A"}
                     </td>
                     <td className="px-6 py-3 text-sm text-gray-900">
-                      {transfer.toSchool?.name || "N/A"}
+                      {transfer.toOffice?.officeName || "N/A"}
                     </td>
                     <td className="px-6 py-3 text-sm text-gray-900">
-                      {transfer.comment || "N/A"}
+                    {transfer.transferReason || "N/A"}
                     </td>
                     <td
                       className={`px-6 py-3 text-sm font-semibold ${
@@ -372,6 +351,42 @@ export default function TransferHistoryPage() {
           </div>
         </div>
       )}
+      {selectedTransfer && (
+  <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
+    <div className="bg-white p-6 rounded-lg shadow-lg w-full max-w-2xl relative">
+      <h3 className="text-xl font-bold mb-4">Transfer Details</h3>
+      <button
+        className="absolute top-2 right-2 text-gray-500 hover:text-black"
+        onClick={() => setSelectedTransfer(null)}
+      >
+        ✕
+      </button>
+      <div className="grid grid-cols-2 gap-4 text-sm">
+        <div><strong>Employee ID:</strong> {selectedTransfer.employee?.employeeId}</div>
+        <div><strong>Employee Name:</strong> {selectedTransfer.employee?.fullName}</div>
+        <div><strong>From Office:</strong> {selectedTransfer.fromOffice?.officeName}</div>
+        <div><strong>To Office:</strong> {selectedTransfer.toOffice?.officeName}</div>
+        <div><strong>Transfer Reason:</strong> {selectedTransfer.transferReason}</div>
+        <div><strong>Transfer Date:</strong> {new Date(selectedTransfer.transferDate).toLocaleDateString()}</div>
+        <div><strong>Transfer Order No:</strong> {selectedTransfer.transferOrderNo}</div>
+        <div><strong>Transfer Order Date:</strong> {new Date(selectedTransfer.transferOrderDate).toLocaleDateString()}</div>
+        <div><strong>Transfer Type:</strong> {selectedTransfer.transferType}</div>
+        <div>
+          <strong>Transfer Order File:</strong>{" "}
+          <a
+            href={selectedTransfer.transferOrder}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-blue-600 underline"
+          >
+            View Document
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+)}
+
     </div>
   );
 }

@@ -112,39 +112,4 @@ export const approveTransferRequestService = async (requestId, action, currentUs
   return transferRequest;
 };
 
-export const respondToTransferRequest = async (requestId, action, currentUser, ip, reason = "") => {
-  const transferRequest = await TransferRequest.findById(requestId);
 
-  if (!transferRequest) throw new Error("Transfer request not found");
-
-  if (transferRequest.status !== "MainAdminApproved")
-    throw new Error("Transfer request has not been approved by the Main Admin yet");
-
-  if (action === "accept") {
-    transferRequest.status = "FullyApproved";
-  } else if (action === "reject") {
-    if (!reason || reason.trim() === "") throw new Error("Rejection reason is required");
-    transferRequest.status = "Rejected";
-  } else {
-    throw new Error("Invalid action");
-  }
-
-  await transferRequest.save();
-
-  await TransferRemark.create({
-    transfer: transferRequest._id,
-    remarkType: action === "accept" ? "SchoolAdminApproval" : "Rejection",
-    remarkText: reason || (action === "accept" ? "Accepted by Receiving Office Admin" : "Rejected by Receiving Office Admin"),
-    addedBy: currentUser.userId,
-  });
-
-  await createLog({
-    admin: currentUser.userId,
-    role: currentUser.role,
-    action: "Incoming Transfer Response",
-    description: `${action} transfer request ${transferRequest._id}`,
-    ip,
-  });
-
-  return transferRequest;
-};

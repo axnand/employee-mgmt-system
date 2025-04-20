@@ -189,7 +189,16 @@ export default function CeoOffice() {
 
 
 
-
+    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+        <div className="bg-white shadow-sm rounded-lg p-4 flex flex-col border-l-[3px] border-primary">
+          <div className="flex items-center space-x-2">
+            <Users className="h-5 w-5 text-purple-700" />
+            <h3 className="text-[15px] font-semibold">Total Employees</h3>
+          </div>
+          <p className="text-[13px] pt-1 text-gray-600">Teaching & Non-Teaching staff</p>
+          <div className="text-2xl font-bold">{employees.length}</div>
+        </div>
+      </div>
       {/* Filter Employees Section */}
       <div className="bg-white shadow-md rounded-lg p-4 mb-8 border-l-[3px] border-primary">
         <h2 className="text-xl font-semibold text-gray-800 mb-4">Filter Employees</h2>
@@ -246,17 +255,7 @@ export default function CeoOffice() {
         </div>
       </div>
 
-      {/* Summary Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-        <div className="bg-white shadow-sm rounded-lg p-4 flex flex-col border-l-[3px] border-primary">
-          <div className="flex items-center space-x-2">
-            <Users className="h-5 w-5 text-purple-700" />
-            <h3 className="text-[15px] font-semibold">Total Employees</h3>
-          </div>
-          <p className="text-[13px] pt-1 text-gray-600">Teaching & Non-Teaching staff</p>
-          <div className="text-2xl font-bold">{employees.length}</div>
-        </div>
-      </div>
+      
 
       {/* Employee Table */}
       <div className="bg-white p-6 rounded-lg shadow mb-8">

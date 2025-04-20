@@ -5,11 +5,18 @@ import "react-toastify/dist/ReactToastify.css";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useUser } from "@/context/UserContext";
 import { getTransferRequests, approveTransferRequest } from "@/api/transferService";
+import PdfPreview from "@/components/pdf";
 
 export default function AdminTransfer() {
   const { user } = useUser();
   const queryClient = useQueryClient();
   const [searchTerm, setSearchTerm] = useState("");
+  const [selectedTransfer, setSelectedTransfer] = useState(null);
+  const [showRejectModal, setShowRejectModal] = useState(false);
+  const [rejectRequestId, setRejectRequestId] = useState(null);
+  const [rejectReason, setRejectReason] = useState("");
+  const [isPdfView, setIsPdfView] = useState(false);
+
 
   const { data: transfersData, isLoading, error } = useQuery({
     queryKey: ["transfers"],
@@ -104,9 +111,6 @@ export default function AdminTransfer() {
                     Requested Office
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
-                    Reason
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
                     Status
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
@@ -122,7 +126,7 @@ export default function AdminTransfer() {
                   filteredTransfers.map((transfer) => (
                     <tr key={transfer._id}>
                       <td className="px-6 py-3 text-sm text-gray-900">
-                        {transfer.employee?.employeeId || "N/A"}
+                        {transfer.employee?.fullName || "N/A"}
                       </td>
                       <td className="px-6 py-3 text-sm text-gray-900">
                         {transfer.fromOffice?.officeName || "N/A"}
@@ -130,13 +134,10 @@ export default function AdminTransfer() {
                       <td className="px-6 py-3 text-sm text-gray-900">
                         {transfer.toOffice?.officeName || "N/A"}
                       </td>
-                      <td className="px-6 py-3 text-sm text-gray-900">
-                        {transfer.transferReason || "N/A"}
-                      </td>
                       <td className={`px-6 py-3 text-sm font-semibold ${
                         transfer.status === "Pending"
                           ? "text-yellow-500"
-                          : transfer.status === "MainAdminApproved"
+                          : transfer.status === "CEOApproved"
                           ? "text-green-500"
                           : transfer.status === "FullyApproved"
                           ? "text-green-600"
@@ -150,18 +151,10 @@ export default function AdminTransfer() {
                       <td className="px-6 py-3 text-sm">
                         <div className="flex gap-2">
                           <button
-                            onClick={() => handleApprove(transfer._id)}
-                            className="flex items-center gap-1 bg-green-500 hover:bg-green-600 transition text-white px-3 py-1 rounded text-xs"
+                            onClick={() => setSelectedTransfer(transfer)}
+                            className="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded text-xs"
                           >
-                            <CheckCircle className="w-4 h-4" />
-                            Approve
-                          </button>
-                          <button
-                            onClick={() => handleReject(transfer._id)}
-                            className="flex items-center gap-1 bg-red-500 hover:bg-red-600 transition text-white px-3 py-1 rounded text-xs"
-                          >
-                            <XCircle className="w-4 h-4" />
-                            Reject
+                            View Details
                           </button>
                         </div>
                       </td>
@@ -179,6 +172,92 @@ export default function AdminTransfer() {
           </div>
         )}
       </div>
+      {selectedTransfer && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
+          <div className="bg-white p-6 rounded-lg shadow-lg w-full max-w-2xl relative">
+            <h3 className="text-xl font-bold mb-4">Transfer Details</h3>
+            <button
+              className="absolute top-2 right-2 text-gray-500 hover:text-black"
+              onClick={() => setSelectedTransfer(null)}
+            >
+              ✕
+            </button>
+            <div className="flex flex-col gap-10 ">
+            <div className="grid grid-cols-2 gap-4 text-sm">
+              <div><strong>Employee ID:</strong> {selectedTransfer.employee?.employeeId}</div>
+              <div><strong>Employee Name:</strong> {selectedTransfer.employee?.fullName}</div>
+              <div><strong>From Office:</strong> {selectedTransfer.fromOffice?.officeName}</div>
+              <div><strong>To Office:</strong> {selectedTransfer.toOffice?.officeName}</div>
+              <div><strong>Transfer Reason:</strong> {selectedTransfer.transferReason}</div>
+              <div><strong>Transfer Date:</strong> {new Date(selectedTransfer.transferDate).toLocaleDateString()}</div>
+              <div><strong>Transfer Order No:</strong> {selectedTransfer.transferOrderNo}</div>
+              <div><strong>Transfer Order Date:</strong> {new Date(selectedTransfer.transferOrderDate).toLocaleDateString()}</div>
+              <div><strong>Transfer Type:</strong> {selectedTransfer.transferType}</div>
+              <div>
+                <strong>Transfer Order File:</strong>{" "}
+                <button onClick={() => setIsPdfView(true)} className="text-blue-500 hover:underline">
+                  View Document
+                </button>
+              </div>
+            </div>
+            
+            <div className="flex-wrap flex justify-end gap-4">
+                <button
+                  onClick={() => handleApprove(selectedTransfer._id)}
+                  className="flex items-center gap-1 bg-green-500 hover:bg-green-600 transition text-white px-3 py-1 rounded text-sm font-medium"
+                >
+                  <CheckCircle className="w-4 h-4" />
+                  Approve
+                </button>
+                <button
+                  onClick={() => handleReject(selectedTransfer._id)}
+                  className="flex items-center gap-1 bg-red-500 hover:bg-red-600 transition text-white px-3 py-1 rounded text-sm font-medium"
+                >
+                  <XCircle className="w-4 h-4" />
+                  Reject
+                </button>
+              </div>
+            </div>
+          </div>
+          {selectedTransfer.transferOrder && isPdfView && (
+        <div className="my-4 overflow-auto h-[500px]">
+          <PdfPreview url={selectedTransfer.transferOrder} />
+        </div>
+      )} 
+        </div>
+      )}
+      {showRejectModal && (
+        <div className="fixed inset-0 flex items-center justify-center z-50">
+          <div className="fixed inset-0 bg-black opacity-50"></div>
+          <div className="bg-white p-6 rounded shadow-md z-10 w-96">
+            <h2 className="text-xl font-bold mb-4">Reject Transfer Request</h2>
+            <textarea
+              value={rejectReason}
+              onChange={(e) => setRejectReason(e.target.value)}
+              placeholder="Enter reason for rejection..."
+              className="w-full p-2 border rounded mb-4"
+              rows={4}
+            ></textarea>
+            <div className="flex justify-end gap-2">
+              <button
+                onClick={handleRejectCancel}
+                className="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleRejectSubmit}
+                className="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600"
+              >
+                Submit
+              </button>
+            </div>
+          </div>
+        </div>
+      )} 
+
+      
+
     </div>
   );
 }
