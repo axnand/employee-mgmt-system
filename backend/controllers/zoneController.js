@@ -10,7 +10,7 @@ import School from "../models/School.js";
 
 export const getZones = async (req, res) => {
   try {
-    const zones = await Zone.find().populate("district").populate("offices", "officeName");;
+    const zones = await Zone.find().sort({name:1}).populate("district").populate("offices", "officeName");;
     res.status(200).json({ zones });
   } catch (error) {
     res.status(500).json({ message: "Error fetching zones", error: error.message });
@@ -30,6 +30,14 @@ export const getZoneById = async (req, res) => {
     if (!zone) {
       return res.status(404).json({ message: "Zone not found" });
     }
+
+    //custom sorting: Adminstrative first, then Educational sorted alphabetically
+    zone.offices.sort((a, b) => {
+      if (a.officeType === "Administrative") return -1; // Administrative always first
+      if (b.officeType === "Administrative") return 1;  // Others follow
+      return a.officeName.localeCompare(b.officeName);  // Alphabetical for Educational offices
+    });
+
     await Promise.all(
       zone.offices.map(async (office) => {
         if (office.officeType === "Educational") {
