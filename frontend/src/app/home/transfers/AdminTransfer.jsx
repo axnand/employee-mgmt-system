@@ -139,7 +139,7 @@ export default function AdminTransfer() {
                           ? "text-yellow-500"
                           : transfer.status === "CEOApproved"
                           ? "text-green-500"
-                          : transfer.status === "FullyApproved"
+                          : transfer.status === "Approved"
                           ? "text-green-600"
                           : "text-red-500"
                       }`}>

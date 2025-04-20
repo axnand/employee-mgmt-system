@@ -10,9 +10,11 @@ import {
 } from "../services/userService.js";
 
 export const loginUser = async (req, res) => {
+  console.log("Login Request:", req.body);
   try {
     const { userName, password, loginAs } = req.body;
     const user = await User.findOne({ userName }).populate('office');
+    console.log("User login:", user); 
     if (!user) {
       return res.status(401).json({ message: "Invalid credentials" });
     }
@@ -26,6 +28,7 @@ export const loginUser = async (req, res) => {
         admin: userName,
         role: user.role,
         action: "Failed Login",
+        office: user.office?._id || null,
         description: "Unsuccessful login attempt",
         ip: req.ip,
       });
@@ -53,8 +56,8 @@ export const loginUser = async (req, res) => {
     const token = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: "1d" });
     await createLog({
       admin: userName,
-      // Map "admin" to "Super Admin" if necessary, otherwise just use the role string
-      role: user.role === "admin" ? "Super Admin" : user.role,
+
+      role:  user.role,
       action: "Login",
       description: `${userName} logged in successfully as ${user.role}`,
       ip: req.ip,

@@ -98,7 +98,7 @@ export const respondToTransferRequest = async (req, res) => {
     const transferRequest = await TransferRequest.findById(requestId);
     if (!transferRequest) throw new Error("Transfer request not found");
 
-    if (transferRequest.status === "FullyApproved" || transferRequest.status === "Rejected") {
+    if (transferRequest.status === "Approved" || transferRequest.status === "Rejected") {
       throw new Error("Transfer request has already been completed and cannot be modified.");
     }
 
@@ -110,7 +110,7 @@ export const respondToTransferRequest = async (req, res) => {
     let remarkText = "";
 
     if (action === "accept") {
-      transferRequest.status = "FullyApproved";
+      transferRequest.status = "Approved";
       transferRequest.acceptedBy = currentUser.userId;
       transferRequest.acceptanceDate = new Date();
 

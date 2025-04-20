@@ -43,7 +43,7 @@ export default function TransferHistoryPage() {
   
   const historyTransfers = transferRequests.filter(
     (t) =>
-      (t.status === "FullyApproved" || t.status === "Rejected") &&
+      (t.status === "Approved" || t.status === "Rejected") &&
       t.toOffice &&
       t.toOffice._id &&
       t.toOffice._id.toString() === user.officeId.toString()
@@ -294,14 +294,14 @@ export default function TransferHistoryPage() {
                     </td>
                     <td
                       className={`px-6 py-3 text-sm font-semibold ${
-                        transfer.status === "FullyApproved"
+                        transfer.status === "Approved"
                           ? "text-green-600"
                           : transfer.status === "Rejected"
                           ? "text-red-500"
                           : "text-gray-500"
                       }`}
                     >
-                      {transfer.status === "FullyApproved"
+                      {transfer.status === "Approved"
                         ? "Approved"
                         : transfer.status === "Rejected"
                         ? "Rejected"
