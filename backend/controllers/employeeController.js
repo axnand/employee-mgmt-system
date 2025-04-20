@@ -44,6 +44,16 @@ export const getEmployeesByOffice = async (req, res) => {
   try {
     const officeId = req.params.officeId;
     const employees = await Employee.find({ office: officeId });
+
+    employees.sort((a, b) => {
+      // First, prioritize 'Headmaster' designation
+      if (a.presentDesignation === "HEADMASTER") return -1;
+      if (b.presentDesignation === "HEADMASTER") return 1;
+
+      // If neither is 'Headmaster', sort alphabetically by fullName
+      return a.fullName.localeCompare(b.fullName);
+    });
+
     res.json(employees);
   } catch (error) {
     res.status(500).json({ message: "Error fetching employees by office", error: error.message });
