@@ -1,9 +1,18 @@
+'use client'
 import React from 'react'
+import { useUser } from '@/context/UserContext'
 
-function page() {
+import AdminTransfer from '../AdminTransfer';
+
+function TransferRequests() {
+  const{user , userRole} = useUser();
   return (
-    <div></div>
+    <>
+    {userRole === "CEO" && <AdminTransfer/>}
+    
+    </>
+    
   )
 }
 
-export default page
+export default TransferRequests
