@@ -1,7 +1,7 @@
 import axiosClient from "./axiosClient";
 
 
-export const createTransferRequest = async (transferData) => {
+export const createTransferRequest = async (transferData, user) => {
   const response = await axiosClient.post("/transfers", transferData, {
     headers: {
       Authorization: `Bearer ${localStorage.getItem("token")}`,

@@ -56,8 +56,12 @@ const ViewOffice = () => {
     }
   }, [searchTerm, offices, user.role, user.officeId]);
 
-  const handleViewOffice = (officeId) => {
-    router.push(`/home/office?officeId=${officeId}`);
+  const handleViewOffice = (office) => {
+    if (office.officeType === "Educational" && office.schools?.length > 0) {
+      router.push(`/home/school-status?school=${office.schools[0]._id}`);
+    } else {
+      router.push(`/home/office?officeId=${office._id}`);
+    }
   };
 
   if (!zoneDetails)
@@ -116,7 +120,7 @@ const ViewOffice = () => {
                   </td>
                   <td className="px-6 py-4 text-sm text-gray-900">
                     <button
-                      onClick={() => handleViewOffice(office._id)}
+                      onClick={() => handleViewOffice(office)}
                       className="py-1 px-3 bg-primary text-white rounded-full font-medium text-xs hover:bg-blue-600 transition"
                     >
                       View

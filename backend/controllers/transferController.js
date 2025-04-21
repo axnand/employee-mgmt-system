@@ -39,6 +39,7 @@ export const createTransferRequest = async (req, res) => {
       transferOrderDate,
       transferOrder,
     } = req.body;
+    console.log("req.body", req.body);
 
     if (!employee || !fromOffice || !toOffice || !transferType || !transferDate) {
       return res.status(400).json({ message: "Missing required fields" });
@@ -68,7 +69,7 @@ export const createTransferRequest = async (req, res) => {
     ]);
 
     const userDetails = await User.findOne({ _id: req.body.user?.userId });
-        
+    
     await createLog({
       admin: userDetails?.userName || "System",
       role: userDetails?.role || "Unknown",
@@ -106,6 +107,7 @@ export const approveTransferRequest = async (req, res) => {
     ]);
     const description = `Transfer request for employee "${employee?.name}" (${employee?.employeeId}) has been ${action}ed. From "${from?.officeName}" to "${to?.officeName}".`;
     const userDetails = await User.findOne({ _id: req.body.user?.userId });
+    console.log("userDetails",userDetails);
         
     await createLog({
       admin: userDetails?.userName || "System",
