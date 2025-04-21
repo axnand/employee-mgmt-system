@@ -13,6 +13,7 @@ import districtRoutes from './routes/districtRoutes.js';
 import officeRoutes from './routes/officeRoutes.js';
 import userRoutes from './routes/userRoutes.js';
 import { errorHandler } from './middleware/errorMiddleware.js';
+import reportsRoute from './routes/reportsRoute.js';
 
 import cors from 'cors';
 
@@ -55,6 +56,7 @@ app.use("/api/postingHistory", postingHistoryRoutes);
 app.use("/api/districts", districtRoutes);
 app.use("/api/offices", officeRoutes);
 app.use('/api/users', userRoutes);
+app.use('/api/reports', reportsRoute);
 
 
 app.get("/", (req, res) => {

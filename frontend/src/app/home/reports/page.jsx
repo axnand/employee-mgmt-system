@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import * as XLSX from "xlsx";
 import { File } from "lucide-react";
 import { useUser } from "@/context/UserContext";
+import axiosClient from "@/api/axiosClient";
 
 export default function StaffStatementDownloadPage() {
 
@@ -20,21 +21,22 @@ const [reportType, setReportType] = useState(
 const [loadingZones, setLoadingZones] = useState(false);
 const [loadingSchools, setLoadingSchools] = useState(false);
 
-
+console.log("userROle", userRole);
 
 useEffect(() => {
-  if (userRole === "ceo" || userRole === "zeo") {
+  if ((userRole === "CEO" || userRole === "ZEO") && user) {
     fetchZones();
   }
-}, []);
+}, [userRole, user]);
+
 
 const fetchZones = async () => {
   try {
-    const response = await fetch("/api/zones");
-    const data = await response.json();
-    setZones(data.zones);
-    if (userRole === "zeo") {
-      const zone = data.zones.find((z) => z._id === user.zoneId);
+    const response = await axiosClient.get("/zones");
+    console.log("response", response);
+    setZones(response.data.zones);
+    if (userRole === "ZEO") {
+      const zone = response.data.zones.find((z) => z._id === user.zoneId);
       if (zone) {
         setSelectedZoneId(zone._id);
         fetchSchools(zone._id);
@@ -47,19 +49,21 @@ const fetchZones = async () => {
 
 const fetchSchools = async (zoneId) => {
   try {
-    const response = await fetch(`/api/zones/${zoneId}/schools`);
-    const data = await response.json();
-    setSchools(data);
+    const response = await axiosClient.get(`/schools/zone/${zoneId}`); // Use axiosClient here
+    setSchools(response.data); // Using axiosClient, response.data contains the data
+    console.log("response", response.data);
   } catch (error) {
     console.error("Failed to fetch schools", error);
   }
 };
+
 
 useEffect(() => {
   if (selectedZoneId) {
     fetchSchools(selectedZoneId);
   }
 }, [selectedZoneId]);
+
 
 const downloadExcel = (data, fileName) => {
   const worksheet = XLSX.utils.json_to_sheet(data);
@@ -75,27 +79,41 @@ const downloadExcel = (data, fileName) => {
 
 
 const handleDownload = async () => {
+  let url = "";
   if (reportType === "zones-schools") {
-    let url = "/api/reports/schools";
-    if (userRole === "zeo") url += `?zoneId=${user.zoneId}`;
-    if (userRole === "ceo" && selectedZoneId) url += `?zoneId=${selectedZoneId}`;
-
-    const response = await fetch(url);
-    const data = await response.json();
-    downloadExcel(data, "School_Report.xlsx");
+    url = `/reports/schools`; // Use relative path as axiosClient already has the base URL
+    if (userRole === "ZEO") url += `?zoneId=${user.zoneId}`;
+    if (userRole === "CEO" && selectedZoneId) url += `?zoneId=${selectedZoneId}`;
   }
 
   if (reportType === "school-employees") {
-    if (!selectedSchoolId) {
-      alert("Please select a school.");
-      return;
+    url = `/reports/employees`;
+    if (selectedSchoolId) {
+      url += `?schoolId=${selectedSchoolId}`;
+    } else if (selectedZoneId) {
+      url += `?zoneId=${selectedZoneId}`;
     }
+  }
 
-    const response = await fetch(`/api/reports/employees/${selectedSchoolId}`);
-    const data = await response.json();
-    downloadExcel(data, "School_Employees_Report.xlsx");
+  try {
+    const response = await axiosClient.get(url);
+    let rawData = response.data;
+
+    // 💡 Only transform employee data to include officeName
+    if (reportType === "school-employees") {
+      rawData = rawData.map(({ office, ...rest }) => ({
+        ...rest,
+        officeName: office?.officeName || "",
+      }));
+    }
+    const filename = reportType === "zones-schools" ? "Schools_Report.xlsx" : "Employees_Report.xlsx";
+    downloadExcel(rawData, filename); // You control Excel creation on client
+  } catch (error) {
+    console.error("Error downloading report", error);
   }
 };
+
+
 
 
 
@@ -121,8 +139,10 @@ const handleDownload = async () => {
               value={reportType}
               onChange={(e) => {
                 setReportType(e.target.value);
+                setSelectedZoneId("");
                 setSelectedSchoolId("");
               }}
+              
               
               className="block w-full border-gray-300 rounded-md py-2 border px-2 text-sm "
             >
@@ -132,19 +152,21 @@ const handleDownload = async () => {
             </select>
           </div>
           
-          {userRole === "CEO" && (
+          {/* Zone Selection */}
+{userRole === "CEO" && (
   <div className="flex-1 mb-6 w-1/3">
     <label className="block text-sm font-medium text-gray-700 mb-1">Select Zone:</label>
     <select
-      value={selectedZoneId}
+      value={selectedZoneId || "All Zones"} // If selectedZoneId is empty, set default to "All Zones"
       onChange={(e) => {
-        setSelectedZoneId(e.target.value);
-        setSelectedSchoolId("");
+        const selectedValue = e.target.value;
+        setSelectedZoneId(selectedValue === "All Zones" ? "" : selectedValue); // Set empty if "All Zones"
+        setSelectedSchoolId(""); // Reset school selection when zone changes
       }}
       className="block w-full border-gray-300 rounded-md py-2 border px-2 text-sm"
     >
-      <option value="">Select a Zone</option>
-      {zones.map((zone) => (
+      <option value="All Zones">All Zones</option>
+      {zones?.map((zone) => (
         <option key={zone._id} value={zone._id}>
           {zone.name}
         </option>
@@ -152,24 +174,29 @@ const handleDownload = async () => {
     </select>
   </div>
 )}
-          {reportType === "school-employees" && userRole !== "schoolAdmin" && (
-            <div className="flex-1 mb-6 w-1/3">
-              <label className="block text-sm font-medium text-gray-700 mb-1">Select School:</label>
-              <select
-                value={selectedSchoolId}
-                onChange={(e) => setSelectedSchoolId(e.target.value)}
-                className="block w-full border-gray-300 rounded-md py-2 border px-2 text-sm"
-              >
-                <option value="">Select a School</option>
-                {schools.map((school) => (
-                  <option key={school._id} value={school._id}>
-                  {school.schoolName} ({school._id})
-                </option>
-                
-                ))}
-              </select>
-            </div>
-          )}
+
+{/* School Selection */}
+{reportType === "school-employees" && userRole !== "schoolAdmin" && (
+  <div className="flex-1 mb-6 w-1/3">
+    <label className="block text-sm font-medium text-gray-700 mb-1">Select School:</label>
+    <select
+      value={selectedSchoolId || "All Schools"} // If selectedSchoolId is empty, set default to "All Schools"
+      onChange={(e) => {
+        const selectedValue = e.target.value;
+        setSelectedSchoolId(selectedValue === "All Schools" ? "" : selectedValue); // Set empty if "All Schools"
+      }}
+      className="block w-full border-gray-300 rounded-md py-2 border px-2 text-sm"
+    >
+      <option value="All Schools">All Schools</option>
+      {schools.map((school) => (
+        <option key={school._id} value={school._id}>
+          {school.office.officeName} ({school.udiseId})
+        </option>
+      ))}
+    </select>
+  </div>
+)}
+
 
          
           <button
