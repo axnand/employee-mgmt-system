@@ -66,8 +66,24 @@ export default function DashboardLayout({ children }) {
       },
       {
         title: "Transfers",
-        href: "/home/transfers",
         icon: <ArrowLeftRightIcon className=" h-5 w-5" />,
+        subNav: [
+          {
+            title: "Transfer Requests",
+            href: "/home/transfers/requests",
+            icon: <PlusCircleIcon className=" h-5 w-5" />,
+          },
+          {
+            title: "Outgoing Transfers",
+            href: "/home/transfers/outgoing",
+            icon: <Upload className=" h-5 w-5" />,
+          },
+          {
+            title: "Incoming Transfers",
+            href: "/home/transfers/incoming",
+            icon: <Download className=" h-5 w-5" />,
+          },
+        ],
       },
       {
         title: "Reports",
@@ -101,6 +117,22 @@ export default function DashboardLayout({ children }) {
         title: "School Status",
         href: "/home/school-status",
         icon: <School className=" h-5 w-5" />,
+      },
+      {
+        title: "Transfers",
+        icon: <ArrowLeftRightIcon className=" h-5 w-5" />,
+        subNav: [
+          {
+            title: "Outgoing Transfers",
+            href: "/home/transfers/outgoing",
+            icon: <Upload className=" h-5 w-5" />,
+          },
+          {
+            title: "Incoming Transfers",
+            href: "/home/transfers/incoming",
+            icon: <Download className=" h-5 w-5" />,
+          },
+        ],
       },
       {
         title: "Reports",
@@ -211,7 +243,7 @@ export default function DashboardLayout({ children }) {
     <div className="flex h-screen">
       {/* Sidebar */}
       <div
-        className={`bg-white shadow-lg text-gray-700 h-full py-4 transition-all duration-300 ${
+        className={`bg-white shadow-lg text-gray-700 h-full py-4 transition-all duration-300 overflow-auto ${
           sidebarOpen ? "w-72 px-6" : "w-16 pl-3 px-2"
         }`}
       >
@@ -226,7 +258,7 @@ export default function DashboardLayout({ children }) {
           <div className="flex flex-col justify-between text-sm h-full">
           <ul className="space-y-3">
   {navItems.map((item) =>
-    item.subNav && userRole === "schoolAdmin" ? ( // Only allow subNav for schoolAdmin
+    item.subNav ? (
       <li key={item.title}>
         <button
           className={`flex items-center w-full justify-between hover:text-white transition py-3 px-3 rounded-md font-medium hover:bg-[#377DFF] ${
@@ -251,7 +283,7 @@ export default function DashboardLayout({ children }) {
         </button>
         <div
           className="overflow-hidden transition-all duration-300"
-          style={{ maxHeight: transfersOpen ? "110px" : "0px" }}
+          style={{ maxHeight: transfersOpen ? "190px" : "0px" }}
         >
           <ul className={` my-2 gap-y-2 flex flex-col ${sidebarOpen?"pl-8":""}`}>
             {item.subNav.map((sub) => (
